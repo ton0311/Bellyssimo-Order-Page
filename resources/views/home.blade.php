@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en" style="">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="web_standard" name="shell-type">
+<title>Toño's Bellyssimo | Basta belly, diri mismo!</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4">
+</script>
+<style type="text/tailwindcss">
+@theme {
+  --color-tertiary: #3c2900;
+  --color-tertiary-fixed-dim: #f4be52;
+  --color-on-tertiary: #ffffff;
+  --color-on-error-container: #93000a;
+  --color-on-background: #221a16;
+  --color-on-secondary-fixed-variant: #773300;
+  --color-inverse-on-surface: #feede7;
+  --color-surface-container-lowest: #ffffff;
+  --color-primary-fixed: #ffdad4;
+  --color-primary-container: #7a241a;
+  --color-surface-container-highest: #efdfd8;
+  --color-tertiary-container: #583e00;
+  --color-error-container: #ffdad6;
+  --color-surface-container-low: #fff1eb;
+  --color-primary: #5b0d07;
+  --color-surface-bright: #fff8f6;
+  --color-outline-variant: #dcc0bc;
+  --color-on-tertiary-container: #daa73d;
+  --color-surface-dim: #e6d7d0;
+  --color-surface-variant: #efdfd8;
+  --color-error: #ba1a1a;
+  --color-on-primary: #ffffff;
+  --color-secondary-fixed: #ffdbca;
+  --color-on-tertiary-fixed-variant: #5d4200;
+  --color-on-secondary: #ffffff;
+  --color-on-surface: #221a16;
+  --color-on-primary-fixed: #410000;
+  --color-primary-fixed-dim: #ffb4a8;
+  --color-outline: #89726e;
+  --color-on-secondary-container: #6b2d00;
+  --color-on-error: #ffffff;
+  --color-on-secondary-fixed: #331200;
+  --color-secondary-fixed-dim: #ffb68e;
+  --color-surface-container: #fbebe4;
+  --color-on-tertiary-fixed: #271900;
+  --color-surface-tint: #9f3f33;
+  --color-inverse-primary: #ffb4a8;
+  --color-on-primary-container: #ff907f;
+  --color-secondary-container: #fc8e4c;
+  --color-surface: #fff8f6;
+  --color-background: #fff8f6;
+  --color-on-primary-fixed-variant: #80281e;
+  --color-on-surface-variant: #56423f;
+  --color-tertiary-fixed: #ffdea6;
+  --color-secondary: #9c4502;
+  --color-inverse-surface: #382e2a;
+  --color-surface-container-high: #f5e5de;
+
+  --radius: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2.5rem;
+  --spacing-space-2xl: 4rem;
+  --spacing-gutter: 1rem;
+  --spacing-gutter-md: 1.5rem;
+  --spacing-gutter-lg: 2rem;
+  --spacing-margin: 1rem;
+  --spacing-margin-md: 2rem;
+  --spacing-margin-lg: 3.5rem;
+
+  --font-body-lg: "Plus Jakarta Sans", sans-serif;
+  --font-body-md: "Plus Jakarta Sans", sans-serif;
+  --font-body-sm: "Plus Jakarta Sans", sans-serif;
+  --font-label-lg: "Plus Jakarta Sans", sans-serif;
+  --font-label-md: "Plus Jakarta Sans", sans-serif;
+  --font-label-sm: "Plus Jakarta Sans", sans-serif;
+  --font-title-md: "Plus Jakarta Sans", sans-serif;
+  --font-display-lg: "Epilogue", sans-serif;
+  --font-display-lg-mobile: "Epilogue", sans-serif;
+  --font-headline-lg: "Epilogue", sans-serif;
+  --font-headline-lg-mobile: "Epilogue", sans-serif;
+  --font-headline-md: "Epilogue", sans-serif;
+  --font-headline-sm: "Epilogue", sans-serif;
+  --font-price-lg: "Epilogue", sans-serif;
+  --font-price-md: "Epilogue", sans-serif;
+
+  --text-body-lg: 1rem;
+  --text-body-lg--line-height: 1.5rem;
+  --text-body-md: 0.875rem;
+  --text-body-md--line-height: 1.375rem;
+  --text-body-sm: 0.75rem;
+  --text-body-sm--line-height: 1.125rem;
+  --text-label-lg: 0.9375rem;
+  --text-label-lg--line-height: 1.25rem;
+  --text-label-md: 0.8125rem;
+  --text-label-md--line-height: 1.125rem;
+  --text-label-sm: 0.6875rem;
+  --text-label-sm--line-height: 0.875rem;
+  --text-title-md: 1.125rem;
+  --text-title-md--line-height: 1.625rem;
+  --text-display-lg: 3rem;
+  --text-display-lg--line-height: 3.5rem;
+  --text-display-lg-mobile: 2.125rem;
+  --text-display-lg-mobile--line-height: 2.625rem;
+  --text-headline-lg: 2rem;
+  --text-headline-lg--line-height: 2.5rem;
+  --text-headline-lg-mobile: 1.625rem;
+  --text-headline-lg-mobile--line-height: 2.125rem;
+  --text-headline-md: 1.5rem;
+  --text-headline-md--line-height: 2rem;
+  --text-headline-sm: 1.25rem;
+  --text-headline-sm--line-height: 1.75rem;
+  --text-price-lg: 1.75rem;
+  --text-price-lg--line-height: 2rem;
+  --text-price-md: 1.25rem;
+  --text-price-md--line-height: 1.5rem;
+}
+
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    overscroll-behavior: none;
+  }
+
+  main > :first-child {
+    margin-top: 0 !important;
+  }
+
+  main > :last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+</style>
+</head>
+<body id="top" class="bg-background font-body-md text-on-surface antialiased min-h-screen flex flex-col pb-16 selection:bg-secondary-fixed lg:pb-0 selection:text-on-secondary-fixed">
+<x-site-header active="home" />
+<main class="w-full pt-20 bg-surface flex-grow">
+<div class="flex flex-col w-full">
+<!-- HERO SECTION -->
+<section aria-label="Toño’s Bellyssimo hero" class="relative isolate min-h-[640px] w-full overflow-hidden bg-cover py-space-2xl md:min-h-[680px]" style="background-image: url('{{ asset('images/home-hero-filipino-v2.png') }}'); background-position: center right;">
+<div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-r from-[#210705]/85 via-[#2b0905]/40 to-transparent"></div>
+<div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-t from-[#210705]/70 via-transparent to-black/15"></div>
+<div aria-hidden="true" class="absolute -bottom-36 -left-24 -z-10 size-96 rounded-full bg-secondary/20 blur-3xl"></div>
+<div class="relative mx-auto flex min-h-[560px] max-w-7xl items-center px-gutter md:min-h-[600px] md:px-margin-md lg:px-margin-lg">
+<div class="flex w-full max-w-3xl flex-col space-y-space-md">
+<div class="inline-flex w-fit items-center gap-space-xs rounded-full border border-white/20 bg-tertiary-fixed/95 px-3 py-1.5 text-on-tertiary-fixed-variant shadow-lg backdrop-blur-sm">
+<span class="material-symbols-outlined text-[18px] text-secondary">local_fire_department</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-bold">Est. 2026 • Ozamiz City</span>
+</div>
+<div class="space-y-space-xs">
+<p class="font-headline-sm text-headline-sm font-bold tracking-tight text-tertiary-fixed-dim italic">
+              Basta belly, diri mismo!
+            </p>
+<h1 class="font-display-lg text-display-lg font-black leading-[1.08] tracking-tight text-white drop-shadow-lg">
+              Beautifully crispy, <br>
+<span class="text-tertiary-fixed-dim">dangerously juicy.</span>
+</h1>
+</div>
+<p class="font-body-lg text-body-lg max-w-2xl leading-relaxed text-white/85 drop-shadow-sm">Serving crispy and juicy lechon belly for barkada gatherings, family meals, and special celebrations in Ozamiz City, Misamis Occidental.</p>
+<!-- CTAs -->
+<div class="pt-space-xs flex flex-wrap items-center gap-space-sm sm:gap-space-md">
+<a class="group inline-flex items-center justify-center gap-2 rounded-lg bg-tertiary-fixed px-space-lg py-3.5 font-label-lg text-label-lg text-on-tertiary-fixed shadow-lg transition-all hover:bg-white active:scale-95" data-path="book-now" href="{{ route('order') }}">
+<span class="">Book Your Belly</span>
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+<a class="inline-flex items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/15 px-space-lg py-3.5 font-label-lg text-label-lg text-white shadow-lg backdrop-blur-md transition-all hover:bg-white hover:text-primary active:scale-95" href="{{ route('belly') }}">
+<span class="material-symbols-outlined text-[20px]">restaurant_menu</span>
+<span class="">View Packages</span>
+</a>
+</div>
+<!-- Trust Badges Bar -->
+<div aria-label="Bellyssimo quick facts" class="pt-space-md grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
+<div class="flex items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[18px]">scale</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">3 Belly Sizes</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">3kg, 4kg, 5kg</span>
+</div>
+</div>
+<div class="flex items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[18px]">groups</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">Serves 8–18</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Generous feast</span>
+</div>
+</div>
+<div class="flex items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[18px]">whatshot</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">Flavor Options</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Regular / Spicy</span>
+</div>
+</div>
+<div class="flex items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-tertiary-fixed-dim shrink-0">
+<span class="material-symbols-outlined text-[18px] text-tertiary">celebration</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">For Celebrations</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Fiesta-ready</span>
+</div>
+</div>
+</div>
+<div class="hidden w-fit items-center gap-1.5 rounded-full border border-white/20 bg-black/25 px-4 py-2 text-white shadow-lg backdrop-blur-md sm:flex">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span class="font-label-sm text-label-sm font-black uppercase">3 kg • 4 kg • 5 kg &nbsp;·&nbsp; Starts at ₱2,000</span>
+</div>
+</div>
+</div>
+</section>
+<!-- PACKAGES SECTION -->
+<section class="relative isolate w-full overflow-hidden bg-gradient-to-b from-surface via-[#fff3eb] to-surface-container-low py-space-2xl" id="packages">
+<div aria-hidden="true" class="absolute inset-0 -z-10 opacity-50" style="background-image: radial-gradient(circle at 8% 20%, rgba(244, 190, 82, 0.2) 0, transparent 24%), radial-gradient(circle at 92% 76%, rgba(122, 36, 26, 0.13) 0, transparent 28%);"></div>
+<span aria-hidden="true" class="material-symbols-outlined absolute -left-14 top-20 -z-10 rotate-12 text-[220px] text-secondary/5">eco</span>
+<span aria-hidden="true" class="material-symbols-outlined absolute -right-16 bottom-10 -z-10 -rotate-12 text-[240px] text-primary/5">eco</span>
+<div class="relative mx-auto max-w-7xl px-gutter md:px-margin-md lg:px-margin-lg">
+<!-- Section Header -->
+<div class="mx-auto mb-space-xl max-w-2xl space-y-space-xs text-center">
+<span class="font-label-sm text-label-sm text-secondary font-bold tracking-widest uppercase bg-surface-container-high px-3 py-1 rounded-full inline-block">
+          Three Bellyssimo Packages
+        </span>
+<h2 class="font-headline-lg text-headline-lg text-primary font-extrabold">
+          Choose Your Feast
+        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Choose the lechon belly size that fits your gathering, with clear pricing and serving estimates.</p>
+<div aria-hidden="true" class="mx-auto mt-3 flex w-fit items-center gap-2 text-secondary">
+<span class="h-px w-10 bg-secondary/40"></span>
+<span class="material-symbols-outlined text-[22px]">outdoor_grill</span>
+<span class="h-px w-10 bg-secondary/40"></span>
+</div>
+</div>
+<!-- 3 Packages Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter-md lg:gap-gutter-lg items-stretch">
+<!-- Package 1: 3kg -->
+<article class="group relative flex flex-col rounded-2xl border border-outline-variant/50 bg-surface-container-lowest p-space-lg shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+<div class="relative -mx-space-lg -mt-space-lg mb-space-md h-44 overflow-hidden rounded-t-2xl">
+<img alt="Bellyssimo Barkadahan 3 kg lechon belly sliced on banana leaves" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src="{{ asset('images/lechon-barkadahan-3kg.png') }}">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/70 via-transparent to-transparent"></div>
+<span class="absolute bottom-3 left-3 rounded-full border border-white/25 bg-primary/85 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white backdrop-blur-sm">3 kg • Barkada</span>
+</div>
+<div class="mb-space-md">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Barkada Gatherings</span>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold mt-1">The Bellyssimo Barkadahan</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Perfect for casual get-togethers and intimate family dining.</p>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low mb-space-md">
+<div class="flex items-baseline justify-between mb-2">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">3 kg</span>
+<span class="font-price-lg text-price-lg text-primary font-black">₱2,000</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px] text-secondary">people</span>
+<span class="">Good for ~8–10 people</span>
+</div>
+</div>
+<ul class="space-y-space-xs font-body-sm text-body-sm text-on-surface-variant mb-space-lg flex-grow">
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="">Crispy lechon belly roll</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="">3 kg package for barkada gatherings</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="">Good for approximately 8–10 people</span>
+</li>
+<li class="flex items-center gap-2">
+<span aria-label="Spicy" class="text-[18px] leading-none" role="img">🌶️</span>
+<span class="">Optional Spicy blend (+₱50)</span>
+</li>
+</ul>
+<a class="w-full py-3 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md font-bold text-center hover:bg-primary hover:text-on-primary transition-all" data-path="book-now" href="{{ route('order', ['package' => 'barkadahan']) }}">
+            Select Package
+          </a>
+</article>
+<!-- Package 2: 4kg (Balanced Family Choice) -->
+<article class="group relative flex flex-col rounded-2xl border-2 border-secondary/55 bg-surface-container-lowest p-space-lg shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl lg:-translate-y-2">
+<!-- Popular Badge -->
+<div class="absolute left-1/2 top-3 z-20 flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-tertiary-fixed px-4 py-1 text-on-tertiary-fixed shadow-md">
+<span class="material-symbols-outlined text-[16px]">stars</span>
+<span class="font-label-sm text-label-sm font-extrabold uppercase tracking-wide">Balanced Family Choice</span>
+</div>
+<div class="relative -mx-space-lg -mt-space-lg mb-space-md h-44 overflow-hidden rounded-t-2xl">
+<img alt="Bellyssimo Salo-Salo 4 kg lechon belly with visible aromatic filling" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src="{{ asset('images/lechon-salo-salo-4kg.png') }}">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/70 via-transparent to-transparent"></div>
+<span class="absolute bottom-3 left-3 rounded-full border border-white/25 bg-primary/85 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white backdrop-blur-sm">4 kg • Salo-Salo</span>
+</div>
+<div class="mb-space-md pt-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Family Gathering Size</span>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold mt-1">Bellyssimo Salo-Salo</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">The quintessential centerpiece for weekend reunions and Sunday feasts.</p>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container mb-space-md">
+<div class="flex items-baseline justify-between mb-2">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">4 kg</span>
+<span class="font-price-lg text-price-lg text-primary font-black">₱2,550</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[18px] text-secondary">groups</span>
+<span class="">Good for ~10–14 people</span>
+</div>
+</div>
+<ul class="space-y-space-xs font-body-sm text-body-sm text-on-surface-variant mb-space-lg flex-grow">
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="">Crispy lechon belly roll</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="">4 kg package for family gatherings</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="">Good for approximately 10–14 people</span>
+</li>
+<li class="flex items-center gap-2">
+<span aria-label="Spicy" class="text-[18px] leading-none" role="img">🌶️</span>
+<span class="">Optional Spicy blend (+₱50)</span>
+</li>
+</ul>
+<a class="w-full py-3 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold text-center shadow hover:bg-secondary transition-all" data-path="book-now" href="{{ route('order', ['package' => 'salo-salo']) }}">
+            Select Package
+          </a>
+</article>
+<!-- Package 3: 5kg -->
+<article class="group relative flex flex-col rounded-2xl border border-outline-variant/50 bg-surface-container-lowest p-space-lg shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+<div class="relative -mx-space-lg -mt-space-lg mb-space-md h-44 overflow-hidden rounded-t-2xl">
+<img alt="Bellyssimo Handaan 5 kg lechon belly feast with Filipino sides" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src="{{ asset('images/lechon-handaan-5kg.png') }}">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/70 via-transparent to-transparent"></div>
+<span class="absolute bottom-3 left-3 rounded-full border border-white/25 bg-primary/85 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white backdrop-blur-sm">5 kg • Handaan</span>
+</div>
+<div class="mb-space-md">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Fiesta &amp; Party Size</span>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold mt-1">Bellyssimo Handaan</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">A generous choice for birthdays, family gatherings, and special celebrations.</p>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low mb-space-md">
+<div class="flex items-baseline justify-between mb-2">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">5 kg</span>
+<span class="font-price-lg text-price-lg text-primary font-black">₱2,950</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px] text-secondary">diversity_3</span>
+<span class="">Good for ~15–18 people</span>
+</div>
+</div>
+<ul class="space-y-space-xs font-body-sm text-body-sm text-on-surface-variant mb-space-lg flex-grow">
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="">5 kg package for larger celebrations</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="">Good for approximately 15–18 people</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="">Reservation subject to confirmation</span>
+</li>
+<li class="flex items-center gap-2">
+<span aria-label="Spicy" class="text-[18px] leading-none" role="img">🌶️</span>
+<span class="">Optional Spicy blend (+₱50)</span>
+</li>
+</ul>
+<a class="w-full py-3 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md font-bold text-center hover:bg-primary hover:text-on-primary transition-all" data-path="book-now" href="{{ route('order', ['package' => 'handaan']) }}">
+            Select Package
+          </a>
+</article>
+</div>
+<!-- Note Banner -->
+<div class="mt-space-lg p-space-md rounded-xl bg-surface-container-high flex flex-col sm:flex-row items-center justify-between gap-space-sm text-center sm:text-left">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-on-secondary shrink-0">
+<span class="material-symbols-outlined text-[20px]">local_fire_department</span>
+</div>
+<div>
+<p class="font-label-lg text-label-lg text-on-surface font-bold">
+              Make any belly spicy for an additional ₱50!
+            </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Serving estimates may vary depending on portion size and other food served.
+            </p>
+</div>
+</div>
+<a class="px-4 py-2 rounded-lg bg-surface text-primary font-label-md text-label-md font-bold hover:bg-primary hover:text-on-primary transition-all shrink-0" data-path="book-now" href="{{ route('order') }}">
+          Book Custom Roll
+        </a>
+</div>
+</div>
+</section>
+<!-- OCCASION / SERVING SUGGESTIONS SECTION -->
+<section class="w-full py-space-2xl bg-surface-container-low">
+<div class="max-w-7xl mx-auto px-gutter md:px-margin-md lg:px-margin-lg">
+<div class="max-w-2xl mb-space-xl">
+<span class="font-label-sm text-label-sm text-secondary font-bold tracking-widest uppercase">
+          Festive Salo-Salo Moments
+        </span>
+<h2 class="font-headline-lg text-headline-lg text-primary font-black mt-1">
+          Made for Every Special Occasion in Ozamiz
+        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">
+          From heartfelt milestone birthdays to lively Sunday reunions, our crispy lechon belly is the showstopper every dining table deserves.
+        </p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter-md">
+<!-- Occasion 1 -->
+<div class="rounded-xl bg-surface p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+<div>
+<div class="w-12 h-12 rounded-lg bg-surface-container-high text-primary flex items-center justify-center mb-space-md group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[26px]">cake</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold mb-1">Birthdays &amp; Milestones</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Elevate anniversaries, debuts, and birthday handaans with the mouthwatering crunch of roasted pork belly.
+            </p>
+</div>
+<div class="pt-space-md flex items-center gap-1 text-secondary font-label-sm text-label-sm font-bold">
+<span class="">Recommended: 4kg or 5kg</span>
+</div>
+</div>
+<!-- Occasion 2 -->
+<div class="rounded-xl bg-surface p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+<div>
+<div class="w-12 h-12 rounded-lg bg-surface-container-high text-secondary flex items-center justify-center mb-space-md group-hover:bg-secondary group-hover:text-on-secondary transition-colors">
+<span class="material-symbols-outlined text-[26px]">family_restroom</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold mb-1">Family Sunday Salu-Salo</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Nothing gathers the lolo, lola, cousins, and kids faster than hot crackling paired with steamed white rice.
+            </p>
+</div>
+<div class="pt-space-md flex items-center gap-1 text-secondary font-label-sm text-label-sm font-bold">
+<span class="">Recommended: 3kg or 4kg</span>
+</div>
+</div>
+<!-- Occasion 3 -->
+<div class="rounded-xl bg-surface p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+<div>
+<div class="w-12 h-12 rounded-lg bg-surface-container-high text-primary flex items-center justify-center mb-space-md group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[26px]">sports_bar</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold mb-1">Barkada Nights &amp; Reunions</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              The premier pulutan and centerpiece dish for alumni homecomings, late-night chats, and weekend drinks.
+            </p>
+</div>
+<div class="pt-space-md flex items-center gap-1 text-secondary font-label-sm text-label-sm font-bold">
+<span class="">Try the Spicy Variant!</span>
+</div>
+</div>
+<!-- Occasion 4 -->
+<div class="rounded-xl bg-surface p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+<div>
+<div class="w-12 h-12 rounded-lg bg-surface-container-high text-tertiary flex items-center justify-center mb-space-md group-hover:bg-tertiary group-hover:text-on-tertiary transition-colors">
+<span class="material-symbols-outlined text-[26px]">festival</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold mb-1">Fiestas &amp; Office Celebrations</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Ozamiz patron fiestas, corporate milestones, and team wins made memorable with crisp lechon belly slabs.
+            </p>
+</div>
+<div class="pt-space-md flex items-center gap-1 text-secondary font-label-sm text-label-sm font-bold">
+<span class="">Recommended: 5kg Multiple Rolls</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3-STEP RESERVATION GUIDE -->
+<section id="how-to-book" class="w-full py-space-2xl bg-surface">
+<div class="max-w-7xl mx-auto px-gutter md:px-margin-md lg:px-margin-lg">
+<div class="text-center max-w-xl mx-auto mb-space-xl">
+<span class="font-label-sm text-label-sm text-secondary font-bold tracking-widest uppercase">
+          Easy Pre-Order Process
+        </span>
+<h2 class="font-headline-lg text-headline-lg text-primary font-black mt-1">
+          Simple 3-Step Reservation Guide
+        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">
+          Send your preferred date and time so our team can check availability for your celebration.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter-md relative">
+<!-- Step 1 -->
+<div class="p-space-lg rounded-xl bg-surface-container-low relative">
+<div class="flex items-center justify-between mb-space-md">
+<span class="w-10 h-10 rounded-full bg-primary text-on-primary font-headline-sm text-headline-sm font-bold flex items-center justify-center shadow-sm">
+              1
+            </span>
+<span class="material-symbols-outlined text-secondary text-[28px]">format_list_bulleted</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold mb-2">Choose Your Belly</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Pick from our 3kg, 4kg, or 5kg lechon belly packages. Choose Regular or add the Spicy option for ₱50.</p>
+</div>
+<!-- Step 2 -->
+<div class="p-space-lg rounded-xl bg-surface-container-low relative">
+<div class="flex items-center justify-between mb-space-md">
+<span class="w-10 h-10 rounded-full bg-secondary text-on-secondary font-headline-sm text-headline-sm font-bold flex items-center justify-center shadow-sm">
+              2
+            </span>
+<span class="material-symbols-outlined text-secondary text-[28px]">calendar_month</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold mb-2">Select Preferred Schedule</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Send your preferred date and time through the booking page, Facebook Messenger, or call 0976-2271-228.
+          </p>
+</div>
+<!-- Step 3 -->
+<div class="p-space-lg rounded-xl bg-surface-container-low relative">
+<div class="flex items-center justify-between mb-space-md">
+<span class="w-10 h-10 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-bold flex items-center justify-center shadow-sm">
+              3
+            </span>
+<span class="material-symbols-outlined text-primary text-[28px]">verified_user</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold mb-2">Wait for Confirmation</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Our team checks availability and contacts you directly to confirm your booking details.
+          </p>
+</div>
+</div>
+<!-- Critical Notice Callout -->
+<div class="mt-space-lg p-space-md rounded-xl bg-surface-container-highest flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[24px] shrink-0 mt-0.5">info</span>
+<div>
+<span class="font-label-md text-label-md text-primary font-bold">Booking Advisory</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            Please book at least 48 hours before your preferred pickup or delivery. Your reservation is subject to availability and is confirmed only after Toño’s Bellyssimo contacts you directly.
+          </p>
+</div>
+</div>
+</div>
+</section>
+<!-- OZAMIZ CITY LOCAL PRIDE & CONTACT BANNER -->
+<section id="contact" class="w-full py-space-2xl bg-surface-container-high relative overflow-hidden">
+<div class="max-w-7xl mx-auto px-gutter md:px-margin-md lg:px-margin-lg relative z-10">
+<div class="bg-surface rounded-2xl p-space-lg md:p-space-xl shadow-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-md items-center">
+<div class="lg:col-span-8 space-y-space-sm">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-secondary font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+              Ozamiz City, Misamis Occidental
+            </div>
+<h2 class="font-headline-lg text-headline-lg text-primary font-black">
+              Proudly Serving Ozamiz City, Misamis Occidental
+            </h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl leading-relaxed">
+              Planning a gathering in Ozamiz City? Message us about package sizes, the spicy option, or your preferred reservation schedule.
+            </p>
+<div class="pt-space-xs flex flex-wrap items-center gap-space-sm">
+<a class="inline-flex items-center gap-2 px-space-md py-3 rounded-lg bg-surface-container-highest text-on-surface font-label-md text-label-md font-bold hover:bg-secondary-fixed transition-colors" href="https://www.facebook.com/profile.php?id=61572029845712" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-secondary text-[20px]">chat</span>
+<span class="">Message Us on Facebook</span>
+</a>
+<a class="inline-flex items-center gap-2 px-space-md py-3 rounded-lg bg-surface-container-highest text-on-surface font-label-md text-label-md font-bold hover:bg-secondary-fixed transition-colors" href="tel:+639762271228">
+<span class="material-symbols-outlined text-secondary text-[20px]">call</span>
+<span>Call 0976-2271-228</span>
+</a>
+<a class="inline-flex items-center gap-2 px-space-md py-3 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold hover:bg-secondary transition-colors shadow-sm" data-path="book-now" href="{{ route('order') }}">
+<span class="material-symbols-outlined text-[20px]">event_available</span>
+<span class="">Book Now</span>
+</a>
+</div>
+</div>
+<!-- Quick Stat Badge / Map Callout -->
+<div class="lg:col-span-4 flex flex-col space-y-space-xs p-space-md rounded-xl bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Booking Details</span>
+<div class="flex items-center justify-between pt-1">
+<span class="font-body-sm text-body-sm text-on-surface">Choose a Package</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">3kg, 4kg, or 5kg</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-body-sm text-body-sm text-on-surface">Send Your Schedule</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">Subject to confirmation</span>
+</div>
+<div class="pt-2 text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant italic">
+                “Basta belly, diri mismo sa Toño’s Bellyssimo!”
+              </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<footer class="w-full bg-surface-container-high mt-auto">
+<div class="max-w-7xl mx-auto px-gutter md:px-margin-md lg:px-margin-lg pt-space-xl pb-space-lg">
+<div class="grid grid-cols-1 items-start gap-y-space-xl md:grid-cols-2 md:gap-x-gutter-lg lg:grid-cols-4 lg:gap-x-space-xl pb-space-lg">
+<div class="flex min-w-0 flex-col gap-space-sm">
+<div class="flex min-h-[1.75rem] items-center gap-space-sm">
+<span class="font-headline-md text-headline-md text-primary font-bold">Toño’s Bellyssimo</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed">“Beautifully crispy, dangerously juicy”</p>
+<p class="font-label-md text-label-md text-secondary font-semibold">Basta belly, diri mismo!</p>
+<span class="inline-flex w-fit items-center gap-1.5 rounded-full bg-surface-container px-3 py-1 font-label-sm text-label-sm text-on-surface">
+<span class="material-symbols-outlined text-[15px] text-secondary">pin_drop</span>Ozamiz City, Misamis Occidental</span>
+</div>
+<div class="flex min-w-0 flex-col gap-space-sm">
+<h3 class="flex min-h-[1.75rem] items-center font-title-md text-title-md text-on-surface">Fiesta Menu &amp; Info</h3>
+<ul class="flex flex-col gap-space-xs font-body-md text-body-md text-on-surface-variant">
+<li class="">
+<a class="hover:text-primary transition-colors" data-path="home" href="#top">Home Feast</a>
+</li>
+<li class="">
+<a class="hover:text-primary transition-colors" data-path="our-belly" href="{{ route('belly') }}">Our Roasted Lechon Belly</a>
+</li>
+<li class="">
+<a class="hover:text-primary transition-colors" data-path="book-now" href="{{ route('order') }}">Pre-order &amp; Celebrations</a>
+</li>
+<li class="">
+<a class="hover:text-primary transition-colors" data-path="about-faqs" href="{{ route('about') }}">Ozamiz Heritage &amp; FAQs</a>
+</li>
+<li class="">
+<a class="hover:text-primary transition-colors" data-path="contact" href="{{ route('about') }}#contact">Store Location &amp; Contact</a>
+</li>
+</ul>
+</div>
+<div class="flex min-w-0 flex-col gap-space-sm">
+<h3 class="flex min-h-[1.75rem] items-center font-title-md text-title-md text-on-surface">Booking Advisory</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">Please book at least 48 hours before pickup or delivery. Reservations are subject to availability and confirmed only after Toño’s Bellyssimo contacts you.</p>
+<div class="p-space-sm bg-surface rounded-lg">
+<p class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider mb-1">Reservation Requests</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Message us with your preferred date and time. We will confirm availability directly.</p>
+</div>
+</div>
+<div class="flex min-w-0 flex-col gap-space-sm">
+<h3 class="flex min-h-[1.75rem] items-center font-title-md text-title-md text-on-surface">Community</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Connect directly with our team in Ozamiz City:</p>
+<a class="inline-flex w-full items-center gap-2 rounded-lg bg-surface-container px-4 py-2.5 font-label-md text-label-md text-on-surface shadow-sm transition-all hover:bg-secondary-container hover:text-on-secondary-container" href="tel:+639762271228">
+<span class="material-symbols-outlined text-[18px] text-secondary">call</span>0976-2271-228</a>
+<a class="inline-flex w-full items-center gap-2 rounded-lg bg-surface-container px-4 py-2.5 font-label-md text-label-md text-on-surface shadow-sm transition-all hover:bg-secondary-container hover:text-on-secondary-container" href="https://www.facebook.com/profile.php?id=61572029845712" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[18px] text-secondary">chat</span>Message Us on Facebook</a>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Est. 2026 • Ozamiz City, Misamis Occidental, Philippines</p>
+</div>
+</div>
+<div class="flex flex-col items-center justify-between gap-space-sm border-t border-outline-variant/60 pt-space-md text-center font-body-sm text-body-sm text-on-surface-variant sm:flex-row sm:text-left">
+<p class="">© 2026 Toño’s Bellyssimo. All rights reserved.</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Made for celebrations in Ozamiz City.</p>
+</div>
+</div>
+</footer>
+<div class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-lg px-gutter py-space-sm flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
+<a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary" data-path="home" href="#top">
+<span class="material-symbols-outlined text-[20px]">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary" data-path="our-belly" href="{{ route('belly') }}">
+<span class="material-symbols-outlined text-[20px]">restaurant_menu</span>
+<span class="font-label-sm text-label-sm">Belly</span>
+</a>
+<a class="flex flex-col items-center gap-0.5 text-primary font-bold" data-path="book-now" href="{{ route('order') }}">
+<span class="material-symbols-outlined text-[20px]">event_available</span>
+<span class="font-label-sm text-label-sm">Book</span>
+</a>
+<a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary" data-path="contact" href="#contact">
+<span class="material-symbols-outlined text-[20px]">call</span>
+<span class="font-label-sm text-label-sm">Contact</span>
+</a>
+</div>
+
+</body>
+</html>

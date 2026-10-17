@@ -1,0 +1,7 @@
+:root {
+    color-scheme: dark;
+}
+
+::selection {
+    background: rgb(34 211 238 / 35%);
+}
