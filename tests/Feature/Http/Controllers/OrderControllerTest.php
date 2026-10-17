@@ -19,7 +19,7 @@ class OrderControllerTest extends TestCase
             ->assertViewIs('order')
             ->assertSee('Book Your Belly')
             ->assertSee('aria-label="Booking hero"', false)
-            ->assertSee(asset('css/site-v1.css'), false)
+            ->assertSee(asset('css/site-v2.css'), false)
             ->assertSee(asset('images/order-hero-filipino-v2-800.jpg'), false)
             ->assertSee(asset('images/order-hero-filipino-v2-1600.jpg'), false)
             ->assertSee('fetchpriority="high"', false)

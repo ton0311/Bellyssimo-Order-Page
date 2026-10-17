@@ -5,12 +5,8 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
 <meta content="web_standard" name="shell-type">
 <title>Toño's Bellyssimo | Basta belly, diri mismo!</title>
-<link href="https://fonts.googleapis.com" rel="preconnect">
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
-<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 <link rel="preload" as="image" href="{{ asset('images/home-hero-filipino-v2-800.jpg') }}" imagesrcset="{{ asset('images/home-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/home-hero-filipino-v2-1600.jpg') }} 1600w" imagesizes="100vw" fetchpriority="high">
-<link href="{{ asset('css/site-v1.css') }}" rel="stylesheet">
+<link href="{{ asset('css/site-v2.css') }}" rel="stylesheet">
 </head>
 <body id="top" class="min-h-screen overflow-x-hidden bg-background pb-16 font-body-md text-on-surface antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed lg:pb-0">
 <x-site-header active="home" />

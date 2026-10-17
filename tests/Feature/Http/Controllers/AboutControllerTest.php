@@ -15,7 +15,7 @@ class AboutControllerTest extends TestCase
             ->assertViewIs('about')
             ->assertSee('Beautifully crispy, dangerously juicy.')
             ->assertSee('established in 2026')
-            ->assertSee(asset('css/site-v1.css'), false)
+            ->assertSee(asset('css/site-v2.css'), false)
             ->assertSee(asset('images/about-belly-filipino-v2-800.jpg'), false)
             ->assertSee(asset('images/about-belly-filipino-v2-1600.jpg'), false)
             ->assertDontSee('@tailwindcss/browser', false)
