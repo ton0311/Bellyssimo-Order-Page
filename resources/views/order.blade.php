@@ -59,44 +59,18 @@
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-        @theme {
-            --color-cream: #fff8f6;
-            --color-paper: #fff1eb;
-            --color-blush: #f5e5de;
-            --color-wine: #5b0d07;
-            --color-wine-soft: #7a241a;
-            --color-rust: #9c4502;
-            --color-gold: #f4be52;
-            --color-ink: #221a16;
-            --color-muted: #6f5853;
-            --font-sans: "Plus Jakarta Sans", sans-serif;
-            --font-display: "Epilogue", sans-serif;
-        }
-
-        @layer base {
-            body { margin: 0; }
-            button, input, select, textarea { font: inherit; }
-        }
-
-        .package-card:has(input:checked) {
-            border-color: #9c4502;
-            box-shadow: 0 16px 40px rgba(91, 13, 7, 0.14);
-            transform: translateY(-4px);
-        }
-
-        .package-card:has(input:focus-visible) {
-            outline: 3px solid rgba(244, 190, 82, 0.65);
-            outline-offset: 3px;
-        }
-    </style>
+    <link rel="preload" as="image" href="{{ asset('images/order-hero-filipino-v2-800.jpg') }}" imagesrcset="{{ asset('images/order-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/order-hero-filipino-v2-1600.jpg') }} 1600w" imagesizes="100vw" fetchpriority="high">
+    <link href="{{ asset('css/site-v1.css') }}" rel="stylesheet">
 </head>
 <body class="min-h-screen bg-cream font-sans text-ink antialiased selection:bg-gold/60">
     <x-site-header active="order" />
 
     <main class="pt-20">
-        <section aria-label="Booking hero" class="relative isolate min-h-[520px] overflow-hidden bg-cover py-14 md:min-h-[580px] md:py-20" style="background-image: url('{{ asset('images/order-hero-filipino-v2.png') }}'); background-position: center right;">
+        <section aria-label="Booking hero" class="relative isolate min-h-[520px] overflow-hidden py-14 md:min-h-[580px] md:py-20">
+            <picture aria-hidden="true" class="absolute inset-0 -z-20 block">
+                <source media="(max-width: 767px)" srcset="{{ asset('images/order-hero-filipino-v2-800.jpg') }}">
+                <img src="{{ asset('images/order-hero-filipino-v2-1600.jpg') }}" srcset="{{ asset('images/order-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/order-hero-filipino-v2-1600.jpg') }} 1600w" sizes="100vw" width="1600" height="900" alt="" class="h-full w-full object-cover object-right" fetchpriority="high" decoding="async">
+            </picture>
             <div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-r from-[#210705]/85 via-[#2b0905]/40 to-transparent"></div>
             <div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-t from-[#210705]/70 via-transparent to-black/15"></div>
             <div aria-hidden="true" class="pointer-events-none absolute -bottom-32 -left-20 -z-10 size-80 rounded-full bg-rust/25 blur-3xl"></div>
@@ -133,7 +107,7 @@
             <div class="grid gap-6 lg:grid-cols-3">
                 <label class="package-card relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-lg shadow-wine/5 transition duration-300">
                     <input class="peer sr-only" type="radio" name="package-card" value="barkadahan" data-package-label="The Bellyssimo Barkadahan" data-price="2000" data-serves="8–10 pax" @checked($selectedPackage === 'barkadahan')>
-                    <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-barkadahan-3kg.png') }}" alt="The Bellyssimo Barkadahan lechon belly with three sliced portions showing lemongrass and spices">
+                    <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }}" srcset="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }} 480w, {{ asset('images/lechon-barkadahan-3kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="The Bellyssimo Barkadahan lechon belly with three sliced portions showing lemongrass and spices">
                     <span class="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-extrabold text-wine shadow">3 KG</span>
                     <span class="absolute right-4 top-4 hidden size-8 place-items-center rounded-full bg-rust text-white peer-checked:grid"><span aria-hidden="true" class="material-symbols-outlined text-lg">check</span></span>
                     <span class="flex flex-1 flex-col p-6">
@@ -150,7 +124,7 @@
                 <label class="package-card relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border-2 border-rust bg-white shadow-xl shadow-wine/10 transition duration-300 lg:-translate-y-2">
                     <input class="peer sr-only" type="radio" name="package-card" value="salo-salo" data-package-label="Bellyssimo Salo-Salo" data-price="2550" data-serves="10–14 pax" @checked($selectedPackage === 'salo-salo')>
                     <span class="absolute inset-x-0 top-0 z-10 bg-rust py-1.5 text-center text-[11px] font-extrabold uppercase tracking-widest text-white">Most popular</span>
-                    <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-salo-salo-4kg.png') }}" alt="Bellyssimo Salo-Salo lechon belly with four sliced portions showing lemongrass and spices">
+                    <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }}" srcset="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }} 480w, {{ asset('images/lechon-salo-salo-4kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="Bellyssimo Salo-Salo lechon belly with four sliced portions showing lemongrass and spices">
                     <span class="absolute left-4 top-10 rounded-full bg-white/95 px-3 py-1 text-xs font-extrabold text-wine shadow">4 KG</span>
                     <span class="absolute right-4 top-10 hidden size-8 place-items-center rounded-full bg-rust text-white peer-checked:grid"><span aria-hidden="true" class="material-symbols-outlined text-lg">check</span></span>
                     <span class="flex flex-1 flex-col p-6">
@@ -166,7 +140,7 @@
 
                 <label class="package-card relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-lg shadow-wine/5 transition duration-300">
                     <input class="peer sr-only" type="radio" name="package-card" value="handaan" data-package-label="Bellyssimo Handaan" data-price="2950" data-serves="15–18 pax" @checked($selectedPackage === 'handaan')>
-                    <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-handaan-5kg.png') }}" alt="Bellyssimo Handaan feast with five sliced lechon belly portions showing lemongrass and spices">
+                    <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-handaan-5kg-480.jpg') }}" srcset="{{ asset('images/lechon-handaan-5kg-480.jpg') }} 480w, {{ asset('images/lechon-handaan-5kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="Bellyssimo Handaan feast with five sliced lechon belly portions showing lemongrass and spices">
                     <span class="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-extrabold text-wine shadow">5 KG</span>
                     <span class="absolute right-4 top-4 hidden size-8 place-items-center rounded-full bg-rust text-white peer-checked:grid"><span aria-hidden="true" class="material-symbols-outlined text-lg">check</span></span>
                     <span class="flex flex-1 flex-col p-6">

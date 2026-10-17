@@ -15,7 +15,7 @@
     <header class="login-header">
         <a class="login-brand" href="{{ route('home') }}" aria-label="Toño's Bellyssimo home">
             <span class="login-brand-mark">
-                <img alt="Toño's Bellyssimo logo" src="https://lh3.googleusercontent.com/aida/AEtjO1UaB5kfvA2sjPfkufCC3fEXkVU86OTt4pT1ALwYaCG4QBXOZ63qZ2a7iicRYC1DHdZ5U5ovNBeMBwS-XDXdav3vvQnWtGv4WBNe5yhqwEtNbIuW8COPgszksf2ImLfHYP6yIQnsvwL0h9tw3DTUauPbgfNKl4JVldNwQrxIyiHD8QWOdIhy81lyPvZSkqL0HuApmHH0nHZr7p82lCfxdwkXgYnEWte5_QM0hCUFZ1Ucl4mAcN7DAJ-ORBgkUA9mRNUyNVgp9fAFigQ">
+                <img alt="Toño's Bellyssimo logo" src="{{ asset('images/bellyssimo-logo.png') }}" width="96" height="96" decoding="async">
             </span>
             <span><strong>Toño's Bellyssimo</strong><small>Basta belly, diri mismo!</small></span>
         </a>
@@ -38,7 +38,7 @@
                     <span><i class="material-symbols-rounded">inventory_2</i>Inventory</span>
                 </div>
                 <div class="photo-card">
-                    <img alt="Toño's Bellyssimo lechon belly served on banana leaves" src="{{ asset('images/home-hero-filipino-v2.png') }}">
+                    <img alt="Toño's Bellyssimo lechon belly served on banana leaves" src="{{ asset('images/home-hero-filipino-v2-1600.jpg') }}" width="1600" height="900" fetchpriority="high" decoding="async">
                     <span>Beautifully crispy, dangerously juicy.</span>
                 </div>
             </div>
@@ -49,7 +49,7 @@
                     <div class="card-accent"></div>
                     <div class="card-body">
                         <div class="mini-logo">
-                            <img alt="" src="https://lh3.googleusercontent.com/aida/AEtjO1UaB5kfvA2sjPfkufCC3fEXkVU86OTt4pT1ALwYaCG4QBXOZ63qZ2a7iicRYC1DHdZ5U5ovNBeMBwS-XDXdav3vvQnWtGv4WBNe5yhqwEtNbIuW8COPgszksf2ImLfHYP6yIQnsvwL0h9tw3DTUauPbgfNKl4JVldNwQrxIyiHD8QWOdIhy81lyPvZSkqL0HuApmHH0nHZr7p82lCfxdwkXgYnEWte5_QM0hCUFZ1Ucl4mAcN7DAJ-ORBgkUA9mRNUyNVgp9fAFigQ">
+                            <img alt="" src="{{ asset('images/bellyssimo-logo.png') }}" width="96" height="96" decoding="async">
                         </div>
                         <p class="card-kicker">Welcome back</p>
                         <h2 id="login-title">Sign in to your dashboard</h2>

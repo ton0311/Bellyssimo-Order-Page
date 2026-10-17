@@ -9,155 +9,19 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
 <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4">
-</script>
-<style type="text/tailwindcss">
-@theme {
-  --color-tertiary: #3c2900;
-  --color-tertiary-fixed-dim: #f4be52;
-  --color-on-tertiary: #ffffff;
-  --color-on-error-container: #93000a;
-  --color-on-background: #221a16;
-  --color-on-secondary-fixed-variant: #773300;
-  --color-inverse-on-surface: #feede7;
-  --color-surface-container-lowest: #ffffff;
-  --color-primary-fixed: #ffdad4;
-  --color-primary-container: #7a241a;
-  --color-surface-container-highest: #efdfd8;
-  --color-tertiary-container: #583e00;
-  --color-error-container: #ffdad6;
-  --color-surface-container-low: #fff1eb;
-  --color-primary: #5b0d07;
-  --color-surface-bright: #fff8f6;
-  --color-outline-variant: #dcc0bc;
-  --color-on-tertiary-container: #daa73d;
-  --color-surface-dim: #e6d7d0;
-  --color-surface-variant: #efdfd8;
-  --color-error: #ba1a1a;
-  --color-on-primary: #ffffff;
-  --color-secondary-fixed: #ffdbca;
-  --color-on-tertiary-fixed-variant: #5d4200;
-  --color-on-secondary: #ffffff;
-  --color-on-surface: #221a16;
-  --color-on-primary-fixed: #410000;
-  --color-primary-fixed-dim: #ffb4a8;
-  --color-outline: #89726e;
-  --color-on-secondary-container: #6b2d00;
-  --color-on-error: #ffffff;
-  --color-on-secondary-fixed: #331200;
-  --color-secondary-fixed-dim: #ffb68e;
-  --color-surface-container: #fbebe4;
-  --color-on-tertiary-fixed: #271900;
-  --color-surface-tint: #9f3f33;
-  --color-inverse-primary: #ffb4a8;
-  --color-on-primary-container: #ff907f;
-  --color-secondary-container: #fc8e4c;
-  --color-surface: #fff8f6;
-  --color-background: #fff8f6;
-  --color-on-primary-fixed-variant: #80281e;
-  --color-on-surface-variant: #56423f;
-  --color-tertiary-fixed: #ffdea6;
-  --color-secondary: #9c4502;
-  --color-inverse-surface: #382e2a;
-  --color-surface-container-high: #f5e5de;
-
-  --radius: 0.25rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
-
-  --spacing-space-xs: 0.25rem;
-  --spacing-space-sm: 0.5rem;
-  --spacing-space-md: 1rem;
-  --spacing-space-lg: 1.5rem;
-  --spacing-space-xl: 2.5rem;
-  --spacing-space-2xl: 4rem;
-  --spacing-gutter: 1rem;
-  --spacing-gutter-md: 1.5rem;
-  --spacing-gutter-lg: 2rem;
-  --spacing-margin: 1rem;
-  --spacing-margin-md: 2rem;
-  --spacing-margin-lg: 3.5rem;
-
-  --font-body-lg: "Plus Jakarta Sans", sans-serif;
-  --font-body-md: "Plus Jakarta Sans", sans-serif;
-  --font-body-sm: "Plus Jakarta Sans", sans-serif;
-  --font-label-lg: "Plus Jakarta Sans", sans-serif;
-  --font-label-md: "Plus Jakarta Sans", sans-serif;
-  --font-label-sm: "Plus Jakarta Sans", sans-serif;
-  --font-title-md: "Plus Jakarta Sans", sans-serif;
-  --font-display-lg: "Epilogue", sans-serif;
-  --font-display-lg-mobile: "Epilogue", sans-serif;
-  --font-headline-lg: "Epilogue", sans-serif;
-  --font-headline-lg-mobile: "Epilogue", sans-serif;
-  --font-headline-md: "Epilogue", sans-serif;
-  --font-headline-sm: "Epilogue", sans-serif;
-  --font-price-lg: "Epilogue", sans-serif;
-  --font-price-md: "Epilogue", sans-serif;
-
-  --text-body-lg: 1rem;
-  --text-body-lg--line-height: 1.5rem;
-  --text-body-md: 0.875rem;
-  --text-body-md--line-height: 1.375rem;
-  --text-body-sm: 0.75rem;
-  --text-body-sm--line-height: 1.125rem;
-  --text-label-lg: 0.9375rem;
-  --text-label-lg--line-height: 1.25rem;
-  --text-label-md: 0.8125rem;
-  --text-label-md--line-height: 1.125rem;
-  --text-label-sm: 0.6875rem;
-  --text-label-sm--line-height: 0.875rem;
-  --text-title-md: 1.125rem;
-  --text-title-md--line-height: 1.625rem;
-  --text-display-lg: 3rem;
-  --text-display-lg--line-height: 3.5rem;
-  --text-display-lg-mobile: 2.125rem;
-  --text-display-lg-mobile--line-height: 2.625rem;
-  --text-headline-lg: 2rem;
-  --text-headline-lg--line-height: 2.5rem;
-  --text-headline-lg-mobile: 1.625rem;
-  --text-headline-lg-mobile--line-height: 2.125rem;
-  --text-headline-md: 1.5rem;
-  --text-headline-md--line-height: 2rem;
-  --text-headline-sm: 1.25rem;
-  --text-headline-sm--line-height: 1.75rem;
-  --text-price-lg: 1.75rem;
-  --text-price-lg--line-height: 2rem;
-  --text-price-md: 1.25rem;
-  --text-price-md--line-height: 1.5rem;
-}
-
-@layer base {
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-  }
-
-  body {
-    overscroll-behavior: none;
-  }
-
-  main > :first-child {
-    margin-top: 0 !important;
-  }
-
-  main > :last-child {
-    margin-bottom: 0 !important;
-  }
-}
-
-::-webkit-scrollbar {
-  display: none;
-}
-</style>
+<link rel="preload" as="image" href="{{ asset('images/home-hero-filipino-v2-800.jpg') }}" imagesrcset="{{ asset('images/home-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/home-hero-filipino-v2-1600.jpg') }} 1600w" imagesizes="100vw" fetchpriority="high">
+<link href="{{ asset('css/site-v1.css') }}" rel="stylesheet">
 </head>
-<body id="top" class="bg-background font-body-md text-on-surface antialiased min-h-screen flex flex-col pb-16 selection:bg-secondary-fixed lg:pb-0 selection:text-on-secondary-fixed">
+<body id="top" class="min-h-screen overflow-x-hidden bg-background pb-16 font-body-md text-on-surface antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed lg:pb-0">
 <x-site-header active="home" />
 <main class="w-full pt-20 bg-surface flex-grow">
 <div class="flex flex-col w-full">
 <!-- HERO SECTION -->
-<section aria-label="Toño’s Bellyssimo hero" class="relative isolate min-h-[640px] w-full overflow-hidden bg-cover py-space-2xl md:min-h-[680px]" style="background-image: url('{{ asset('images/home-hero-filipino-v2.png') }}'); background-position: center right;">
+<section aria-label="Toño’s Bellyssimo hero" class="relative isolate min-h-[640px] w-full overflow-hidden py-space-2xl md:min-h-[680px]">
+<picture aria-hidden="true" class="absolute inset-0 -z-20 block">
+<source media="(max-width: 767px)" srcset="{{ asset('images/home-hero-filipino-v2-800.jpg') }}">
+<img src="{{ asset('images/home-hero-filipino-v2-1600.jpg') }}" srcset="{{ asset('images/home-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/home-hero-filipino-v2-1600.jpg') }} 1600w" sizes="100vw" width="1600" height="900" alt="" class="h-full w-full object-cover object-right" fetchpriority="high" decoding="async">
+</picture>
 <div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-r from-[#210705]/85 via-[#2b0905]/40 to-transparent"></div>
 <div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-t from-[#210705]/70 via-transparent to-black/15"></div>
 <div aria-hidden="true" class="absolute -bottom-36 -left-24 -z-10 size-96 rounded-full bg-secondary/20 blur-3xl"></div>
@@ -171,26 +35,26 @@
 <p class="font-headline-sm text-headline-sm font-bold tracking-tight text-tertiary-fixed-dim italic">
               Basta belly, diri mismo!
             </p>
-<h1 class="font-display-lg text-display-lg font-black leading-[1.08] tracking-tight text-white drop-shadow-lg">
+<h1 class="font-display-lg text-display-lg-mobile font-black leading-[1.08] tracking-tight text-white drop-shadow-lg md:text-display-lg">
               Beautifully crispy, <br>
 <span class="text-tertiary-fixed-dim">dangerously juicy.</span>
 </h1>
 </div>
 <p class="font-body-lg text-body-lg max-w-2xl leading-relaxed text-white/85 drop-shadow-sm">Serving crispy and juicy lechon belly for barkada gatherings, family meals, and special celebrations in Ozamiz City, Misamis Occidental.</p>
 <!-- CTAs -->
-<div class="pt-space-xs flex flex-wrap items-center gap-space-sm sm:gap-space-md">
-<a class="group inline-flex items-center justify-center gap-2 rounded-lg bg-tertiary-fixed px-space-lg py-3.5 font-label-lg text-label-lg text-on-tertiary-fixed shadow-lg transition-all hover:bg-white active:scale-95" data-path="book-now" href="{{ route('order') }}">
+<div class="grid grid-cols-1 gap-space-sm pt-space-xs sm:flex sm:flex-wrap sm:items-center sm:gap-space-md">
+<a class="group inline-flex min-w-0 items-center justify-center gap-2 rounded-lg bg-tertiary-fixed px-space-lg py-3.5 font-label-lg text-label-lg text-on-tertiary-fixed shadow-lg transition-all hover:bg-white active:scale-95" data-path="book-now" href="{{ route('order') }}">
 <span class="">Book Your Belly</span>
 <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
 </a>
-<a class="inline-flex items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/15 px-space-lg py-3.5 font-label-lg text-label-lg text-white shadow-lg backdrop-blur-md transition-all hover:bg-white hover:text-primary active:scale-95" href="{{ route('belly') }}">
+<a class="inline-flex min-w-0 items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/15 px-space-lg py-3.5 font-label-lg text-label-lg text-white shadow-lg backdrop-blur-md transition-all hover:bg-white hover:text-primary active:scale-95" href="{{ route('belly') }}">
 <span class="material-symbols-outlined text-[20px]">restaurant_menu</span>
 <span class="">View Packages</span>
 </a>
 </div>
 <!-- Trust Badges Bar -->
 <div aria-label="Bellyssimo quick facts" class="pt-space-md grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
-<div class="flex items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
+<div class="flex min-w-0 items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
 <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
 <span class="material-symbols-outlined text-[18px]">scale</span>
 </div>
@@ -199,7 +63,7 @@
 <span class="font-body-sm text-body-sm text-on-surface-variant">3kg, 4kg, 5kg</span>
 </div>
 </div>
-<div class="flex items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
+<div class="flex min-w-0 items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
 <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-secondary shrink-0">
 <span class="material-symbols-outlined text-[18px]">groups</span>
 </div>
@@ -208,7 +72,7 @@
 <span class="font-body-sm text-body-sm text-on-surface-variant">Generous feast</span>
 </div>
 </div>
-<div class="flex items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
+<div class="flex min-w-0 items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
 <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
 <span class="material-symbols-outlined text-[18px]">whatshot</span>
 </div>
@@ -217,7 +81,7 @@
 <span class="font-body-sm text-body-sm text-on-surface-variant">Regular / Spicy</span>
 </div>
 </div>
-<div class="flex items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
+<div class="flex min-w-0 items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
 <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-tertiary-fixed-dim shrink-0">
 <span class="material-symbols-outlined text-[18px] text-tertiary">celebration</span>
 </div>
@@ -260,7 +124,7 @@
 <!-- Package 1: 3kg -->
 <article class="group relative flex flex-col rounded-2xl border border-outline-variant/50 bg-surface-container-lowest p-space-lg shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
 <div class="relative -mx-space-lg -mt-space-lg mb-space-md h-44 overflow-hidden rounded-t-2xl">
-<img alt="Bellyssimo Barkadahan 3 kg lechon belly sliced on banana leaves" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src="{{ asset('images/lechon-barkadahan-3kg.png') }}">
+<img alt="Bellyssimo Barkadahan 3 kg lechon belly sliced on banana leaves" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }}" srcset="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }} 480w, {{ asset('images/lechon-barkadahan-3kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async">
 <div class="absolute inset-0 bg-gradient-to-t from-primary/70 via-transparent to-transparent"></div>
 <span class="absolute bottom-3 left-3 rounded-full border border-white/25 bg-primary/85 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white backdrop-blur-sm">3 kg • Barkada</span>
 </div>
@@ -309,7 +173,7 @@
 <span class="font-label-sm text-label-sm font-extrabold uppercase tracking-wide">Balanced Family Choice</span>
 </div>
 <div class="relative -mx-space-lg -mt-space-lg mb-space-md h-44 overflow-hidden rounded-t-2xl">
-<img alt="Bellyssimo Salo-Salo 4 kg lechon belly with visible aromatic filling" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src="{{ asset('images/lechon-salo-salo-4kg.png') }}">
+<img alt="Bellyssimo Salo-Salo 4 kg lechon belly with visible aromatic filling" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }}" srcset="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }} 480w, {{ asset('images/lechon-salo-salo-4kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async">
 <div class="absolute inset-0 bg-gradient-to-t from-primary/70 via-transparent to-transparent"></div>
 <span class="absolute bottom-3 left-3 rounded-full border border-white/25 bg-primary/85 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white backdrop-blur-sm">4 kg • Salo-Salo</span>
 </div>
@@ -353,7 +217,7 @@
 <!-- Package 3: 5kg -->
 <article class="group relative flex flex-col rounded-2xl border border-outline-variant/50 bg-surface-container-lowest p-space-lg shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
 <div class="relative -mx-space-lg -mt-space-lg mb-space-md h-44 overflow-hidden rounded-t-2xl">
-<img alt="Bellyssimo Handaan 5 kg lechon belly feast with Filipino sides" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src="{{ asset('images/lechon-handaan-5kg.png') }}">
+<img alt="Bellyssimo Handaan 5 kg lechon belly feast with Filipino sides" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src="{{ asset('images/lechon-handaan-5kg-480.jpg') }}" srcset="{{ asset('images/lechon-handaan-5kg-480.jpg') }} 480w, {{ asset('images/lechon-handaan-5kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async">
 <div class="absolute inset-0 bg-gradient-to-t from-primary/70 via-transparent to-transparent"></div>
 <span class="absolute bottom-3 left-3 rounded-full border border-white/25 bg-primary/85 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white backdrop-blur-sm">5 kg • Handaan</span>
 </div>

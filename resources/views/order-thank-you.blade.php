@@ -13,28 +13,7 @@
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-        @theme {
-            --color-cream: #fff8f6;
-            --color-paper: #fff1eb;
-            --color-blush: #f5e5de;
-            --color-wine: #5b0d07;
-            --color-wine-soft: #7a241a;
-            --color-rust: #9c4502;
-            --color-gold: #f4be52;
-            --color-ink: #221a16;
-            --color-muted: #6f5853;
-            --font-sans: "Plus Jakarta Sans", sans-serif;
-            --font-display: "Epilogue", sans-serif;
-        }
-
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; }
-            main { padding-top: 0 !important; }
-        }
-    </style>
+    <link href="{{ asset('css/site-v1.css') }}" rel="stylesheet">
 </head>
 <body class="min-h-screen bg-cream font-sans text-ink antialiased selection:bg-gold/60">
     <div class="no-print">

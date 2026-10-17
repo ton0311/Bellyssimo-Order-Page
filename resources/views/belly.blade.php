@@ -9,32 +9,18 @@
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-        @theme {
-            --color-cream: #fff8f6;
-            --color-paper: #fff1eb;
-            --color-blush: #f5e5de;
-            --color-wine: #5b0d07;
-            --color-wine-soft: #7a241a;
-            --color-rust: #9c4502;
-            --color-gold: #f4be52;
-            --color-ink: #221a16;
-            --color-muted: #6f5853;
-            --font-sans: "Plus Jakarta Sans", sans-serif;
-            --font-display: "Epilogue", sans-serif;
-        }
-
-        @layer base {
-            body { margin: 0; }
-        }
-    </style>
+    <link rel="preload" as="image" href="{{ asset('images/our-belly-hero-v3-800.jpg') }}" imagesrcset="{{ asset('images/our-belly-hero-v3-800.jpg') }} 800w, {{ asset('images/our-belly-hero-v3-1600.jpg') }} 1600w" imagesizes="100vw" fetchpriority="high">
+    <link href="{{ asset('css/site-v1.css') }}" rel="stylesheet">
 </head>
 <body id="top" class="min-h-screen bg-cream pb-16 font-sans text-ink antialiased selection:bg-gold/60 lg:pb-0">
     <x-site-header active="belly" />
 
     <main class="pt-20">
-        <section aria-label="Our Belly hero" class="relative isolate min-h-[560px] overflow-hidden bg-cover bg-center py-14 md:min-h-[620px] md:py-20" style="background-image: url('{{ asset('images/our-belly-hero-v3.png') }}');">
+        <section aria-label="Our Belly hero" class="relative isolate min-h-[560px] overflow-hidden py-14 md:min-h-[620px] md:py-20">
+            <picture aria-hidden="true" class="absolute inset-0 -z-20 block">
+                <source media="(max-width: 767px)" srcset="{{ asset('images/our-belly-hero-v3-800.jpg') }}">
+                <img src="{{ asset('images/our-belly-hero-v3-1600.jpg') }}" srcset="{{ asset('images/our-belly-hero-v3-800.jpg') }} 800w, {{ asset('images/our-belly-hero-v3-1600.jpg') }} 1600w" sizes="100vw" width="1600" height="900" alt="" class="h-full w-full object-cover object-center" fetchpriority="high" decoding="async">
+            </picture>
             <div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-r from-[#230704]/95 via-[#45120c]/76 to-black/20"></div>
             <div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-t from-[#210705]/75 via-transparent to-black/20"></div>
             <div aria-hidden="true" class="pointer-events-none absolute -bottom-32 -left-20 -z-10 size-80 rounded-full bg-rust/25 blur-3xl"></div>
@@ -77,7 +63,7 @@
             <div class="grid gap-6 lg:grid-cols-3">
                 <article class="flex flex-col overflow-hidden rounded-2xl bg-white shadow-xl shadow-wine/5">
                     <div class="relative">
-                        <img class="h-60 w-full object-cover" src="{{ asset('images/lechon-barkadahan-3kg.png') }}" alt="The Bellyssimo Barkadahan with three sliced portions showing lemongrass and spices">
+                        <img class="h-60 w-full object-cover" src="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }}" srcset="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }} 480w, {{ asset('images/lechon-barkadahan-3kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="The Bellyssimo Barkadahan with three sliced portions showing lemongrass and spices">
                         <span class="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-extrabold text-wine shadow">3 KG ROASTED ROLL</span>
                         <span class="absolute bottom-4 right-4 rounded-full bg-wine px-3 py-1.5 text-xs font-bold text-white shadow">8–10 PAX</span>
                     </div>
@@ -100,7 +86,7 @@
                 <article class="relative flex flex-col overflow-hidden rounded-2xl border-2 border-rust bg-white shadow-2xl shadow-wine/10 lg:-translate-y-2">
                     <div class="bg-rust py-1.5 text-center text-[11px] font-extrabold uppercase tracking-widest text-white">Most Popular • Family Feast Favorite</div>
                     <div class="relative">
-                        <img class="h-60 w-full object-cover" src="{{ asset('images/lechon-salo-salo-4kg.png') }}" alt="Bellyssimo Salo-Salo with four sliced portions showing lemongrass and spices">
+                        <img class="h-60 w-full object-cover" src="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }}" srcset="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }} 480w, {{ asset('images/lechon-salo-salo-4kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="Bellyssimo Salo-Salo with four sliced portions showing lemongrass and spices">
                         <span class="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-extrabold text-wine shadow">4 KG SIGNATURE FEAST</span>
                         <span class="absolute bottom-4 right-4 rounded-full bg-rust px-3 py-1.5 text-xs font-bold text-white shadow">10–14 PAX</span>
                     </div>
@@ -122,7 +108,7 @@
 
                 <article class="flex flex-col overflow-hidden rounded-2xl bg-white shadow-xl shadow-wine/5">
                     <div class="relative">
-                        <img class="h-60 w-full object-cover" src="{{ asset('images/lechon-handaan-5kg.png') }}" alt="Bellyssimo Handaan feast with five sliced portions showing lemongrass and spices">
+                        <img class="h-60 w-full object-cover" src="{{ asset('images/lechon-handaan-5kg-480.jpg') }}" srcset="{{ asset('images/lechon-handaan-5kg-480.jpg') }} 480w, {{ asset('images/lechon-handaan-5kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="Bellyssimo Handaan feast with five sliced portions showing lemongrass and spices">
                         <span class="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-extrabold text-wine shadow">5 KG GRAND SIZE</span>
                         <span class="absolute bottom-4 right-4 rounded-full bg-wine px-3 py-1.5 text-xs font-bold text-white shadow">15–18 PAX</span>
                     </div>

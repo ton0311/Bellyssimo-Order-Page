@@ -9,28 +9,7 @@
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-        @theme {
-            --color-cream: #fff8f6;
-            --color-paper: #fff1eb;
-            --color-blush: #f5e5de;
-            --color-wine: #5b0d07;
-            --color-wine-soft: #7a241a;
-            --color-rust: #9c4502;
-            --color-gold: #f4be52;
-            --color-ink: #221a16;
-            --color-muted: #6f5853;
-            --font-sans: "Plus Jakarta Sans", sans-serif;
-            --font-display: "Epilogue", sans-serif;
-        }
-
-        @layer base {
-            body { margin: 0; }
-            summary { list-style: none; }
-            summary::-webkit-details-marker { display: none; }
-        }
-    </style>
+    <link href="{{ asset('css/site-v1.css') }}" rel="stylesheet">
 </head>
 <body class="min-h-screen bg-cream pb-20 font-sans text-ink antialiased selection:bg-gold/60 lg:pb-0">
     <x-site-header active="about" />
@@ -97,7 +76,7 @@
 
                 <div class="lg:col-span-6">
                     <div class="relative overflow-hidden rounded-3xl border-8 border-white bg-wine shadow-2xl shadow-wine/15">
-                        <img class="h-[420px] w-full object-cover object-center" src="{{ asset('images/about-belly-filipino-v2.png') }}" alt="Toño’s Bellyssimo lechon belly presented in a Filipino salo-salo setting with banana leaves, sawsawan, and capiz lighting">
+                        <img class="h-[420px] w-full object-cover object-center" src="{{ asset('images/about-belly-filipino-v2-800.jpg') }}" srcset="{{ asset('images/about-belly-filipino-v2-800.jpg') }} 800w, {{ asset('images/about-belly-filipino-v2-1600.jpg') }} 1600w" sizes="(min-width: 1024px) 50vw, 100vw" width="1600" height="900" loading="lazy" decoding="async" alt="Toño’s Bellyssimo lechon belly presented in a Filipino salo-salo setting with banana leaves, sawsawan, and capiz lighting">
                         <div class="absolute inset-x-4 bottom-4 flex flex-wrap items-end justify-between gap-3 rounded-2xl bg-cream/95 p-4 shadow-lg backdrop-blur">
                             <div>
                                 <span class="rounded-full bg-gold/50 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-rust">Toño’s Signature Belly</span>
@@ -123,7 +102,7 @@
 
                 <div class="mt-9 grid gap-5 md:grid-cols-3">
                     <article class="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm">
-                        <img class="h-40 w-full object-cover" src="{{ asset('images/lechon-barkadahan-3kg.png') }}" alt="The Bellyssimo Barkadahan 3 kg lechon belly">
+                        <img class="h-40 w-full object-cover" src="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }}" srcset="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }} 480w, {{ asset('images/lechon-barkadahan-3kg-960.jpg') }} 960w" sizes="(min-width: 768px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="The Bellyssimo Barkadahan 3 kg lechon belly">
                         <div class="flex flex-1 flex-col p-5">
                             <div class="flex items-center justify-between gap-3"><span class="rounded-full bg-blush px-3 py-1 text-xs font-bold text-wine">Barkada Choice</span><span class="font-display text-xl font-extrabold text-rust">3 kg</span></div>
                             <h3 class="mt-4 font-display text-xl font-extrabold text-wine">The Bellyssimo Barkadahan</h3>
@@ -134,7 +113,7 @@
 
                     <article class="relative flex flex-col overflow-hidden rounded-2xl border-2 border-rust bg-white shadow-lg md:-translate-y-2">
                         <span class="absolute inset-x-0 top-0 z-10 bg-rust py-1.5 text-center text-[11px] font-extrabold uppercase tracking-widest text-white">Most Popular</span>
-                        <img class="h-40 w-full object-cover" src="{{ asset('images/lechon-salo-salo-4kg.png') }}" alt="Bellyssimo Salo-Salo 4 kg lechon belly">
+                        <img class="h-40 w-full object-cover" src="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }}" srcset="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }} 480w, {{ asset('images/lechon-salo-salo-4kg-960.jpg') }} 960w" sizes="(min-width: 768px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="Bellyssimo Salo-Salo 4 kg lechon belly">
                         <div class="flex flex-1 flex-col p-5">
                             <div class="flex items-center justify-between gap-3"><span class="rounded-full bg-gold/35 px-3 py-1 text-xs font-bold text-rust">Family Favorite</span><span class="font-display text-xl font-extrabold text-rust">4 kg</span></div>
                             <h3 class="mt-4 font-display text-xl font-extrabold text-wine">Bellyssimo Salo-Salo</h3>
@@ -144,7 +123,7 @@
                     </article>
 
                     <article class="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm">
-                        <img class="h-40 w-full object-cover" src="{{ asset('images/lechon-handaan-5kg.png') }}" alt="Bellyssimo Handaan 5 kg lechon belly">
+                        <img class="h-40 w-full object-cover" src="{{ asset('images/lechon-handaan-5kg-480.jpg') }}" srcset="{{ asset('images/lechon-handaan-5kg-480.jpg') }} 480w, {{ asset('images/lechon-handaan-5kg-960.jpg') }} 960w" sizes="(min-width: 768px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="Bellyssimo Handaan 5 kg lechon belly">
                         <div class="flex flex-1 flex-col p-5">
                             <div class="flex items-center justify-between gap-3"><span class="rounded-full bg-blush px-3 py-1 text-xs font-bold text-wine">Grand Fiesta</span><span class="font-display text-xl font-extrabold text-rust">5 kg</span></div>
                             <h3 class="mt-4 font-display text-xl font-extrabold text-wine">Bellyssimo Handaan</h3>

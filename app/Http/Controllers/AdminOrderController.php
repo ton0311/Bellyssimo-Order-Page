@@ -22,19 +22,19 @@ class AdminOrderController extends Controller
             'name' => 'The Bellyssimo Barkadahan',
             'weight' => '3 kg',
             'price' => 2000,
-            'image' => 'images/lechon-barkadahan-3kg.png',
+            'image' => 'images/lechon-barkadahan-3kg-480.jpg',
         ],
         'salo-salo' => [
             'name' => 'Bellyssimo Salo-Salo',
             'weight' => '4 kg',
             'price' => 2550,
-            'image' => 'images/lechon-salo-salo-4kg.png',
+            'image' => 'images/lechon-salo-salo-4kg-480.jpg',
         ],
         'handaan' => [
             'name' => 'Bellyssimo Handaan',
             'weight' => '5 kg',
             'price' => 2950,
-            'image' => 'images/lechon-handaan-5kg.png',
+            'image' => 'images/lechon-handaan-5kg-480.jpg',
         ],
     ];
 

@@ -16,7 +16,7 @@
     <aside class="sidebar" id="sidebar" aria-label="Admin navigation">
         <div>
             <a class="brand" href="{{ route('admin.dashboard') }}" aria-label="Toño's Bellyssimo admin home">
-                <span class="brand-mark" aria-hidden="true"><img alt="" src="https://lh3.googleusercontent.com/aida/AEtjO1UaB5kfvA2sjPfkufCC3fEXkVU86OTt4pT1ALwYaCG4QBXOZ63qZ2a7iicRYC1DHdZ5U5ovNBeMBwS-XDXdav3vvQnWtGv4WBNe5yhqwEtNbIuW8COPgszksf2ImLfHYP6yIQnsvwL0h9tw3DTUauPbgfNKl4JVldNwQrxIyiHD8QWOdIhy81lyPvZSkqL0HuApmHH0nHZr7p82lCfxdwkXgYnEWte5_QM0hCUFZ1Ucl4mAcN7DAJ-ORBgkUA9mRNUyNVgp9fAFigQ"></span>
+                <span class="brand-mark" aria-hidden="true"><img alt="" src="{{ asset('images/bellyssimo-logo.png') }}" width="96" height="96" decoding="async"></span>
                 <span><strong>Toño's</strong><small>Bellyssimo</small></span>
             </a>
             <nav class="nav-list">
