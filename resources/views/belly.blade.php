@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <x-favicon />
     <meta name="description" content="Explore Toño’s Bellyssimo lechon belly packages for gatherings and celebrations in Ozamiz City.">
     <title>Our Belly | Toño’s Bellyssimo</title>
     <link rel="preload" as="image" href="{{ asset('images/our-belly-hero-v3-800.jpg') }}" imagesrcset="{{ asset('images/our-belly-hero-v3-800.jpg') }} 800w, {{ asset('images/our-belly-hero-v3-1600.jpg') }} 1600w" imagesizes="100vw" fetchpriority="high">

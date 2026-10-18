@@ -7,6 +7,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <x-favicon />
     <meta name="description" content="Review and confirm your Toño’s Bellyssimo booking request.">
     <title>Confirm Your Order | Toño’s Bellyssimo</title>
     <link href="{{ asset('css/site-v3.css') }}" rel="stylesheet">

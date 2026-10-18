@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
+<x-favicon />
 <meta content="web_standard" name="shell-type">
 <title>Toño's Bellyssimo | Basta belly, diri mismo!</title>
 <link rel="preload" as="image" href="{{ asset('images/home-hero-filipino-v2-800.jpg') }}" imagesrcset="{{ asset('images/home-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/home-hero-filipino-v2-1600.jpg') }} 1600w" imagesizes="100vw" fetchpriority="high">

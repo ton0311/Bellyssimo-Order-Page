@@ -54,6 +54,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <x-favicon />
     <meta name="description" content="Choose a Toño’s Bellyssimo lechon belly package and prepare your booking request in Ozamiz City.">
     <title>Book Your Belly | Toño’s Bellyssimo</title>
     <link rel="preload" as="image" href="{{ asset('images/order-hero-filipino-v2-800.jpg') }}" imagesrcset="{{ asset('images/order-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/order-hero-filipino-v2-1600.jpg') }} 1600w" imagesizes="100vw" fetchpriority="high">
