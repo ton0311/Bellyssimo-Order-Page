@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Your Toño’s Bellyssimo booking request has been received.">
     <title>Thank You | Toño’s Bellyssimo</title>
-    <link href="{{ asset('css/site-v2.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/site-v3.css') }}" rel="stylesheet">
 </head>
 <body class="min-h-screen bg-cream font-sans text-ink antialiased selection:bg-gold/60">
     <div class="no-print">

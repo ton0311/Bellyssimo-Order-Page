@@ -56,7 +56,7 @@
     <meta name="description" content="Choose a Toño’s Bellyssimo lechon belly package and prepare your booking request in Ozamiz City.">
     <title>Book Your Belly | Toño’s Bellyssimo</title>
     <link rel="preload" as="image" href="{{ asset('images/order-hero-filipino-v2-800.jpg') }}" imagesrcset="{{ asset('images/order-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/order-hero-filipino-v2-1600.jpg') }} 1600w" imagesizes="100vw" fetchpriority="high">
-    <link href="{{ asset('css/site-v2.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/site-v3.css') }}" rel="stylesheet">
 </head>
 <body class="min-h-screen bg-cream font-sans text-ink antialiased selection:bg-gold/60">
     <x-site-header active="order" />

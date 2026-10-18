@@ -15,12 +15,10 @@ class HomeControllerTest extends TestCase
             ->assertViewIs('home')
             ->assertSee('Toño’s Bellyssimo')
             ->assertSee('Beautifully crispy, dangerously juicy')
-            ->assertSee('The Bellyssimo Barkadahan')
-            ->assertSee('Bellyssimo Salo-Salo')
-            ->assertSee('Bellyssimo Handaan')
-            ->assertSee('₱2,000')
-            ->assertSee('₱2,550')
-            ->assertSee('₱2,950')
+            ->assertDontSee('Choose Your Feast')
+            ->assertDontSee('The Bellyssimo Barkadahan')
+            ->assertDontSee('Bellyssimo Salo-Salo')
+            ->assertDontSee('Bellyssimo Handaan')
             ->assertSee('3 Belly Sizes')
             ->assertSee('3kg, 4kg, 5kg')
             ->assertSee('Serves 8–18')
@@ -30,16 +28,14 @@ class HomeControllerTest extends TestCase
             ->assertSee('For Celebrations')
             ->assertSee('Fiesta-ready')
             ->assertSee('Starts at ₱2,000')
-            ->assertSee('🌶️')
-            ->assertSee('size-10 shrink-0 rounded-full', false)
             ->assertSee('aria-label="Toño’s Bellyssimo hero"', false)
             ->assertSee('Please book at least 48 hours before your preferred pickup or delivery.')
-            ->assertSee(asset('css/site-v2.css'), false)
+            ->assertSee(asset('css/site-v3.css'), false)
             ->assertSee(asset('images/home-hero-filipino-v2-800.jpg'), false)
             ->assertSee(asset('images/home-hero-filipino-v2-1600.jpg'), false)
-            ->assertSee(asset('images/lechon-barkadahan-3kg-480.jpg'), false)
-            ->assertSee(asset('images/lechon-salo-salo-4kg-480.jpg'), false)
-            ->assertSee(asset('images/lechon-handaan-5kg-480.jpg'), false)
+            ->assertDontSee(asset('images/lechon-barkadahan-3kg-480.jpg'), false)
+            ->assertDontSee(asset('images/lechon-salo-salo-4kg-480.jpg'), false)
+            ->assertDontSee(asset('images/lechon-handaan-5kg-480.jpg'), false)
             ->assertSee('fetchpriority="high"', false)
             ->assertDontSee('@tailwindcss/browser', false)
             ->assertDontSee('fonts.googleapis.com', false)
@@ -48,8 +44,6 @@ class HomeControllerTest extends TestCase
             ->assertSee('0976-2271-228')
             ->assertSee('href="tel:+639762271228"', false)
             ->assertSee('https://www.facebook.com/profile.php?id=61572029845712', false);
-
-        $this->assertSame(3, substr_count($response->getContent(), '>🌶️</span>'));
     }
 
     public function test_valid_business_type_returns_success_response(): void

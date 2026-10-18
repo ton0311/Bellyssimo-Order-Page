@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Learn about Toño’s Bellyssimo, browse frequently asked questions, and find pickup and contact details in Ozamiz City.">
     <title>About & FAQs | Toño’s Bellyssimo</title>
-    <link href="{{ asset('css/site-v2.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/site-v3.css') }}" rel="stylesheet">
 </head>
 <body class="min-h-screen bg-cream pb-20 font-sans text-ink antialiased selection:bg-gold/60 lg:pb-0">
     <x-site-header active="about" />

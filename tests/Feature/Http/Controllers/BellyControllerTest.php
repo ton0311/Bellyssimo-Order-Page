@@ -22,7 +22,7 @@ class BellyControllerTest extends TestCase
             ->assertSee('₱2,550')
             ->assertSee('₱2,950')
             ->assertSee('Spicy (+₱50)')
-            ->assertSee(asset('css/site-v2.css'), false)
+            ->assertSee(asset('css/site-v3.css'), false)
             ->assertSee(asset('images/our-belly-hero-v3-800.jpg'), false)
             ->assertSee(asset('images/our-belly-hero-v3-1600.jpg'), false)
             ->assertSee(asset('images/lechon-barkadahan-3kg-480.jpg'), false)
