@@ -100,3 +100,60 @@ Artisan::command('app:alerts {recipients} {passwordHash}', function (): int {
 
     return Command::SUCCESS;
 })->purpose('Apply production booking-alert recipients and an admin password hash');
+
+Artisan::command('app:mail {apiKey} {environmentFile?}', function (): int {
+    $apiKey = base64_decode((string) $this->argument('apiKey'), true);
+
+    if (! is_string($apiKey) || ! str_starts_with($apiKey, 're_') || mb_strlen($apiKey) < 10) {
+        $this->error('The Resend API key is invalid.');
+
+        return Command::FAILURE;
+    }
+
+    $environmentFile = $this->argument('environmentFile');
+    $environmentFile = is_string($environmentFile) && $environmentFile !== ''
+        ? $environmentFile
+        : app()->environmentFilePath();
+
+    if (! is_file($environmentFile) || ! is_writable($environmentFile)) {
+        $this->error('The environment file is not writable.');
+
+        return Command::FAILURE;
+    }
+
+    $contents = file_get_contents($environmentFile);
+
+    if (! is_string($contents)) {
+        $this->error('The environment file could not be read.');
+
+        return Command::FAILURE;
+    }
+
+    $settings = [
+        'RESEND_API_KEY' => $apiKey,
+        'MAIL_MAILER' => 'resend',
+        'MAIL_FROM_ADDRESS' => 'orders@mail.tonosbellyssimo.online',
+        'MAIL_FROM_NAME' => "Toño's Bellyssimo",
+    ];
+
+    foreach ($settings as $key => $value) {
+        $line = $key.'="'.str_replace(['\\', '"'], ['\\\\', '\\"'], $value).'"';
+        $pattern = '/^'.preg_quote($key, '/').'=.*$/m';
+
+        $contents = preg_match($pattern, $contents) === 1
+            ? preg_replace_callback($pattern, static fn (): string => $line, $contents)
+            : rtrim($contents).PHP_EOL.$line.PHP_EOL;
+    }
+
+    if (! is_string($contents) || file_put_contents($environmentFile, $contents, LOCK_EX) === false) {
+        $this->error('The environment file could not be updated.');
+
+        return Command::FAILURE;
+    }
+
+    Artisan::call('config:clear');
+
+    $this->info('Resend delivery is configured.');
+
+    return Command::SUCCESS;
+})->purpose('Apply the production Resend key and verified sender settings');
