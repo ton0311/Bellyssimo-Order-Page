@@ -28,6 +28,7 @@ class UpdateOrderStatusRequest extends FormRequest
                 'Pending confirmation',
                 'Confirmed',
                 'Completed',
+                'Declined',
                 'Cancelled',
             ])],
         ];

@@ -85,15 +85,15 @@
 .calendar-order[data-status="Confirmed"]::before { background: var(--blue); }
 .calendar-order[data-status="Completed"] { border-color: #bedbce; background: var(--green-soft); }
 .calendar-order[data-status="Completed"]::before { background: var(--green); }
-.calendar-order[data-status="Cancelled"] { opacity: .66; border-color: #e9c9c6; background: #fae4e2; }
-.calendar-order[data-status="Cancelled"]::before { background: var(--red); }
+.calendar-order[data-status="Declined"], .calendar-order[data-status="Cancelled"] { opacity: .66; border-color: #e9c9c6; background: #fae4e2; }
+.calendar-order[data-status="Declined"]::before, .calendar-order[data-status="Cancelled"]::before { background: var(--red); }
 
 .calendar-legend { padding: 13px 22px 16px; display: flex; flex-wrap: wrap; gap: 9px 16px; }
 .calendar-legend span { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 9px; font-weight: 700; }
 .calendar-legend i { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
 .calendar-legend span[data-status="Confirmed"] i { background: var(--blue); }
 .calendar-legend span[data-status="Completed"] i { background: var(--green); }
-.calendar-legend span[data-status="Cancelled"] i { background: var(--red); }
+.calendar-legend span[data-status="Declined"] i, .calendar-legend span[data-status="Cancelled"] i { background: var(--red); }
 
 .agenda-card { margin-top: 22px; overflow: hidden; }
 .agenda-heading { padding: 20px 23px 15px; display: flex; align-items: flex-end; justify-content: space-between; gap: 15px; border-bottom: 1px solid var(--line); }

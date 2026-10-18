@@ -208,7 +208,7 @@ tbody tr.selected { background: #fbf0ea; box-shadow: inset 3px 0 var(--orange); 
 .status-badge::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .status-badge[data-status="Confirmed"] { color: var(--blue); background: var(--blue-soft); }
 .status-badge[data-status="Completed"] { color: var(--green); background: var(--green-soft); }
-.status-badge[data-status="Cancelled"] { color: var(--red); background: #fae4e2; }
+.status-badge[data-status="Declined"], .status-badge[data-status="Cancelled"] { color: var(--red); background: #fae4e2; }
 .empty-state { min-height: 290px; padding: 48px 20px; text-align: center; }
 .empty-state > span { color: #c2aaa0; font-size: 38px; }
 .empty-state h3 { margin: 10px 0 4px; font-size: 15px; }
@@ -310,7 +310,7 @@ dialog::backdrop { background: rgba(37,20,16,.57); backdrop-filter: blur(3px); }
 .status-breakdown i { width: 9px; height: 9px; border-radius: 50%; background: var(--gold); }
 .status-breakdown i[data-status="Confirmed"] { background: var(--blue); }
 .status-breakdown i[data-status="Completed"] { background: var(--green); }
-.status-breakdown i[data-status="Cancelled"] { background: var(--red); }
+.status-breakdown i[data-status="Declined"], .status-breakdown i[data-status="Cancelled"] { background: var(--red); }
 .status-breakdown strong { font: 800 16px "Manrope", sans-serif; }
 .attention-card { display: flex; flex-direction: column; }
 .attention-card > a { padding: 14px 0; display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 10px; align-items: center; border-bottom: 1px dashed var(--line); color: inherit; text-decoration: none; }

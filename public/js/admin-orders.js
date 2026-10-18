@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#nav-order-count').textContent = orders.length;
         document.querySelector('#metric-attention').textContent = counts['Pending confirmation'] ?? 0;
         document.querySelector('#metric-confirmed').textContent = counts['Confirmed'] ?? 0;
-        document.querySelector('#metric-cancelled').textContent = counts['Cancelled'] ?? 0;
+        document.querySelector('#metric-not-proceeding').textContent = (counts['Declined'] ?? 0) + (counts['Cancelled'] ?? 0);
         const completedPaid = orders.filter((order) => order.status === 'Completed' && order.payment === 'Paid').reduce((sum, order) => sum + order.total, 0);
         document.querySelector('#metric-sales').textContent = money.format(completedPaid);
         elements.tabs.querySelectorAll('button').forEach((button) => {

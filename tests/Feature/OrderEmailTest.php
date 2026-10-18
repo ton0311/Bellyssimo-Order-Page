@@ -90,6 +90,53 @@ class OrderEmailTest extends TestCase
         Log::shouldHaveReceived('warning')->once();
     }
 
+    public function test_declined_status_email_is_apologetic_and_says_the_order_did_not_push_through(): void
+    {
+        config([
+            'mail.from.address' => 'orders@mail.tonosbellyssimo.online',
+            'mail.from.name' => 'Toño’s Bellyssimo',
+            'services.resend.key' => 're_test_key',
+            'services.resend.templates.order_status' => 'template-status',
+        ]);
+        $transporter = new class implements Transporter
+        {
+            public ?Payload $payload = null;
+
+            public function request(Payload $payload): array
+            {
+                $this->payload = $payload;
+
+                return ['id' => 'email-status-declined'];
+            }
+        };
+        Resend::swap(new Client($transporter));
+        $order = Order::factory()->make([
+            'reference' => 'TB-20261018-DECLINED',
+            'customer_name' => 'Ana Santos',
+            'email' => 'ana@example.com',
+            'preferred_date' => '2026-10-25',
+            'preferred_time' => '12:00',
+        ]);
+
+        $emailId = app(OrderEmailService::class)->send(
+            $order,
+            OrderEmailService::STATUS,
+            'Declined',
+            'order-status-TB-20261018-DECLINED',
+        );
+
+        $this->assertSame('email-status-declined', $emailId);
+        $this->assertNotNull($transporter->payload);
+        $request = $transporter->payload->toRequest(BaseUri::from('api.resend.test'), new Headers([]));
+        $body = json_decode((string) $request->getBody(), true, flags: JSON_THROW_ON_ERROR);
+        $variables = $body['template']['variables'];
+
+        $this->assertSame('Declined', $variables['ORDER_STATUS']);
+        $this->assertStringContainsString('very sorry', $variables['STATUS_MESSAGE']);
+        $this->assertStringContainsString('did not push through', $variables['STATUS_MESSAGE']);
+        $this->assertStringContainsString('sincerely apologize', $variables['STATUS_MESSAGE']);
+    }
+
     public function test_owner_notification_contains_the_order_summary_and_reply_to_customer(): void
     {
         config([

@@ -167,6 +167,7 @@ class OrderEmailService
         return match ($status) {
             'Confirmed' => 'Your booking is confirmed for the preferred schedule shown below.',
             'Completed' => 'Your order has been completed. Thank you for choosing Toño’s Bellyssimo.',
+            'Declined' => 'We’re very sorry, but we’re unable to accommodate your booking request at this time, so your order did not push through. We sincerely apologize for the inconvenience. Please contact Toño’s Bellyssimo if you would like help choosing another schedule.',
             'Cancelled' => 'Your booking request has been cancelled. Please contact Toño’s Bellyssimo if you need assistance.',
             default => 'Your booking request is waiting for availability review.',
         };

@@ -97,7 +97,7 @@
                         </div>
                     </article>
                     <article class="dashboard-card">
-                        <div class="card-title"><div><p class="eyebrow">Order pipeline</p><h2>Four-stage progress</h2></div><span class="material-symbols-rounded card-icon">donut_large</span></div>
+                        <div class="card-title"><div><p class="eyebrow">Order pipeline</p><h2>Order progress</h2></div><span class="material-symbols-rounded card-icon">donut_large</span></div>
                         <div class="status-breakdown">
                             @foreach ($dashboard['status_counts'] as $status => $count)
                                 <div><span><i data-status="{{ $status }}"></i>{{ $status }}</span><strong>{{ $count }}</strong></div>
@@ -106,7 +106,7 @@
                     </article>
                     <article class="dashboard-card attention-card">
                         <div class="card-title"><div><p class="eyebrow">Attention queue</p><h2>Owner actions</h2></div><span class="material-symbols-rounded card-icon">notification_important</span></div>
-                        <a href="#orders" data-section-link="orders"><span class="material-symbols-rounded">pending_actions</span><div><strong>{{ $dashboard['pending'] }} pending requests</strong><small>Confirm or cancel newly submitted orders.</small></div></a>
+                        <a href="#orders" data-section-link="orders"><span class="material-symbols-rounded">pending_actions</span><div><strong>{{ $dashboard['pending'] }} pending requests</strong><small>Confirm or decline newly submitted orders.</small></div></a>
                         <a href="#orders" data-section-link="orders"><span class="material-symbols-rounded">history</span><div><strong>{{ $dashboard['overdue_pending'] }} overdue requests</strong><small>Pending orders whose preferred date has passed.</small></div></a>
                         <a href="#inventory" data-section-link="inventory"><span class="material-symbols-rounded">inventory</span><div><strong>{{ $dashboard['low_stock_count'] }} low-stock items</strong><small>Restock items at or below their alert level.</small></div></a>
                     </article>
@@ -139,8 +139,8 @@
                 </article>
                 <article class="metric-card">
                     <div><span class="material-symbols-rounded">cancel</span><small>Not proceeding</small></div>
-                    <strong id="metric-cancelled">0</strong>
-                    <p>Cancelled</p>
+                    <strong id="metric-not-proceeding">0</strong>
+                    <p>Declined or cancelled</p>
                 </article>
                 <article class="metric-card">
                     <div><span class="material-symbols-rounded">payments</span><small>Confirmed sales</small></div>
@@ -182,6 +182,7 @@
                         <button data-status="Pending confirmation" role="tab">Pending <span>0</span></button>
                         <button data-status="Confirmed" role="tab">Confirmed <span>0</span></button>
                         <button data-status="Completed" role="tab">Completed <span>0</span></button>
+                        <button data-status="Declined" role="tab">Declined <span>0</span></button>
                         <button data-status="Cancelled" role="tab">Cancelled <span>0</span></button>
                     </div>
 
@@ -241,6 +242,7 @@
                                 <option>Pending confirmation</option>
                                 <option>Confirmed</option>
                                 <option>Completed</option>
+                                <option>Declined</option>
                                 <option>Cancelled</option>
                             </select>
                             <button class="primary-button" id="save-status">Save status</button>
@@ -263,15 +265,17 @@
                     <div class="panel-heading"><div><h2>Customer records</h2><p>Name, contact details, order history, and completed revenue.</p></div></div>
                     <div class="table-wrap customer-table">
                         <table>
-                            <thead><tr><th>Customer</th><th>Contact</th><th>Orders</th><th>Completed</th><th>Lifetime value</th><th>Last order</th></tr></thead>
+                            <thead><tr><th>Customer</th><th>Phone</th><th>Email address</th><th>Orders</th><th>Completed</th><th>Lifetime value</th><th>Last order</th></tr></thead>
                             <tbody>
                                 @forelse ($customers as $customer)
                                     <tr>
                                         <td><strong>{{ $customer['name'] }}</strong></td>
+                                        <td><a class="table-link" href="tel:{{ preg_replace('/\D+/', '', $customer['phone']) }}">{{ $customer['phone'] }}</a></td>
                                         <td>
-                                            <a class="table-link" href="tel:{{ preg_replace('/\D+/', '', $customer['phone']) }}">{{ $customer['phone'] }}</a>
                                             @if ($customer['email'])
-                                                <a class="cell-note table-link" href="mailto:{{ $customer['email'] }}">{{ $customer['email'] }}</a>
+                                                <a class="table-link" href="mailto:{{ $customer['email'] }}">{{ $customer['email'] }}</a>
+                                            @else
+                                                <span class="cell-note">Not provided</span>
                                             @endif
                                         </td>
                                         <td>{{ $customer['orders'] }}</td>
@@ -280,7 +284,7 @@
                                         <td>{{ $customer['last_order'] }}</td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="6"><div class="empty-state"><span class="material-symbols-rounded">group_off</span><h3>No customers yet</h3><p>Customer records appear here after the first booking.</p></div></td></tr>
+                                    <tr><td colspan="7"><div class="empty-state"><span class="material-symbols-rounded">group_off</span><h3>No customers yet</h3><p>Customer records appear here after the first booking.</p></div></td></tr>
                                 @endforelse
                             </tbody>
                         </table>

@@ -139,6 +139,30 @@ class AdminOrderPageTest extends TestCase
         });
     }
 
+    public function test_admin_can_decline_an_order_and_queue_a_customer_email(): void
+    {
+        Queue::fake();
+        $order = Order::factory()->create([
+            'email' => 'ana@example.com',
+            'status' => 'Pending confirmation',
+        ]);
+
+        $this->patchJson(route('admin.orders.status', $order), [
+            'status' => 'Declined',
+        ])->assertOk()
+            ->assertJsonPath('order.status', 'Declined');
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'status' => 'Declined',
+        ]);
+        Queue::assertPushed(SendOrderEmail::class, function (SendOrderEmail $job) use ($order): bool {
+            return $job->orderId === $order->getKey()
+                && $job->kind === OrderEmailService::STATUS
+                && $job->status === 'Declined';
+        });
+    }
+
     public function test_unchanged_status_does_not_queue_a_customer_email(): void
     {
         Queue::fake();
@@ -360,11 +384,14 @@ class AdminOrderPageTest extends TestCase
         Customer::factory()->create([
             'name' => 'Repeat Customer',
             'contact_number' => '+639762271228',
+            'email' => 'repeat@example.com',
         ]);
 
         $this->get(route('admin.dashboard'))
             ->assertOk()
+            ->assertSee('Email address')
             ->assertSee('Repeat Customer')
-            ->assertSee('+639762271228');
+            ->assertSee('+639762271228')
+            ->assertSee('repeat@example.com');
     }
 }

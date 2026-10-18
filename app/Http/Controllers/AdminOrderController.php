@@ -278,7 +278,7 @@ class AdminOrderController extends Controller
         $completed = $orders
             ->where('status', 'Completed')
             ->where('payment_status', 'Paid');
-        $statusOrder = ['Pending confirmation', 'Confirmed', 'Completed', 'Cancelled'];
+        $statusOrder = ['Pending confirmation', 'Confirmed', 'Completed', 'Declined', 'Cancelled'];
         $statusCounts = collect($statusOrder)->mapWithKeys(
             fn (string $status): array => [$status => $orders->where('status', $status)->count()],
         );
@@ -337,6 +337,7 @@ class AdminOrderController extends Controller
             'pending' => $statusCounts['Pending confirmation'],
             'confirmed' => $statusCounts['Confirmed'],
             'completed' => $statusCounts['Completed'],
+            'declined' => $statusCounts['Declined'],
             'cancelled' => $statusCounts['Cancelled'],
             'total_orders' => $orders->count(),
             'total_revenue' => $completed->sum('order_total'),
