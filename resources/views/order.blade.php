@@ -37,6 +37,7 @@
     $draftContactNumber = str_starts_with($draftContactNumber, '63') && strlen($draftContactNumber) === 12
         ? substr($draftContactNumber, 2)
         : (str_starts_with($draftContactNumber, '0') && strlen($draftContactNumber) === 11 ? substr($draftContactNumber, 1) : $draftContactNumber);
+    $draftEmail = old('email', $draft['email'] ?? '');
     $selectedPreferredTime = old('preferred_time', $draft['preferred_time'] ?? '');
     $preferredTimeOptions = array_map(
         fn (int $minutes): array => [
@@ -260,6 +261,10 @@
                                         <input class="min-w-0 flex-1 bg-transparent px-4 py-3 font-normal outline-none" type="tel" name="contact_number" autocomplete="tel-national" required inputmode="numeric" pattern="9[0-9]{9}" maxlength="10" value="{{ $draftContactNumber }}" placeholder="917 123 4567" aria-describedby="contact-number-note">
                                     </span>
                                     <span class="mt-2 block text-xs font-normal leading-5 text-muted" id="contact-number-note">Use an existing and active mobile number. We or the delivery rider may call this number about your booking or delivery.</span>
+                                </label>
+                                <label class="block text-sm font-bold text-ink sm:col-span-2">Email address
+                                    <input class="mt-2 w-full rounded-xl border border-wine/15 bg-cream px-4 py-3 font-normal outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10" type="email" name="email" autocomplete="email" required maxlength="254" value="{{ $draftEmail }}" placeholder="e.g. juan@example.com" aria-describedby="email-note">
+                                    <span class="mt-2 block text-xs font-normal leading-5 text-muted" id="email-note">Your booking confirmation and future status updates will be sent here.</span>
                                 </label>
                                 <label class="block text-sm font-bold text-ink">Preferred date
                                     <input class="mt-2 w-full rounded-xl border border-wine/15 bg-cream px-4 py-3 font-normal outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10" type="date" name="preferred_date" required value="{{ old('preferred_date', $draft['preferred_date'] ?? '') }}">

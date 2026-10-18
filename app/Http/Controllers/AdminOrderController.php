@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAdminOrderRequest;
 use App\Http\Requests\UpdateOrderStatusRequest;
+use App\Jobs\SendOrderEmail;
 use App\Models\Customer;
 use App\Models\InventoryItem;
 use App\Models\Order;
+use App\Services\OrderEmailService;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
@@ -63,6 +65,7 @@ class AdminOrderController extends Controller
                 return [
                     'name' => $customer->name,
                     'phone' => $customer->contact_number,
+                    'email' => $customer->email,
                     'orders' => $customerOrders->count(),
                     'completed_orders' => $completedOrders->count(),
                     'lifetime_value' => $completedOrders->sum('order_total'),
@@ -148,6 +151,7 @@ class AdminOrderController extends Controller
             'delivery_location' => $data['delivery_location'] ?? null,
             'customer_name' => $data['customer'],
             'contact_number' => '+63'.$data['phone'],
+            'email' => $data['email'] ?? null,
             'preferred_date' => $schedule->toDateString(),
             'preferred_time' => $schedule->format('H:i'),
             'notes' => $data['note'] ?? null,
@@ -158,6 +162,15 @@ class AdminOrderController extends Controller
         ]);
         $this->syncCustomer($order);
 
+        if ($order->email) {
+            SendOrderEmail::dispatch(
+                $order->getKey(),
+                OrderEmailService::CONFIRMATION,
+                null,
+                'order-confirmation-'.$order->reference,
+            )->afterResponse();
+        }
+
         return response()->json([
             'message' => 'Order added to the dashboard.',
             'order' => $this->dashboardPayload($order),
@@ -167,6 +180,7 @@ class AdminOrderController extends Controller
     public function updateStatus(UpdateOrderStatusRequest $request, Order $order): JsonResponse
     {
         $status = $request->validated('status');
+        $previousStatus = $order->status;
         $updates = ['status' => $status];
 
         if ($status === 'Completed') {
@@ -175,12 +189,24 @@ class AdminOrderController extends Controller
         }
 
         $order->update($updates);
+        $order->refresh();
+
+        if ($previousStatus !== $status && $order->email) {
+            $transition = hash('sha256', $previousStatus.'|'.$status.'|'.$order->updated_at?->toISOString());
+
+            SendOrderEmail::dispatch(
+                $order->getKey(),
+                OrderEmailService::STATUS,
+                $status,
+                'order-status-'.$order->reference.'-'.substr($transition, 0, 32),
+            )->afterResponse();
+        }
 
         return response()->json([
             'message' => $status === 'Completed'
                 ? 'Order marked Completed and Paid.'
                 : 'Order status updated.',
-            'order' => $this->dashboardPayload($order->fresh()),
+            'order' => $this->dashboardPayload($order),
         ]);
     }
 
@@ -226,6 +252,7 @@ class AdminOrderController extends Controller
             'id' => $order->reference,
             'customer' => $order->customer_name,
             'phone' => $order->contact_number,
+            'email' => $order->email,
             'package' => $packageSummary,
             'items' => $items,
             'flavor' => $flavorSummary,
@@ -337,6 +364,7 @@ class AdminOrderController extends Controller
                 'contact_number' => $order->contact_number,
             ],
             [
+                'email' => $order->email,
                 'last_order_at' => $order->submitted_at,
             ],
         );

@@ -163,7 +163,7 @@
                     <div class="toolbar">
                         <label class="search-box">
                             <span class="material-symbols-rounded">search</span>
-                            <input id="order-search" type="search" placeholder="Search name, order ID, or phone" autocomplete="off">
+                            <input id="order-search" type="search" placeholder="Search name, order ID, phone, or email" autocomplete="off">
                         </label>
                         <label class="date-filter">
                             <span class="material-symbols-rounded">event</span>
@@ -216,7 +216,7 @@
 
                         <div class="customer-summary">
                             <span class="customer-avatar" id="customer-avatar"></span>
-                            <div><strong id="customer-name"></strong><a id="customer-phone" href=""></a></div>
+                            <div><strong id="customer-name"></strong><a id="customer-phone" href=""></a><a id="customer-email" href=""></a></div>
                             <a class="icon-button" id="call-customer" aria-label="Call customer"><span class="material-symbols-rounded">call</span></a>
                         </div>
 
@@ -266,7 +266,12 @@
                                 @forelse ($customers as $customer)
                                     <tr>
                                         <td><strong>{{ $customer['name'] }}</strong></td>
-                                        <td><a class="table-link" href="tel:{{ preg_replace('/\D+/', '', $customer['phone']) }}">{{ $customer['phone'] }}</a></td>
+                                        <td>
+                                            <a class="table-link" href="tel:{{ preg_replace('/\D+/', '', $customer['phone']) }}">{{ $customer['phone'] }}</a>
+                                            @if ($customer['email'])
+                                                <a class="cell-note table-link" href="mailto:{{ $customer['email'] }}">{{ $customer['email'] }}</a>
+                                            @endif
+                                        </td>
                                         <td>{{ $customer['orders'] }}</td>
                                         <td>{{ $customer['completed_orders'] }}</td>
                                         <td class="amount">₱{{ number_format($customer['lifetime_value']) }}</td>
@@ -366,6 +371,7 @@
             <div class="form-grid">
                 <label class="full">Customer name<input name="customer" required placeholder="e.g. Ana Santos"></label>
                 <label>Contact number<span class="admin-phone-field"><b>+63</b><input name="phone" required inputmode="numeric" pattern="9[0-9]{9}" maxlength="10" placeholder="917 123 4567"></span></label>
+                <label>Email address <span>(optional)</span><input name="email" type="email" maxlength="254" placeholder="customer@example.com"></label>
                 <label>Schedule<input name="schedule" required type="datetime-local"></label>
                 <label>Package<select name="package"><option value="barkadahan">Barkadahan · 3 kg · ₱2,000</option><option value="salo-salo">Salo-Salo · 4 kg · ₱2,550</option><option value="handaan">Handaan · 5 kg · ₱2,950</option></select></label>
                 <label>Flavor<select name="flavor"><option value="Regular">Regular</option><option value="Spicy">Spicy (+₱50)</option></select></label>

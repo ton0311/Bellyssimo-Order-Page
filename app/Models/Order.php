@@ -23,6 +23,7 @@ class Order extends Model
         'delivery_location',
         'customer_name',
         'contact_number',
+        'email',
         'preferred_date',
         'preferred_time',
         'notes',

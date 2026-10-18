@@ -33,6 +33,7 @@ class ConfirmOrderRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:60'],
             'last_name' => ['required', 'string', 'max:60'],
             'contact_number' => ['required', 'string', 'regex:/^9\d{9}$/'],
+            'email' => ['required', 'email:rfc', 'max:254'],
             'preferred_date' => ['required', 'date', 'after_or_equal:today'],
             'preferred_time' => ['required', 'date_format:H:i', Rule::in($this->preferredTimeOptions())],
             'notes' => ['nullable', 'string', 'max:300'],
@@ -59,6 +60,8 @@ class ConfirmOrderRequest extends FormRequest
             'last_name.required' => 'Please enter your last name.',
             'contact_number.required' => 'Please enter an active Philippine mobile number.',
             'contact_number.regex' => 'Enter a valid Philippine mobile number after +63, beginning with 9.',
+            'email.required' => 'Please enter the email address that should receive order updates.',
+            'email.email' => 'Please enter a valid email address.',
             'preferred_date.after_or_equal' => 'Please choose today or a future date.',
             'preferred_time.in' => 'Please choose a preferred time between 11:00 AM and 7:00 PM.',
         ];
@@ -78,6 +81,7 @@ class ConfirmOrderRequest extends FormRequest
             'first_name' => Str::squish((string) $this->input('first_name')),
             'last_name' => Str::squish((string) $this->input('last_name')),
             'contact_number' => $digits,
+            'email' => Str::lower(trim((string) $this->input('email'))),
         ]);
     }
 

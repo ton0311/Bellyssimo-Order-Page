@@ -2,8 +2,11 @@
 
 namespace Tests\Feature\Http\Controllers;
 
+use App\Jobs\SendOrderEmail;
+use App\Services\OrderEmailService;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class OrderControllerTest extends TestCase
@@ -42,6 +45,8 @@ class OrderControllerTest extends TestCase
             ->assertSee('Last name')
             ->assertSee('Use an existing and active mobile number')
             ->assertSee('delivery rider may call this number')
+            ->assertSee('Email address')
+            ->assertSee('Your booking confirmation and future status updates will be sent here.')
             ->assertSee('>+63<', false)
             ->assertSee('Preferred pickup or delivery time')
             ->assertSee('Select the time you want to pick up your order or receive the delivery. Available from 11:00 AM to 7:00 PM.')
@@ -91,7 +96,8 @@ class OrderControllerTest extends TestCase
                     && $order['fulfillment'] === 'Pickup'
                     && $order['payment_method'] === 'GCash'
                     && $order['customer_name'] === 'Juan Dela Cruz'
-                    && $order['contact_number'] === '+639171234567';
+                    && $order['contact_number'] === '+639171234567'
+                    && $order['email'] === 'juan@example.com';
             });
 
         $this->get(route('order.confirmation'))
@@ -108,6 +114,7 @@ class OrderControllerTest extends TestCase
             ->assertSee('₱5,000')
             ->assertSee('Payment method')
             ->assertSee('GCash')
+            ->assertSee('juan@example.com')
             ->assertSee('Perayra Village, Maningcol, Ozamiz City')
             ->assertSee('Place Booking Request')
             ->assertSee('action="'.route('order.place').'"', false);
@@ -115,6 +122,7 @@ class OrderControllerTest extends TestCase
 
     public function test_placing_reviewed_order_redirects_to_thank_you_page(): void
     {
+        Queue::fake();
         $this->travelTo(CarbonImmutable::parse('2026-10-17 07:57:00', 'UTC'));
 
         $this->post(route('order.confirm'), $this->validOrderPayload());
@@ -129,11 +137,21 @@ class OrderControllerTest extends TestCase
         $this->assertDatabaseHas('orders', [
             'customer_name' => 'Juan Dela Cruz',
             'contact_number' => '+639171234567',
+            'email' => 'juan@example.com',
             'quantity' => 2,
             'order_total' => 5000,
             'status' => 'Pending confirmation',
             'payment_method' => 'GCash',
         ]);
+        $this->assertDatabaseHas('customers', [
+            'name' => 'Juan Dela Cruz',
+            'email' => 'juan@example.com',
+        ]);
+        Queue::assertPushed(SendOrderEmail::class, function (SendOrderEmail $job): bool {
+            return $job->kind === OrderEmailService::CONFIRMATION
+                && $job->status === null
+                && str_starts_with($job->idempotencyKey, 'order-confirmation-TB-20261017-');
+        });
 
         $this->get(route('order.thank-you'))
             ->assertOk()
@@ -148,6 +166,7 @@ class OrderControllerTest extends TestCase
             ->assertSee('Bellyssimo Handaan')
             ->assertSee('₱5,000')
             ->assertSee('GCash')
+            ->assertSee('juan@example.com')
             ->assertSee('What happens next?')
             ->assertSee('Call 0976-2271-228')
             ->assertSee('Print / Save')
@@ -229,6 +248,20 @@ class OrderControllerTest extends TestCase
             ]);
     }
 
+    public function test_email_must_be_valid(): void
+    {
+        $payload = array_merge($this->validOrderPayload(), [
+            'email' => 'not-an-email',
+        ]);
+
+        $this->from(route('order'))
+            ->post(route('order.confirm'), $payload)
+            ->assertRedirect(route('order'))
+            ->assertSessionHasErrors([
+                'email' => 'Please enter a valid email address.',
+            ]);
+    }
+
     public function test_preferred_time_must_be_within_booking_hours(): void
     {
         $payload = array_merge($this->validOrderPayload(), [
@@ -303,6 +336,7 @@ class OrderControllerTest extends TestCase
             'first_name' => 'Juan',
             'last_name' => 'Dela Cruz',
             'contact_number' => '9171234567',
+            'email' => 'Juan@Example.com',
             'preferred_date' => now('Asia/Manila')->addDays(3)->toDateString(),
             'preferred_time' => '12:00',
             'notes' => 'Please have it ready at noon.',

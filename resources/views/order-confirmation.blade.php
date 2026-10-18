@@ -79,6 +79,7 @@
                         <dl class="mt-5 space-y-4 text-sm">
                             <div><dt class="text-muted">Customer</dt><dd class="mt-1 font-bold">{{ $order['customer_name'] }}</dd></div>
                             <div><dt class="text-muted">Contact number</dt><dd class="mt-1 font-bold">{{ $order['contact_number'] }}</dd></div>
+                            <div><dt class="text-muted">Email updates</dt><dd class="mt-1 font-bold">{{ $order['email'] }}</dd></div>
                             <div><dt class="text-muted">Preferred schedule</dt><dd class="mt-1 font-bold">{{ $order['preferred_date_display'] }} at {{ $order['preferred_time_display'] }}</dd></div>
                             @if ($order['notes'])
                                 <div><dt class="text-muted">Notes</dt><dd class="mt-1 whitespace-pre-line font-medium">{{ $order['notes'] }}</dd></div>

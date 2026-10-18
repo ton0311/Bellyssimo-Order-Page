@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\SendOrderEmail;
 use App\Models\Customer;
 use App\Models\InventoryItem;
 use App\Models\Order;
+use App\Services\OrderEmailService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class AdminOrderPageTest extends TestCase
@@ -115,6 +118,42 @@ class AdminOrderPageTest extends TestCase
         ]);
     }
 
+    public function test_status_change_queues_a_customer_email_when_an_address_is_available(): void
+    {
+        Queue::fake();
+        $order = Order::factory()->create([
+            'email' => 'ana@example.com',
+            'status' => 'Pending confirmation',
+        ]);
+
+        $this->patchJson(route('admin.orders.status', $order), [
+            'status' => 'Confirmed',
+        ])->assertOk();
+
+        Queue::assertPushed(SendOrderEmail::class, 1);
+        Queue::assertPushed(SendOrderEmail::class, function (SendOrderEmail $job) use ($order): bool {
+            return $job->orderId === $order->getKey()
+                && $job->kind === OrderEmailService::STATUS
+                && $job->status === 'Confirmed'
+                && str_starts_with($job->idempotencyKey, 'order-status-'.$order->reference.'-');
+        });
+    }
+
+    public function test_unchanged_status_does_not_queue_a_customer_email(): void
+    {
+        Queue::fake();
+        $order = Order::factory()->create([
+            'email' => 'ana@example.com',
+            'status' => 'Confirmed',
+        ]);
+
+        $this->patchJson(route('admin.orders.status', $order), [
+            'status' => 'Confirmed',
+        ])->assertOk();
+
+        Queue::assertNotPushed(SendOrderEmail::class);
+    }
+
     public function test_completing_an_order_automatically_marks_it_paid(): void
     {
         $order = Order::factory()->create([
@@ -146,9 +185,11 @@ class AdminOrderPageTest extends TestCase
 
     public function test_admin_can_add_a_manual_order(): void
     {
+        Queue::fake();
         $response = $this->postJson(route('admin.orders.store'), [
             'customer' => 'Mario Cruz',
             'phone' => '09171234567',
+            'email' => 'Mario@Example.com',
             'schedule' => now()->addDay()->format('Y-m-d\TH:i'),
             'package' => 'salo-salo',
             'flavor' => 'Spicy',
@@ -172,11 +213,14 @@ class AdminOrderPageTest extends TestCase
             'delivery_location' => 'Carmen Annex, Ozamiz City',
             'payment_method' => 'GCash',
             'contact_number' => '+639171234567',
+            'email' => 'mario@example.com',
         ]);
         $this->assertDatabaseHas('customers', [
             'name' => 'Mario Cruz',
             'contact_number' => '+639171234567',
+            'email' => 'mario@example.com',
         ]);
+        Queue::assertPushed(SendOrderEmail::class, fn (SendOrderEmail $job): bool => $job->kind === OrderEmailService::CONFIRMATION);
     }
 
     public function test_customers_with_the_same_contact_number_are_recorded_separately_by_name(): void
@@ -230,6 +274,7 @@ class AdminOrderPageTest extends TestCase
             'first_name' => 'Customer',
             'last_name' => 'Booking Test',
             'contact_number' => '9171234567',
+            'email' => 'customer@example.com',
             'preferred_date' => now('Asia/Manila')->addDays(3)->toDateString(),
             'preferred_time' => '12:00',
             'notes' => 'Mixed package order.',

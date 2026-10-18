@@ -26,6 +26,7 @@ class StoreAdminOrderRequest extends FormRequest
         return [
             'customer' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'regex:/^9\d{9}$/'],
+            'email' => ['nullable', 'email:rfc', 'max:254'],
             'schedule' => ['required', 'date'],
             'package' => ['required', 'string', Rule::in(['barkadahan', 'salo-salo', 'handaan'])],
             'flavor' => ['required', 'string', Rule::in(['Regular', 'Spicy'])],
@@ -55,6 +56,11 @@ class StoreAdminOrderRequest extends FormRequest
             $digits = substr($digits, 1);
         }
 
-        $this->merge(['phone' => $digits]);
+        $this->merge([
+            'phone' => $digits,
+            'email' => filled($this->input('email'))
+                ? mb_strtolower(trim((string) $this->input('email')))
+                : null,
+        ]);
     }
 }

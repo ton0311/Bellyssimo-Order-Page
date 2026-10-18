@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ConfirmOrderRequest;
+use App\Jobs\SendOrderEmail;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Services\OrderEmailService;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Http\RedirectResponse;
@@ -95,6 +97,7 @@ class OrderController extends Controller
             'delivery_location' => $order['delivery_location'],
             'customer_name' => $order['customer_name'],
             'contact_number' => $order['contact_number'],
+            'email' => $order['email'],
             'preferred_date' => $order['preferred_date'],
             'preferred_time' => $order['preferred_time'],
             'notes' => $order['notes'],
@@ -109,12 +112,20 @@ class OrderController extends Controller
                 'contact_number' => $createdOrder->contact_number,
             ],
             [
+                'email' => $createdOrder->email,
                 'last_order_at' => $createdOrder->submitted_at,
             ],
         );
 
         $request->session()->put('order.placed', $order);
         $request->session()->forget('order.draft');
+
+        SendOrderEmail::dispatch(
+            $createdOrder->getKey(),
+            OrderEmailService::CONFIRMATION,
+            null,
+            'order-confirmation-'.$createdOrder->reference,
+        )->afterResponse();
 
         return redirect()->route('order.thank-you');
     }
@@ -180,6 +191,7 @@ class OrderController extends Controller
             'last_name' => $data['last_name'],
             'customer_name' => Str::squish($data['first_name'].' '.$data['last_name']),
             'contact_number' => '+63'.$data['contact_number'],
+            'email' => $data['email'],
             'preferred_date' => $data['preferred_date'],
             'preferred_date_display' => CarbonImmutable::parse($data['preferred_date'])->format('F j, Y'),
             'preferred_time' => $data['preferred_time'],

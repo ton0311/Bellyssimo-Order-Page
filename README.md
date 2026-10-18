@@ -62,6 +62,23 @@ php artisan serve
 
 Open `http://localhost:8000` in a browser. No `npm install`, `npm run dev`, or Vite build is required.
 
+## Transactional order emails with Resend
+
+The booking flow sends an order confirmation after a customer places a request. The admin dashboard sends a second email whenever the order status changes. Both messages use published Resend templates, stable idempotency keys, and a job that supports retry backoff when a queue worker is configured. The default `QUEUE_CONNECTION=sync` sends after the HTTP response without requiring a separate queue worker.
+
+Set these values in the private `.env` file:
+
+```dotenv
+MAIL_MAILER=resend
+MAIL_FROM_ADDRESS="orders@mail.tonosbellyssimo.online"
+MAIL_FROM_NAME="Toño's Bellyssimo"
+RESEND_API_KEY=re_your_sending_only_key
+RESEND_ORDER_CONFIRMATION_TEMPLATE=your_confirmation_template_id
+RESEND_ORDER_STATUS_TEMPLATE=your_status_template_id
+```
+
+The production sender is `orders@mail.tonosbellyssimo.online`, using the verified Resend subdomain. Keep the API key out of source control, then run `php artisan config:clear` after updating `.env`.
+
 ## Application routes
 
 | Method | URI | Controller method | Result |

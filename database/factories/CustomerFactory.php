@@ -20,6 +20,7 @@ class CustomerFactory extends Factory
         return [
             'name' => fake()->name(),
             'contact_number' => '+63'.fake()->unique()->numerify('9#########'),
+            'email' => null,
             'notes' => fake()->optional()->sentence(),
             'last_order_at' => now(),
         ];

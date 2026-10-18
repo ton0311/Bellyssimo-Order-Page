@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateFilter = elements.dateFilter.value;
         return orders.filter((order) => {
             const matchesStatus = activeStatus === 'all' || order.status === activeStatus;
-            const haystack = `${order.id} ${order.customer} ${order.phone} ${order.package}`.toLowerCase();
+            const haystack = `${order.id} ${order.customer} ${order.phone} ${order.email ?? ''} ${order.package}`.toLowerCase();
             const matchesSearch = !query || haystack.includes(query);
             const orderDate = order.schedule.slice(0, 10);
             const matchesDate = dateFilter === 'all' || (dateFilter === 'today' && orderDate === today) || (dateFilter === 'upcoming' && orderDate > today);
@@ -109,6 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#customer-name').textContent = order.customer;
         document.querySelector('#customer-phone').textContent = order.phone;
         document.querySelector('#customer-phone').href = `tel:${order.phone.replace(/\s/g, '')}`;
+        const customerEmail = document.querySelector('#customer-email');
+        customerEmail.textContent = order.email ?? '';
+        customerEmail.hidden = !order.email;
+        if (order.email) {
+            customerEmail.href = `mailto:${order.email}`;
+        } else {
+            customerEmail.removeAttribute('href');
+        }
         document.querySelector('#call-customer').href = `tel:${order.phone.replace(/\s/g, '')}`;
         document.querySelector('#order-items').innerHTML = order.items.map((item) => `<div class="product-line">
             <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}">
@@ -282,8 +290,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelector('#export-button').addEventListener('click', () => {
-        const headers = ['Order ID','Customer','Phone','Package','Flavor','Schedule','Fulfillment','Payment Method','Payment Status','Total','Status','Note'];
-        const rows = orders.map((order) => [order.id, order.customer, order.phone, order.package, order.flavor, order.schedule, order.fulfillment, order.payment_method, order.payment, order.total, order.status, order.note]);
+        const headers = ['Order ID','Customer','Phone','Email','Package','Flavor','Schedule','Fulfillment','Payment Method','Payment Status','Total','Status','Note'];
+        const rows = orders.map((order) => [order.id, order.customer, order.phone, order.email ?? '', order.package, order.flavor, order.schedule, order.fulfillment, order.payment_method, order.payment, order.total, order.status, order.note]);
         const csv = [headers, ...rows].map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\n');
         const link = document.createElement('a');
         link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));

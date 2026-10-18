@@ -20,6 +20,10 @@ return [
 
     'resend' => [
         'key' => env('RESEND_API_KEY'),
+        'templates' => [
+            'order_confirmation' => env('RESEND_ORDER_CONFIRMATION_TEMPLATE'),
+            'order_status' => env('RESEND_ORDER_STATUS_TEMPLATE'),
+        ],
     ],
 
     'ses' => [

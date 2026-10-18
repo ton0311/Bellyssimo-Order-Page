@@ -42,6 +42,7 @@ class OrderFactory extends Factory
             'delivery_location' => null,
             'customer_name' => fake()->name(),
             'contact_number' => '+63'.fake()->numerify('9#########'),
+            'email' => null,
             'preferred_date' => now()->addDay()->toDateString(),
             'preferred_time' => '12:00',
             'notes' => fake()->optional()->sentence(),
