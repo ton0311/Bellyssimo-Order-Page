@@ -16,7 +16,7 @@ class ConfigureBookingAlertsCommandTest extends TestCase
     {
         $passwordHash = Hash::make('A-secure-admin-password');
 
-        $this->artisan('app:configure-booking-alerts', [
+        $this->artisan('app:alerts', [
             'recipients' => base64_encode(' Owner@Example.com,backup@example.com,owner@example.com '),
             'passwordHash' => base64_encode($passwordHash),
         ])->assertSuccessful();
@@ -39,7 +39,7 @@ class ConfigureBookingAlertsCommandTest extends TestCase
             'password_hash' => Hash::make('Existing-admin-password'),
         ]);
 
-        $this->artisan('app:configure-booking-alerts', [
+        $this->artisan('app:alerts', [
             'recipients' => base64_encode('not-an-email'),
             'passwordHash' => base64_encode('not-a-bcrypt-hash'),
         ])->assertFailed();

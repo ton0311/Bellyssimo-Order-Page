@@ -35,7 +35,7 @@ Artisan::command('admin:hash-password', function (): int {
     return Command::SUCCESS;
 })->purpose('Generate a secure password hash for the Bellyssimo admin login');
 
-Artisan::command('app:configure-booking-alerts {recipients} {passwordHash}', function (): int {
+Artisan::command('app:alerts {recipients} {passwordHash}', function (): int {
     $recipientPayload = base64_decode((string) $this->argument('recipients'), true);
     $passwordHash = base64_decode((string) $this->argument('passwordHash'), true);
 
