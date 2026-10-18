@@ -126,6 +126,12 @@ class OrderController extends Controller
             null,
             'order-confirmation-'.$createdOrder->reference,
         )->afterResponse();
+        SendOrderEmail::dispatch(
+            $createdOrder->getKey(),
+            OrderEmailService::OWNER_NOTIFICATION,
+            null,
+            'new-order-notification-'.$createdOrder->reference,
+        )->afterResponse();
 
         return redirect()->route('order.thank-you');
     }

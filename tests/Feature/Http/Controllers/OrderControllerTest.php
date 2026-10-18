@@ -152,6 +152,12 @@ class OrderControllerTest extends TestCase
                 && $job->status === null
                 && str_starts_with($job->idempotencyKey, 'order-confirmation-TB-20261017-');
         });
+        Queue::assertPushed(SendOrderEmail::class, function (SendOrderEmail $job): bool {
+            return $job->kind === OrderEmailService::OWNER_NOTIFICATION
+                && $job->status === null
+                && str_starts_with($job->idempotencyKey, 'new-order-notification-TB-20261017-');
+        });
+        Queue::assertPushed(SendOrderEmail::class, 2);
 
         $this->get(route('order.thank-you'))
             ->assertOk()

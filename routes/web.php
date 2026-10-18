@@ -4,6 +4,7 @@ use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminInventoryController;
 use App\Http\Controllers\AdminOrderController;
+use App\Http\Controllers\AdminOrderNotificationController;
 use App\Http\Controllers\AdminPasswordController;
 use App\Http\Controllers\BellyController;
 use App\Http\Controllers\HomeController;
@@ -34,6 +35,9 @@ Route::middleware('admin.auth')->group(function (): void {
     Route::patch('/admin/password', [AdminPasswordController::class, 'update'])
         ->middleware('throttle:5,1')
         ->name('admin.password.update');
+    Route::get('/admin/email-alerts', [AdminOrderNotificationController::class, 'edit'])->name('admin.notifications.edit');
+    Route::post('/admin/email-alerts', [AdminOrderNotificationController::class, 'store'])->name('admin.notifications.store');
+    Route::delete('/admin/email-alerts', [AdminOrderNotificationController::class, 'destroy'])->name('admin.notifications.destroy');
     Route::get('/admin/orders', [AdminOrderController::class, 'index'])->name('admin.orders');
     Route::post('/admin/orders', [AdminOrderController::class, 'store'])->name('admin.orders.store');
     Route::patch('/admin/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.status');

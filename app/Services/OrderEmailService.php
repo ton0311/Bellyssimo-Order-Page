@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\OrderNotificationSetting;
 use Illuminate\Support\Facades\Log;
 use Resend\Laravel\Facades\Resend;
 use RuntimeException;
@@ -11,10 +12,16 @@ class OrderEmailService
 {
     public const CONFIRMATION = 'confirmation';
 
+    public const OWNER_NOTIFICATION = 'owner_notification';
+
     public const STATUS = 'status';
 
     public function send(Order $order, string $kind, ?string $status, string $idempotencyKey): ?string
     {
+        if ($kind === self::OWNER_NOTIFICATION) {
+            return $this->sendOwnerNotification($order, $idempotencyKey);
+        }
+
         if (! is_string($order->email) || $order->email === '') {
             return null;
         }
@@ -53,6 +60,60 @@ class OrderEmailService
         Log::info('Order email sent through Resend.', [
             'order_reference' => $order->reference,
             'email_kind' => $kind,
+            'resend_email_id' => $email->id,
+        ]);
+
+        return $email->id;
+    }
+
+    private function sendOwnerNotification(Order $order, string $idempotencyKey): ?string
+    {
+        $recipients = collect(
+            OrderNotificationSetting::query()->find(1)?->recipient_emails
+                ?? config('services.resend.order_notifications.emails', []),
+        )
+            ->filter(fn (mixed $email): bool => is_string($email) && filter_var($email, FILTER_VALIDATE_EMAIL) !== false)
+            ->unique()
+            ->values()
+            ->all();
+        $apiKey = config('services.resend.key');
+
+        if (! is_string($apiKey) || $apiKey === '' || $recipients === []) {
+            Log::warning('New order notification skipped because the owner email or Resend API key is not configured.', [
+                'order_reference' => $order->reference,
+                'email_kind' => self::OWNER_NOTIFICATION,
+            ]);
+
+            return null;
+        }
+
+        $payload = [
+            'from' => sprintf('%s <%s>', config('mail.from.name'), config('mail.from.address')),
+            'to' => $recipients,
+            'subject' => sprintf('New booking %s — %s — ₱%s', $order->reference, $order->customer_name, number_format($order->order_total)),
+            'html' => view('emails.orders.new-booking', ['order' => $order])->render(),
+            'text' => view('emails.orders.new-booking-text', ['order' => $order])->render(),
+            'tags' => [
+                ['name' => 'order_reference', 'value' => $order->reference],
+                ['name' => 'email_kind', 'value' => self::OWNER_NOTIFICATION],
+            ],
+        ];
+
+        if (is_string($order->email) && filter_var($order->email, FILTER_VALIDATE_EMAIL) !== false) {
+            $payload['reply_to'] = [$order->email];
+        }
+
+        $email = Resend::emails()->send($payload, [
+            'idempotency_key' => $idempotencyKey,
+        ]);
+
+        if (! is_string($email->id) || $email->id === '') {
+            throw new RuntimeException('Resend did not return an email ID.');
+        }
+
+        Log::info('New order notification sent through Resend.', [
+            'order_reference' => $order->reference,
+            'email_kind' => self::OWNER_NOTIFICATION,
             'resend_email_id' => $email->id,
         ]);
 

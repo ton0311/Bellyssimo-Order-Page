@@ -28,6 +28,7 @@
                 <a href="{{ route('admin.dashboard') }}#customers"><span class="material-symbols-rounded">group</span>Customers</a>
                 <p>Manage</p>
                 <a href="{{ route('admin.dashboard') }}#reports"><span class="material-symbols-rounded">monitoring</span>Reports</a>
+                <a href="{{ route('admin.notifications.edit') }}"><span class="material-symbols-rounded">notifications_active</span>Email alerts</a>
                 <a class="active" href="{{ route('admin.password.edit') }}" aria-current="page"><span class="material-symbols-rounded">lock</span>Change password</a>
             </nav>
         </div>

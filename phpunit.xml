@@ -31,6 +31,7 @@
         <env name="RESEND_API_KEY" value=""/>
         <env name="RESEND_ORDER_CONFIRMATION_TEMPLATE" value=""/>
         <env name="RESEND_ORDER_STATUS_TEMPLATE" value=""/>
+        <env name="ORDER_NOTIFICATION_EMAILS" value=""/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>

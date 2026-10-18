@@ -24,6 +24,12 @@ return [
             'order_confirmation' => env('RESEND_ORDER_CONFIRMATION_TEMPLATE'),
             'order_status' => env('RESEND_ORDER_STATUS_TEMPLATE'),
         ],
+        'order_notifications' => [
+            'emails' => array_values(array_filter(array_map(
+                'trim',
+                explode(',', (string) env('ORDER_NOTIFICATION_EMAILS', '')),
+            ))),
+        ],
     ],
 
     'ses' => [
