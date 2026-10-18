@@ -133,7 +133,7 @@ class AdminOrderPageTest extends TestCase
         Queue::assertPushed(SendOrderEmail::class, 1);
         Queue::assertPushed(SendOrderEmail::class, function (SendOrderEmail $job) use ($order): bool {
             return $job->orderId === $order->getKey()
-                && $job->kind === OrderEmailService::STATUS
+                && $job->kind === OrderEmailService::CONFIRMED
                 && $job->status === 'Confirmed'
                 && str_starts_with($job->idempotencyKey, 'order-status-'.$order->reference.'-');
         });
@@ -158,9 +158,24 @@ class AdminOrderPageTest extends TestCase
         ]);
         Queue::assertPushed(SendOrderEmail::class, function (SendOrderEmail $job) use ($order): bool {
             return $job->orderId === $order->getKey()
-                && $job->kind === OrderEmailService::STATUS
+                && $job->kind === OrderEmailService::DECLINED
                 && $job->status === 'Declined';
         });
+    }
+
+    public function test_other_status_changes_do_not_queue_a_customer_email(): void
+    {
+        Queue::fake();
+        $order = Order::factory()->create([
+            'email' => 'ana@example.com',
+            'status' => 'Confirmed',
+        ]);
+
+        $this->patchJson(route('admin.orders.status', $order), [
+            'status' => 'Cancelled',
+        ])->assertOk();
+
+        Queue::assertNotPushed(SendOrderEmail::class);
     }
 
     public function test_unchanged_status_does_not_queue_a_customer_email(): void

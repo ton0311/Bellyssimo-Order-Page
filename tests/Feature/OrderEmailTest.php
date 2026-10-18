@@ -96,7 +96,7 @@ class OrderEmailTest extends TestCase
             'mail.from.address' => 'orders@mail.tonosbellyssimo.online',
             'mail.from.name' => 'Toño’s Bellyssimo',
             'services.resend.key' => 're_test_key',
-            'services.resend.templates.order_status' => 'template-status',
+            'services.resend.templates.order_declined' => 'template-declined',
         ]);
         $transporter = new class implements Transporter
         {
@@ -120,7 +120,7 @@ class OrderEmailTest extends TestCase
 
         $emailId = app(OrderEmailService::class)->send(
             $order,
-            OrderEmailService::STATUS,
+            OrderEmailService::DECLINED,
             'Declined',
             'order-status-TB-20261018-DECLINED',
         );
@@ -131,10 +131,55 @@ class OrderEmailTest extends TestCase
         $body = json_decode((string) $request->getBody(), true, flags: JSON_THROW_ON_ERROR);
         $variables = $body['template']['variables'];
 
+        $this->assertSame('template-declined', $body['template']['id']);
         $this->assertSame('Declined', $variables['ORDER_STATUS']);
         $this->assertStringContainsString('very sorry', $variables['STATUS_MESSAGE']);
         $this->assertStringContainsString('did not push through', $variables['STATUS_MESSAGE']);
         $this->assertStringContainsString('sincerely apologize', $variables['STATUS_MESSAGE']);
+    }
+
+    public function test_confirmed_status_email_uses_the_dedicated_confirmed_template(): void
+    {
+        config([
+            'mail.from.address' => 'orders@mail.tonosbellyssimo.online',
+            'mail.from.name' => 'Toño’s Bellyssimo',
+            'services.resend.key' => 're_test_key',
+            'services.resend.templates.order_confirmed' => 'template-confirmed',
+        ]);
+        $transporter = new class implements Transporter
+        {
+            public ?Payload $payload = null;
+
+            public function request(Payload $payload): array
+            {
+                $this->payload = $payload;
+
+                return ['id' => 'email-status-confirmed'];
+            }
+        };
+        Resend::swap(new Client($transporter));
+        $order = Order::factory()->make([
+            'reference' => 'TB-20261018-CONFIRMED',
+            'customer_name' => 'Ana Santos',
+            'email' => 'ana@example.com',
+            'preferred_date' => '2026-10-25',
+            'preferred_time' => '12:00',
+        ]);
+
+        $emailId = app(OrderEmailService::class)->send(
+            $order,
+            OrderEmailService::CONFIRMED,
+            'Confirmed',
+            'order-status-TB-20261018-CONFIRMED',
+        );
+
+        $this->assertSame('email-status-confirmed', $emailId);
+        $this->assertNotNull($transporter->payload);
+        $request = $transporter->payload->toRequest(BaseUri::from('api.resend.test'), new Headers([]));
+        $body = json_decode((string) $request->getBody(), true, flags: JSON_THROW_ON_ERROR);
+
+        $this->assertSame('template-confirmed', $body['template']['id']);
+        $this->assertSame('Confirmed', $body['template']['variables']['ORDER_STATUS']);
     }
 
     public function test_owner_notification_contains_the_order_summary_and_reply_to_customer(): void

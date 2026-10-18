@@ -14,7 +14,9 @@ class OrderEmailService
 
     public const OWNER_NOTIFICATION = 'owner_notification';
 
-    public const STATUS = 'status';
+    public const CONFIRMED = 'confirmed';
+
+    public const DECLINED = 'declined';
 
     public function send(Order $order, string $kind, ?string $status, string $idempotencyKey): ?string
     {
@@ -124,7 +126,8 @@ class OrderEmailService
     {
         $templateId = match ($kind) {
             self::CONFIRMATION => config('services.resend.templates.order_confirmation'),
-            self::STATUS => config('services.resend.templates.order_status'),
+            self::CONFIRMED => config('services.resend.templates.order_confirmed'),
+            self::DECLINED => config('services.resend.templates.order_declined'),
             default => throw new RuntimeException("Unsupported order email kind [{$kind}]."),
         };
 

@@ -22,7 +22,8 @@ return [
         'key' => env('RESEND_API_KEY'),
         'templates' => [
             'order_confirmation' => env('RESEND_ORDER_CONFIRMATION_TEMPLATE'),
-            'order_status' => env('RESEND_ORDER_STATUS_TEMPLATE'),
+            'order_confirmed' => env('RESEND_ORDER_CONFIRMED_TEMPLATE', 'bellyssimo-order-confirmed'),
+            'order_declined' => env('RESEND_ORDER_DECLINED_TEMPLATE', 'bellyssimo-order-declined'),
         ],
         'order_notifications' => [
             'emails' => array_values(array_filter(array_map(

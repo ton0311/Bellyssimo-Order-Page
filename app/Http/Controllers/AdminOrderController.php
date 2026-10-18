@@ -191,12 +191,18 @@ class AdminOrderController extends Controller
         $order->update($updates);
         $order->refresh();
 
-        if ($previousStatus !== $status && $order->email) {
+        $emailKind = match ($status) {
+            'Confirmed' => OrderEmailService::CONFIRMED,
+            'Declined' => OrderEmailService::DECLINED,
+            default => null,
+        };
+
+        if ($previousStatus !== $status && $order->email && $emailKind !== null) {
             $transition = hash('sha256', $previousStatus.'|'.$status.'|'.$order->updated_at?->toISOString());
 
             SendOrderEmail::dispatch(
                 $order->getKey(),
-                OrderEmailService::STATUS,
+                $emailKind,
                 $status,
                 'order-status-'.$order->reference.'-'.substr($transition, 0, 32),
             )->afterResponse();
