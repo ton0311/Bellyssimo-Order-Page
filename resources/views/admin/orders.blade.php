@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/admin-orders.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin-orders.css') }}?v={{ filemtime(public_path('css/admin-orders.css')) }}">
 </head>
 <body>
     <aside class="sidebar" id="sidebar" aria-label="Admin navigation">
@@ -436,6 +436,6 @@
             inventoryUpdateUrlTemplate: @json(route('admin.inventory.update', ['inventoryItem' => '__ITEM__'])),
         };
     </script>
-    <script src="{{ asset('js/admin-orders.js') }}"></script>
+    <script src="{{ asset('js/admin-orders.js') }}?v={{ filemtime(public_path('js/admin-orders.js')) }}"></script>
 </body>
 </html>
