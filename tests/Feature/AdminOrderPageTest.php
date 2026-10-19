@@ -37,6 +37,7 @@ class AdminOrderPageTest extends TestCase
             ->assertSee('Order command center')
             ->assertSee('Track every Bellyssimo order')
             ->assertSee('What needs your attention today')
+            ->assertSee('dashboard-grid overview-insights', false)
             ->assertSee('Customers for future reference')
             ->assertSee('Track kitchen items and supplies')
             ->assertSee('Revenue and order performance')

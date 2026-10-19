@@ -87,7 +87,7 @@
                     <article class="metric-card"><div><span class="material-symbols-rounded">payments</span><small>This month</small></div><strong>₱{{ number_format($dashboard['month_revenue']) }}</strong><p>Completed &amp; paid revenue</p></article>
                 </div>
 
-                <div class="dashboard-grid">
+                <div class="dashboard-grid overview-insights">
                     <article class="dashboard-card chart-card">
                         <div class="card-title"><div><p class="eyebrow">Revenue trend</p><h2>Completed &amp; paid</h2></div><strong>₱{{ number_format($dashboard['total_revenue']) }}</strong></div>
                         <div class="bar-chart" aria-label="Six-month revenue chart">

@@ -320,6 +320,15 @@ dialog::backdrop { background: rgba(37,20,16,.57); backdrop-filter: blur(3px); }
 .attention-card a strong { font-size: 11px; }
 .attention-card a small { margin-top: 3px; color: var(--muted); font-size: 9px; line-height: 1.45; }
 .attention-card a:hover strong { color: var(--wine); }
+.overview-insights .eyebrow,
+.overview-insights .card-title h2,
+.overview-insights .card-title > strong,
+.overview-insights .bar-column small,
+.overview-insights .bar-value,
+.overview-insights .status-breakdown span,
+.overview-insights .status-breakdown strong,
+.overview-insights .attention-card a strong,
+.overview-insights .attention-card a small { font-size: 22px; }
 .summary-pill { min-height: 43px; padding: 0 15px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); background: var(--surface); font-size: 12px; }
 .summary-pill .material-symbols-rounded { color: var(--wine); font-size: 19px; }
 .summary-pill strong { color: var(--wine); }

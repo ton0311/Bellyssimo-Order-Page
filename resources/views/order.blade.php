@@ -155,8 +155,8 @@
         </section>
 
         <section id="booking-form" class="bg-paper py-14 lg:py-20">
-            <div class="mx-auto grid max-w-7xl gap-8 px-4 md:px-8 lg:grid-cols-12 lg:px-14">
-                <div class="lg:col-span-7">
+            <div class="mx-auto max-w-4xl px-4 md:px-8 lg:px-14">
+                <div>
                     <div class="rounded-3xl bg-white p-6 shadow-xl shadow-wine/5 md:p-8">
                         <p class="text-xs font-extrabold uppercase tracking-[0.2em] text-rust">Step 2 • Your details</p>
                         <h2 class="mt-2 font-display text-3xl font-extrabold text-wine">Prepare your booking request</h2>
@@ -298,31 +298,6 @@
                     </div>
                 </div>
 
-                <aside class="lg:col-span-5">
-                    <div class="sticky top-28 rounded-3xl bg-wine p-6 text-white shadow-2xl shadow-wine/20 md:p-8">
-                        <p class="text-xs font-extrabold uppercase tracking-[0.2em] text-gold">Your feast</p>
-                        <h2 class="mt-2 font-display text-2xl font-extrabold">Mixed Belly Order</h2>
-                        <p class="mt-2 text-sm text-white/70" id="summary-count">1 belly • package and flavor selected separately</p>
-                        <div class="my-6 h-px bg-white/15"></div>
-                        <div class="space-y-3" id="summary-items"></div>
-                        <div class="my-6 h-px bg-white/15"></div>
-                        <div class="space-y-3 text-sm">
-                            <div class="flex justify-between gap-4"><span class="text-white/70">Bellies subtotal</span><span class="font-bold" id="summary-subtotal">₱2,550</span></div>
-                            <div class="flex justify-between gap-4"><span class="text-white/70">Spicy upgrades</span><span class="font-bold text-right" id="summary-addon">0 × ₱50 = ₱0</span></div>
-                            <div class="flex justify-between gap-4"><span class="text-white/70">Belly order total</span><span class="font-bold" id="summary-order-total">₱2,550</span></div>
-                            <div class="flex justify-between gap-4"><span class="text-white/70">Fulfillment</span><span class="font-bold" id="summary-fulfillment">Pickup</span></div>
-                            <div class="flex justify-between gap-4"><span class="text-white/70">Payment method</span><span class="font-bold" id="summary-payment-method">Cash</span></div>
-                            <div class="flex justify-between gap-4"><span class="text-white/70">Pickup / delivery fee</span><span class="font-bold text-right" id="summary-delivery-fee">₱0</span></div>
-                        </div>
-                        <div class="my-6 h-px bg-white/15"></div>
-                        <div class="flex items-end justify-between gap-4">
-                            <span class="font-bold">Total payment</span>
-                            <span class="font-display text-3xl font-extrabold text-gold" id="summary-total">₱2,550</span>
-                        </div>
-                        <p class="mt-4 text-xs leading-5 text-white/65" id="summary-payment-note">Pickup has no added fulfillment fee. Final booking details are confirmed directly by the Toño’s Bellyssimo team.</p>
-
-                    </div>
-                </aside>
             </div>
         </section>
     </main>
@@ -337,7 +312,6 @@
         const packageCatalog = {{ Js::from($packageCatalog) }};
         const packageInputs = [...document.querySelectorAll('input[name="package-card"]')];
         const fulfillmentInputs = [...document.querySelectorAll('input[name="fulfillment"]')];
-        const paymentMethodInputs = [...document.querySelectorAll('input[name="payment_method"]')];
         const orderItemList = document.querySelector('#order-item-list');
         const addOrderItemButton = document.querySelector('#add-order-item');
         const orderLimitNote = document.querySelector('#order-limit-note');
@@ -353,10 +327,6 @@
 
         function selectedFulfillment() {
             return fulfillmentInputs.find((input) => input.checked)?.value ?? 'Pickup';
-        }
-
-        function selectedPaymentMethod() {
-            return paymentMethodInputs.find((input) => input.checked)?.value ?? 'Cash';
         }
 
         function packageOptions(selectedPackage) {
@@ -431,44 +401,8 @@
             deliveryLocationInput.required = isDelivery;
         }
 
-        function updateSummary() {
-            const packageSubtotal = orderItems.reduce((total, item) => total + packageCatalog[item.package].price, 0);
-            const spicyCount = orderItems.filter((item) => item.flavor === 'Spicy').length;
-            const spicySubtotal = spicyCount * 50;
-            const orderTotal = packageSubtotal + spicySubtotal;
-            const fulfillment = selectedFulfillment();
-            const isDelivery = fulfillment === 'Delivery';
-
-            document.querySelector('#summary-count').textContent = `${orderItems.length} ${orderItems.length === 1 ? 'belly' : 'bellies'} • package and flavor selected separately`;
-            document.querySelector('#summary-items').innerHTML = orderItems.map((item, index) => {
-                const packageDetails = packageCatalog[item.package];
-                const lineTotal = packageDetails.price + (item.flavor === 'Spicy' ? 50 : 0);
-
-                return `
-                    <div class="rounded-xl bg-white/8 p-3 text-sm">
-                        <div class="flex items-start justify-between gap-3">
-                            <span class="font-bold">#${index + 1} ${packageDetails.short_name} ${packageDetails.weight}</span>
-                            <span class="font-extrabold text-gold">${pesos.format(lineTotal)}</span>
-                        </div>
-                        <span class="mt-1 block text-xs text-white/65">${item.flavor}${item.flavor === 'Spicy' ? ' (+₱50)' : ''}</span>
-                    </div>
-                `;
-            }).join('');
-            document.querySelector('#summary-subtotal').textContent = pesos.format(packageSubtotal);
-            document.querySelector('#summary-addon').textContent = `${spicyCount} × ₱50 = ${pesos.format(spicySubtotal)}`;
-            document.querySelector('#summary-order-total').textContent = pesos.format(orderTotal);
-            document.querySelector('#summary-fulfillment').textContent = fulfillment;
-            document.querySelector('#summary-payment-method').textContent = selectedPaymentMethod();
-            document.querySelector('#summary-delivery-fee').textContent = isDelivery ? 'To be confirmed' : '₱0';
-            document.querySelector('#summary-total').textContent = isDelivery ? `${pesos.format(orderTotal)} + fee` : pesos.format(orderTotal);
-            document.querySelector('#summary-payment-note').textContent = isDelivery
-                ? 'The exact delivery fee depends on the location and is added only after confirmation.'
-                : 'Pickup has no added fulfillment fee. Final booking details are confirmed directly by the Toño’s Bellyssimo team.';
-        }
-
         function renderOrder() {
             renderOrderItems();
-            updateSummary();
         }
 
         packageInputs.forEach((input) => input.addEventListener('change', () => {
@@ -506,11 +440,7 @@
             orderItems.push({ package: selectedStarterPackage(), flavor: 'Regular' });
             renderOrder();
         });
-        fulfillmentInputs.forEach((input) => input.addEventListener('change', () => {
-            updateFulfillmentDetails();
-            updateSummary();
-        }));
-        paymentMethodInputs.forEach((input) => input.addEventListener('change', updateSummary));
+        fulfillmentInputs.forEach((input) => input.addEventListener('change', updateFulfillmentDetails));
 
         const preferredDateInput = document.querySelector('input[name="preferred_date"]');
         const preferredTimeSelect = document.querySelector('select[name="preferred_time"]');
