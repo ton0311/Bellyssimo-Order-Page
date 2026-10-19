@@ -73,8 +73,11 @@ MAIL_MAILER=resend
 MAIL_FROM_ADDRESS="orders@mail.tonosbellyssimo.online"
 MAIL_FROM_NAME="Toño's Bellyssimo"
 RESEND_API_KEY=re_your_sending_only_key
-RESEND_ORDER_CONFIRMATION_TEMPLATE=your_confirmation_template_id
-RESEND_ORDER_STATUS_TEMPLATE=your_status_template_id
+RESEND_ORDER_CONFIRMATION_TEMPLATE=bellyssimo-order-confirmation
+RESEND_ORDER_CONFIRMED_TEMPLATE=bellyssimo-order-confirmed
+RESEND_ORDER_DECLINED_TEMPLATE=bellyssimo-order-declined
+RESEND_GCASH_PAYMENT_TEMPLATE=bellyssimo-gcash-payment
+GCASH_QR_URL=https://tonosbellyssimo.online/images/gcash-payment-qr.jpeg
 ORDER_NOTIFICATION_EMAILS=you@example.com,backup@example.com
 ```
 

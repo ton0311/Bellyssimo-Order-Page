@@ -177,6 +177,24 @@ class AdminOrderPageTest extends TestCase
         });
     }
 
+    public function test_confirming_a_gcash_order_queues_confirmation_and_payment_emails(): void
+    {
+        Queue::fake();
+        $order = Order::factory()->create([
+            'email' => 'ana@example.com',
+            'status' => 'Pending confirmation',
+            'payment_method' => 'GCash',
+        ]);
+
+        $this->patchJson(route('admin.orders.status', $order), [
+            'status' => 'Confirmed',
+        ])->assertOk();
+
+        Queue::assertPushed(SendOrderEmail::class, 2);
+        Queue::assertPushed(SendOrderEmail::class, fn (SendOrderEmail $job): bool => $job->kind === OrderEmailService::CONFIRMED);
+        Queue::assertPushed(SendOrderEmail::class, fn (SendOrderEmail $job): bool => $job->kind === OrderEmailService::GCASH_PAYMENT);
+    }
+
     public function test_other_status_changes_do_not_queue_a_customer_email(): void
     {
         Queue::fake();

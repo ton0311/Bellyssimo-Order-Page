@@ -18,6 +18,8 @@ class OrderEmailService
 
     public const DECLINED = 'declined';
 
+    public const GCASH_PAYMENT = 'gcash_payment';
+
     public function send(Order $order, string $kind, ?string $status, string $idempotencyKey): ?string
     {
         if ($kind === self::OWNER_NOTIFICATION) {
@@ -40,12 +42,33 @@ class OrderEmailService
             return null;
         }
 
+        $variables = $this->variables($order, $status);
+
+        if ($kind === self::GCASH_PAYMENT) {
+            if ($order->payment_method !== 'GCash') {
+                return null;
+            }
+
+            $gcashQrUrl = config('services.resend.gcash.qr_url');
+
+            if (! is_string($gcashQrUrl) || ! str_starts_with($gcashQrUrl, 'https://')) {
+                Log::warning('GCash payment email skipped because the QR code URL is not configured.', [
+                    'order_reference' => $order->reference,
+                    'email_kind' => $kind,
+                ]);
+
+                return null;
+            }
+
+            $variables['GCASH_QR_URL'] = $gcashQrUrl;
+        }
+
         $email = Resend::emails()->send([
             'from' => sprintf('%s <%s>', config('mail.from.name'), config('mail.from.address')),
             'to' => [$order->email],
             'template' => [
                 'id' => $templateId,
-                'variables' => $this->variables($order, $status),
+                'variables' => $variables,
             ],
             'tags' => [
                 ['name' => 'order_reference', 'value' => $order->reference],
@@ -128,6 +151,7 @@ class OrderEmailService
             self::CONFIRMATION => config('services.resend.templates.order_confirmation'),
             self::CONFIRMED => config('services.resend.templates.order_confirmed'),
             self::DECLINED => config('services.resend.templates.order_declined'),
+            self::GCASH_PAYMENT => config('services.resend.templates.order_gcash_payment'),
             default => throw new RuntimeException("Unsupported order email kind [{$kind}]."),
         };
 

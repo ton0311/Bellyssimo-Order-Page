@@ -31,6 +31,10 @@ class ConfigureProductionMailCommandTest extends TestCase
             $this->assertStringContainsString('MAIL_MAILER="resend"', $contents);
             $this->assertStringContainsString('MAIL_FROM_ADDRESS="orders@mail.tonosbellyssimo.online"', $contents);
             $this->assertStringContainsString('MAIL_FROM_NAME="Toño\'s Bellyssimo"', $contents);
+            $this->assertStringContainsString('RESEND_ORDER_CONFIRMATION_TEMPLATE="bellyssimo-order-confirmation"', $contents);
+            $this->assertStringContainsString('RESEND_ORDER_CONFIRMED_TEMPLATE="bellyssimo-order-confirmed"', $contents);
+            $this->assertStringContainsString('RESEND_ORDER_DECLINED_TEMPLATE="bellyssimo-order-declined"', $contents);
+            $this->assertStringContainsString('RESEND_GCASH_PAYMENT_TEMPLATE="bellyssimo-gcash-payment"', $contents);
         } finally {
             unlink($environmentFile);
         }

@@ -21,9 +21,14 @@ return [
     'resend' => [
         'key' => env('RESEND_API_KEY'),
         'templates' => [
-            'order_confirmation' => env('RESEND_ORDER_CONFIRMATION_TEMPLATE'),
-            'order_confirmed' => env('RESEND_ORDER_CONFIRMED_TEMPLATE', 'bellyssimo-order-confirmed'),
-            'order_declined' => env('RESEND_ORDER_DECLINED_TEMPLATE', 'bellyssimo-order-declined'),
+            'order_confirmation' => env('RESEND_ORDER_CONFIRMATION_TEMPLATE') ?: 'bellyssimo-order-confirmation',
+            'order_confirmed' => env('RESEND_ORDER_CONFIRMED_TEMPLATE') ?: 'bellyssimo-order-confirmed',
+            'order_declined' => env('RESEND_ORDER_DECLINED_TEMPLATE') ?: 'bellyssimo-order-declined',
+            'order_gcash_payment' => env('RESEND_GCASH_PAYMENT_TEMPLATE') ?: 'bellyssimo-gcash-payment',
+        ],
+        'gcash' => [
+            'qr_url' => env('GCASH_QR_URL')
+                ?: rtrim((string) env('APP_URL', 'http://localhost'), '/').'/images/gcash-payment-qr.jpeg',
         ],
         'order_notifications' => [
             'emails' => array_values(array_filter(array_map(

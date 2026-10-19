@@ -134,6 +134,10 @@ Artisan::command('app:mail {apiKey} {environmentFile?}', function (): int {
         'MAIL_MAILER' => 'resend',
         'MAIL_FROM_ADDRESS' => 'orders@mail.tonosbellyssimo.online',
         'MAIL_FROM_NAME' => "Toño's Bellyssimo",
+        'RESEND_ORDER_CONFIRMATION_TEMPLATE' => 'bellyssimo-order-confirmation',
+        'RESEND_ORDER_CONFIRMED_TEMPLATE' => 'bellyssimo-order-confirmed',
+        'RESEND_ORDER_DECLINED_TEMPLATE' => 'bellyssimo-order-declined',
+        'RESEND_GCASH_PAYMENT_TEMPLATE' => 'bellyssimo-gcash-payment',
     ];
 
     foreach ($settings as $key => $value) {

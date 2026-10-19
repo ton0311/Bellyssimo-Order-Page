@@ -182,6 +182,53 @@ class OrderEmailTest extends TestCase
         $this->assertSame('Confirmed', $body['template']['variables']['ORDER_STATUS']);
     }
 
+    public function test_gcash_payment_email_uses_the_qr_code_url_and_dedicated_template(): void
+    {
+        config([
+            'mail.from.address' => 'orders@mail.tonosbellyssimo.online',
+            'mail.from.name' => 'Toño’s Bellyssimo',
+            'services.resend.key' => 're_test_key',
+            'services.resend.templates.order_gcash_payment' => 'template-gcash-payment',
+            'services.resend.gcash.qr_url' => 'https://tonosbellyssimo.online/images/gcash-payment-qr.jpeg',
+        ]);
+        $transporter = new class implements Transporter
+        {
+            public ?Payload $payload = null;
+
+            public function request(Payload $payload): array
+            {
+                $this->payload = $payload;
+
+                return ['id' => 'email-gcash-payment'];
+            }
+        };
+        Resend::swap(new Client($transporter));
+        $order = Order::factory()->make([
+            'reference' => 'TB-20261019-GCASH',
+            'customer_name' => 'Ana Santos',
+            'email' => 'ana@example.com',
+            'payment_method' => 'GCash',
+            'preferred_date' => '2026-10-25',
+            'preferred_time' => '12:00',
+        ]);
+
+        $emailId = app(OrderEmailService::class)->send(
+            $order,
+            OrderEmailService::GCASH_PAYMENT,
+            'Confirmed',
+            'order-gcash-payment-TB-20261019-GCASH',
+        );
+
+        $this->assertSame('email-gcash-payment', $emailId);
+        $this->assertNotNull($transporter->payload);
+        $request = $transporter->payload->toRequest(BaseUri::from('api.resend.test'), new Headers([]));
+        $body = json_decode((string) $request->getBody(), true, flags: JSON_THROW_ON_ERROR);
+
+        $this->assertSame('template-gcash-payment', $body['template']['id']);
+        $this->assertSame('https://tonosbellyssimo.online/images/gcash-payment-qr.jpeg', $body['template']['variables']['GCASH_QR_URL']);
+        $this->assertSame('₱2,000', $body['template']['variables']['ORDER_TOTAL']);
+    }
+
     public function test_owner_notification_contains_the_order_summary_and_reply_to_customer(): void
     {
         config([
