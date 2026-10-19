@@ -153,7 +153,7 @@
                 </div>
 
                 <div class="calendar-legend" aria-label="Order status legend">
-                    @foreach (['Pending confirmation', 'Confirmed', 'Completed', 'Declined', 'Cancelled'] as $status)
+                    @foreach (['Pending confirmation', 'Confirmed', 'Completed'] as $status)
                         <span data-status="{{ $status }}"><i></i>{{ $status }}</span>
                     @endforeach
                 </div>

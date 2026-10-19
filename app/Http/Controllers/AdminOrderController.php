@@ -91,6 +91,7 @@ class AdminOrderController extends Controller
             : CarbonImmutable::now()->startOfMonth();
         $monthEnd = $month->endOfMonth();
         $orderModels = Order::query()
+            ->whereNotIn('status', ['Declined', 'Cancelled'])
             ->whereBetween('preferred_date', [$month->toDateString(), $monthEnd->toDateString()])
             ->orderBy('preferred_date')
             ->orderBy('preferred_time')

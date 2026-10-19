@@ -87,6 +87,16 @@ class AdminOrderPageTest extends TestCase
             'customer_name' => 'November Celebration',
             'preferred_date' => now()->addMonth()->startOfMonth()->toDateString(),
         ]);
+        $declinedOrder = Order::factory()->create([
+            'customer_name' => 'Declined Celebration',
+            'preferred_date' => now()->startOfMonth()->addDays(21)->toDateString(),
+            'status' => 'Declined',
+        ]);
+        $cancelledOrder = Order::factory()->create([
+            'customer_name' => 'Cancelled Celebration',
+            'preferred_date' => now()->startOfMonth()->addDays(22)->toDateString(),
+            'status' => 'Cancelled',
+        ]);
 
         $response = $this->get(route('admin.schedule', [
             'month' => now()->format('Y-m'),
@@ -100,6 +110,9 @@ class AdminOrderPageTest extends TestCase
             ->assertSee('October Celebration')
             ->assertSee($scheduledOrder->reference)
             ->assertDontSee('November Celebration')
+            ->assertDontSee($declinedOrder->reference)
+            ->assertDontSee($cancelledOrder->reference)
+            ->assertViewHas('totalOrders', 1)
             ->assertSee(asset('css/admin-schedule.css'), false)
             ->assertSee(asset('js/admin-schedule.js'), false);
     }
