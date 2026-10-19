@@ -218,7 +218,7 @@
                                     <label class="block text-sm font-bold text-ink" for="delivery-location">Delivery location
                                         <textarea class="mt-2 min-h-24 w-full resize-y rounded-xl border border-wine/15 bg-cream px-4 py-3 font-normal outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10" id="delivery-location" name="delivery_location" maxlength="300" placeholder="Barangay, street, landmark, and city">{{ old('delivery_location', $draft['delivery_location'] ?? '') }}</textarea>
                                     </label>
-                                    <p class="mt-2 text-xs leading-5 text-muted">The delivery fee depends on this location and will be shouldered by the customer. Toño’s Bellyssimo will confirm the fee before finalizing the booking.</p>
+                                    <p class="mt-2 text-xs leading-5 text-muted">Delivery fee will be shouldered by the customer.</p>
                                 </div>
                             </fieldset>
 
@@ -250,28 +250,28 @@
                             </fieldset>
 
                             <div class="grid gap-5 sm:grid-cols-2">
-                                <label class="block text-sm font-bold text-ink">First name
+                                <label class="block text-sm font-bold text-ink">First name <span aria-hidden="true" style="color: #b91c1c;">*</span>
                                     <input class="mt-2 w-full rounded-xl border border-wine/15 bg-cream px-4 py-3 font-normal outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10" type="text" name="first_name" autocomplete="given-name" required maxlength="60" value="{{ $draftFirstName }}" placeholder="e.g. Juan">
                                 </label>
-                                <label class="block text-sm font-bold text-ink">Last name
+                                <label class="block text-sm font-bold text-ink">Last name <span aria-hidden="true" style="color: #b91c1c;">*</span>
                                     <input class="mt-2 w-full rounded-xl border border-wine/15 bg-cream px-4 py-3 font-normal outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10" type="text" name="last_name" autocomplete="family-name" required maxlength="60" value="{{ $draftLastName }}" placeholder="e.g. Dela Cruz">
                                 </label>
-                                <label class="block text-sm font-bold text-ink sm:col-span-2">Contact number
+                                <label class="block text-sm font-bold text-ink sm:col-span-2">Contact number <span aria-hidden="true" style="color: #b91c1c;">*</span>
                                     <span class="mt-2 flex overflow-hidden rounded-xl border border-wine/15 bg-cream transition focus-within:border-rust focus-within:ring-4 focus-within:ring-rust/10">
                                         <span class="flex items-center border-r border-wine/10 bg-blush px-4 font-extrabold text-wine">+63</span>
                                         <input class="min-w-0 flex-1 bg-transparent px-4 py-3 font-normal outline-none" type="tel" name="contact_number" autocomplete="tel-national" required inputmode="numeric" pattern="9[0-9]{9}" maxlength="10" value="{{ $draftContactNumber }}" placeholder="917 123 4567" aria-describedby="contact-number-note">
                                     </span>
                                     <span class="mt-2 block text-xs font-normal leading-5 text-muted" id="contact-number-note">Do not include the first 0. Enter the 10-digit mobile number starting with 9.</span>
                                 </label>
-                                <label class="block text-sm font-bold text-ink sm:col-span-2">Email address
+                                <label class="block text-sm font-bold text-ink sm:col-span-2">Email address <span aria-hidden="true" style="color: #b91c1c;">*</span>
                                     <input class="mt-2 w-full rounded-xl border border-wine/15 bg-cream px-4 py-3 font-normal outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10" type="email" name="email" autocomplete="email" required maxlength="254" value="{{ $draftEmail }}" placeholder="e.g. juan@example.com" aria-describedby="email-note">
                                     <span class="mt-2 block text-xs font-normal leading-5 text-muted" id="email-note">Your booking confirmation and future status updates will be sent here.</span>
                                 </label>
-                                <label class="block text-sm font-bold text-ink">Preferred date
+                                <label class="block text-sm font-bold text-ink">Preferred date <span aria-hidden="true" style="color: #b91c1c;">*</span>
                                     <input class="mt-2 w-full rounded-xl border border-wine/15 bg-cream px-4 py-3 font-normal outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10" type="date" name="preferred_date" required value="{{ old('preferred_date', $draft['preferred_date'] ?? '') }}">
                                     <span class="mt-2 block text-xs font-normal leading-5 text-muted">Please book at least 48 hours before your preferred pickup or delivery schedule.</span>
                                 </label>
-                                <label class="block text-sm font-bold text-ink">Preferred pickup or delivery time
+                                <label class="block text-sm font-bold text-ink">Preferred pickup or delivery time <span aria-hidden="true" style="color: #b91c1c;">*</span>
                                     <select class="mt-2 w-full rounded-xl border border-wine/15 bg-cream px-4 py-3 font-normal outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10" name="preferred_time" required>
                                         <option value="">Choose a pickup or delivery time</option>
                                         @foreach ($preferredTimeOptions as $timeOption)

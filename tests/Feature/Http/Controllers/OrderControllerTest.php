@@ -17,6 +17,8 @@ class OrderControllerTest extends TestCase
     {
         $response = $this->get(route('order'));
 
+        $this->assertSame(6, substr_count($response->getContent(), 'style="color: #b91c1c;"'));
+
         $response
             ->assertOk()
             ->assertViewIs('order')
@@ -51,6 +53,8 @@ class OrderControllerTest extends TestCase
             ->assertSee('Preferred pickup or delivery time')
             ->assertSee('Select the time you want to pick up your order or receive the delivery. Available from 11:00 AM to 7:00 PM.')
             ->assertSee('Please book at least 48 hours before your preferred pickup or delivery schedule.')
+            ->assertSee('Delivery fee will be shouldered by the customer.')
+            ->assertDontSee('The delivery fee depends on this location')
             ->assertSee('value="11:00"', false)
             ->assertSee('>11:00 AM</option>', false)
             ->assertSee('value="19:00"', false)
