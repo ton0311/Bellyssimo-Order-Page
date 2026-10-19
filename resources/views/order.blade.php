@@ -261,7 +261,7 @@
                                         <span class="flex items-center border-r border-wine/10 bg-blush px-4 font-extrabold text-wine">+63</span>
                                         <input class="min-w-0 flex-1 bg-transparent px-4 py-3 font-normal outline-none" type="tel" name="contact_number" autocomplete="tel-national" required inputmode="numeric" pattern="9[0-9]{9}" maxlength="10" value="{{ $draftContactNumber }}" placeholder="917 123 4567" aria-describedby="contact-number-note">
                                     </span>
-                                    <span class="mt-2 block text-xs font-normal leading-5 text-muted" id="contact-number-note">Use an existing and active mobile number. We or the delivery rider may call this number about your booking or delivery.</span>
+                                    <span class="mt-2 block text-xs font-normal leading-5 text-muted" id="contact-number-note">Do not include the first 0. Enter the 10-digit mobile number starting with 9.</span>
                                 </label>
                                 <label class="block text-sm font-bold text-ink sm:col-span-2">Email address
                                     <input class="mt-2 w-full rounded-xl border border-wine/15 bg-cream px-4 py-3 font-normal outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10" type="email" name="email" autocomplete="email" required maxlength="254" value="{{ $draftEmail }}" placeholder="e.g. juan@example.com" aria-describedby="email-note">
