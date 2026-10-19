@@ -223,6 +223,7 @@ tbody tr.selected { background: #fbf0ea; box-shadow: inset 3px 0 var(--orange); 
 .inspector-head h2 { margin: 9px 0 2px; color: var(--wine-dark); font-size: 21px; }
 .inspector-head p { margin: 0; color: var(--muted); font-size: 10px; }
 .inspector-head .icon-button { width: 32px; height: 32px; }
+#close-inspector { align-self: center; flex: 0 0 auto; padding: 0; }
 .customer-summary { margin: 17px 18px; padding: 13px; display: flex; align-items: center; gap: 10px; border-radius: 13px; background: var(--surface-warm); }
 .customer-avatar { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--wine); font-size: 12px; font-weight: 800; }
 .customer-summary > div { min-width: 0; flex: 1; }
