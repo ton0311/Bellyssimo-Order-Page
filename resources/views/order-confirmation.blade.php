@@ -121,7 +121,7 @@
                     <div class="mt-6 space-y-4 text-sm">
                         @foreach ($order['items'] as $index => $item)
                             <div class="flex justify-between gap-4">
-                                <span class="text-white/70">#{{ $index + 1 }} {{ $item['package']['name'] }}</span>
+                                <span class="text-white/70">#{{ $index + 1 }} {{ $item['package']['name'] }} {{ $item['package']['weight'] }}</span>
                                 <span class="font-bold">₱{{ number_format($item['line_total']) }}</span>
                             </div>
                         @endforeach

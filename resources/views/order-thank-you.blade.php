@@ -32,10 +32,6 @@
                             <p class="mt-3 max-w-2xl text-lg leading-8 text-muted">Your booking request has been placed successfully. Toño’s Bellyssimo will review the schedule and contact you directly.</p>
                         </div>
                     </div>
-                    <button class="no-print inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-wine shadow-sm transition hover:bg-blush" type="button" onclick="window.print()">
-                        <span aria-hidden="true" class="material-symbols-outlined text-lg text-rust">print</span>
-                        Print / Save Request
-                    </button>
                 </div>
             </div>
         </section>
@@ -46,7 +42,24 @@
                 <div class="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                     <div>
                         <p class="text-xs font-extrabold uppercase tracking-[0.2em] text-gold">Booking reference</p>
-                        <p class="mt-2 font-display text-3xl font-extrabold">#{{ $order['reference'] }}</p>
+                        <div class="mt-2 flex flex-wrap items-center gap-3">
+                            <p class="font-display text-3xl font-extrabold">#{{ $order['reference'] }}</p>
+                            <button
+                                id="copy-booking-reference"
+                                class="no-print inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-sm font-bold text-white transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-gold"
+                                type="button"
+                                data-reference="#{{ $order['reference'] }}"
+                                aria-label="Copy booking reference {{ $order['reference'] }}"
+                                aria-describedby="copy-reference-status"
+                            >
+                                <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <rect width="13" height="13" x="8" y="8" rx="2"></rect>
+                                    <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path>
+                                </svg>
+                                <span data-copy-label>Copy</span>
+                            </button>
+                        </div>
+                        <p id="copy-reference-status" class="sr-only" role="status" aria-live="polite"></p>
                         <p class="mt-2 text-sm text-white/70">Submitted {{ $order['submitted_at'] }} <span class="font-bold text-gold">PHT</span></p>
                         <p class="mt-1 text-xs text-white/55">Philippine Standard Time (Asia/Manila)</p>
                     </div>
@@ -166,5 +179,50 @@
         <p class="mt-2 text-sm font-semibold italic text-rust">Beautifully crispy, dangerously juicy</p>
         <p class="mt-3 text-xs text-muted">Est. 2026 • Ozamiz City, Misamis Occidental</p>
     </footer>
+    <script>
+        const copyReferenceButton = document.getElementById('copy-booking-reference');
+
+        const copyWithFallback = (text) => {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.setAttribute('readonly', '');
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            const copied = document.execCommand('copy');
+            textArea.remove();
+
+            return copied;
+        };
+
+        copyReferenceButton?.addEventListener('click', async () => {
+            const reference = copyReferenceButton.dataset.reference;
+            const label = copyReferenceButton.querySelector('[data-copy-label]');
+            const status = document.getElementById('copy-reference-status');
+            let copied = false;
+
+            try {
+                if (navigator.clipboard?.writeText) {
+                    await navigator.clipboard.writeText(reference);
+                    copied = true;
+                } else {
+                    copied = copyWithFallback(reference);
+                }
+            } catch {
+                copied = copyWithFallback(reference);
+            }
+
+            label.textContent = copied ? 'Copied' : 'Copy failed';
+            status.textContent = copied
+                ? 'Booking reference copied.'
+                : 'Unable to copy the booking reference.';
+
+            window.setTimeout(() => {
+                label.textContent = 'Copy';
+                status.textContent = '';
+            }, 2000);
+        });
+    </script>
 </body>
 </html>

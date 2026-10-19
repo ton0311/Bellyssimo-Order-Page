@@ -113,9 +113,11 @@ class OrderControllerTest extends TestCase
             ->assertViewIs('order-confirmation')
             ->assertSee('Confirm Your Booking Request')
             ->assertSee('The Bellyssimo Barkadahan')
+            ->assertSee('#1 The Bellyssimo Barkadahan 3 kg')
             ->assertSee('Belly Order #1')
             ->assertSee('Spicy')
             ->assertSee('Bellyssimo Handaan')
+            ->assertSee('#2 Bellyssimo Handaan 5 kg')
             ->assertSee('Belly Order #2')
             ->assertSee('Regular')
             ->assertSee('₱4,950')
@@ -183,7 +185,9 @@ class OrderControllerTest extends TestCase
             ->assertSee('juan@example.com')
             ->assertSee('What happens next?')
             ->assertSee('Call 0976-2271-228')
-            ->assertSee('Print / Save')
+            ->assertSee('id="copy-booking-reference"', false)
+            ->assertSee('Copy booking reference')
+            ->assertDontSee('Print / Save Request')
             ->assertSee('No payment is collected on this website');
     }
 
