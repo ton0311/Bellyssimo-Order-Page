@@ -328,7 +328,7 @@ dialog::backdrop { background: rgba(37,20,16,.57); backdrop-filter: blur(3px); }
 .overview-insights .status-breakdown span,
 .overview-insights .status-breakdown strong,
 .overview-insights .attention-card a strong,
-.overview-insights .attention-card a small { font-size: 22px; }
+.overview-insights .attention-card a small { font-size: 18px; }
 .summary-pill { min-height: 43px; padding: 0 15px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); background: var(--surface); font-size: 12px; }
 .summary-pill .material-symbols-rounded { color: var(--wine); font-size: 19px; }
 .summary-pill strong { color: var(--wine); }
@@ -436,6 +436,36 @@ dialog::backdrop { background: rgba(37,20,16,.57); backdrop-filter: blur(3px); }
     .data-panel tbody tr { margin: 0; padding: 0; display: table-row; border: 0; border-radius: 0; }
     .data-panel td { padding: 14px 12px !important; display: table-cell !important; border-top: 1px solid #f0e8e3; text-align: left !important; }
 }
+
+#orders .panel-heading p,
+#orders .search-box input,
+#orders .date-filter select,
+#orders .status-tabs button,
+#orders th,
+#orders td,
+#orders .order-cell strong,
+#orders .order-cell span,
+#orders .customer-cell strong,
+#orders .customer-cell span,
+#orders .schedule-cell strong,
+#orders .schedule-cell span,
+#orders .status-badge,
+#orders .inspector-head p,
+#orders .customer-summary strong,
+#orders .customer-summary a,
+#orders .detail-section h3,
+#orders .product-line > div strong,
+#orders .product-line > div span,
+#orders .product-line > strong,
+#orders .order-grand-total span,
+#orders .detail-grid dt,
+#orders .detail-grid dd,
+#orders .status-control label,
+#orders .status-control select,
+#orders .status-control .primary-button,
+#orders .order-danger-zone strong,
+#orders .order-danger-zone > div > span,
+#orders .danger-button { font-size: 13px; }
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
