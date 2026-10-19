@@ -241,7 +241,7 @@
                                             <span aria-hidden="true" class="material-symbols-outlined text-rust">account_balance_wallet</span>
                                             <span>
                                                 <span class="block font-bold text-wine">GCash</span>
-                                                <span class="text-xs leading-5 text-muted">Payment details will be sent after availability is confirmed.</span>
+                                                <span class="text-xs leading-5 text-muted">GCash payment details will be sent to your email after your booking is confirmed.</span>
                                             </span>
                                         </span>
                                     </label>

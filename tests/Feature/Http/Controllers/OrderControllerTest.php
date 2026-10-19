@@ -43,6 +43,7 @@ class OrderControllerTest extends TestCase
             ->assertSee('Pickup or delivery')
             ->assertSee('Payment option')
             ->assertSee('GCash')
+            ->assertSee('GCash payment details will be sent to your email after your booking is confirmed.')
             ->assertSee('First name')
             ->assertSee('Last name')
             ->assertSee('Do not include the first 0. Enter the 10-digit mobile number starting with 9.')
