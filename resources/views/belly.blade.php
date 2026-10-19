@@ -30,19 +30,10 @@
                 <h1 class="mt-5 max-w-3xl font-display text-4xl font-extrabold leading-tight tracking-tight text-white drop-shadow-lg md:text-6xl">Our Signature Lechon Belly Packages</h1>
                 <p class="mt-4 font-display text-lg font-bold italic text-gold md:text-xl">“Beautifully crispy, dangerously juicy”</p>
                 <p class="mt-4 max-w-2xl text-base leading-7 text-white/85 drop-shadow-sm">Choose the whole lechon belly size that fits your barkada, family salo-salo, or special handaan.</p>
-                <div class="mt-7 flex max-w-2xl flex-col items-center gap-3 rounded-2xl border border-white/25 bg-white/90 p-4 shadow-xl backdrop-blur-md sm:flex-row sm:text-left">
-                    <span class="grid size-11 shrink-0 place-items-center" aria-label="Spicy" role="img">
-                        <svg aria-hidden="true" class="size-10" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M48.7 14.6c3.2-4.2 3.1-8.2.6-11.7 5.4-.6 8.5 3.6 6.5 8.5-.7 1.7-1.9 3.4-3.6 5l-3.5-1.8Z" fill="#7fa800"/>
-                            <path d="M50.9 14.2c6.4 4.2 7.3 12.8 3 21.2C46.8 49.3 27.4 59.5 7.7 55.7 2.9 54.8 1.9 50.8 6.4 49c15.3-5.9 23.9-11.2 32.5-22.9 4.9-6.7 7.4-14.9 12-11.9Z" fill="#ef3500"/>
-                            <path d="M46.2 20.4c-5.2 1.7-9.9 5.3-13.7 10.6" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="3.8"/>
-                            <path d="M28.5 35.8c-1.2 1.5-2.4 2.7-3.8 3.8" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="3.8"/>
-                        </svg>
-                    </span>
-                    <div>
-                        <p class="font-bold text-wine">Fiesta upgrade: Make it Spicy <span class="ml-1 rounded-full bg-gold/55 px-2 py-1 text-xs">+₱50</span></p>
-                        <p class="mt-1 text-sm text-muted">Available for all three package sizes.</p>
-                    </div>
+                <div class="mt-5 inline-flex flex-wrap items-center gap-2 rounded-full border border-white/25 bg-white/90 px-4 py-2 shadow-lg backdrop-blur-md">
+                    <span class="text-sm font-bold text-wine">Make it Spicy</span>
+                    <span class="rounded-full bg-gold/55 px-2 py-1 text-xs font-bold text-wine">+₱50</span>
+                    <span class="text-xs text-muted">All sizes</span>
                 </div>
                 </div>
             </div>
