@@ -53,7 +53,7 @@ class OrderControllerTest extends TestCase
             ->assertSee('>+63<', false)
             ->assertSee('Preferred pickup or delivery time')
             ->assertSee('Select the time you want to pick up your order or receive the delivery. Available from 11:00 AM to 7:00 PM.')
-            ->assertSee('Please book at least 48 hours before your preferred pickup or delivery schedule.')
+            ->assertSee('Please book at least 24 hours before your preferred pickup or delivery schedule.')
             ->assertSee('Delivery fee will be shouldered by the customer.')
             ->assertDontSee('The delivery fee depends on this location')
             ->assertSee('value="11:00"', false)
@@ -299,11 +299,11 @@ class OrderControllerTest extends TestCase
             ]);
     }
 
-    public function test_booking_must_be_at_least_48_hours_before_the_schedule(): void
+    public function test_booking_must_be_at_least_24_hours_before_the_schedule(): void
     {
         $this->travelTo(CarbonImmutable::parse('2026-10-18 12:00:00', 'Asia/Manila'));
         $payload = array_merge($this->validOrderPayload(), [
-            'preferred_date' => '2026-10-20',
+            'preferred_date' => '2026-10-19',
             'preferred_time' => '11:30',
         ]);
 
@@ -311,15 +311,15 @@ class OrderControllerTest extends TestCase
             ->post(route('order.confirm'), $payload)
             ->assertRedirect(route('order'))
             ->assertSessionHasErrors([
-                'preferred_date' => 'Bookings must be placed at least 48 hours before the preferred pickup or delivery time.',
+                'preferred_date' => 'Bookings must be placed at least 24 hours before the preferred pickup or delivery time.',
             ]);
     }
 
-    public function test_booking_exactly_48_hours_before_the_schedule_is_allowed(): void
+    public function test_booking_exactly_24_hours_before_the_schedule_is_allowed(): void
     {
         $this->travelTo(CarbonImmutable::parse('2026-10-18 12:00:00', 'Asia/Manila'));
         $payload = array_merge($this->validOrderPayload(), [
-            'preferred_date' => '2026-10-20',
+            'preferred_date' => '2026-10-19',
             'preferred_time' => '12:00',
         ]);
 

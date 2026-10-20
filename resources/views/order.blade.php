@@ -46,7 +46,7 @@
         ],
         range(11 * 60, 19 * 60, 30),
     );
-    $bookingCutoff = \Carbon\CarbonImmutable::now('Asia/Manila')->addHours(48);
+    $bookingCutoff = \Carbon\CarbonImmutable::now('Asia/Manila')->addHours(24);
 @endphp
 
 <!DOCTYPE html>
@@ -269,7 +269,7 @@
                                 </label>
                                 <label class="block text-sm font-bold text-ink">Preferred date <span aria-hidden="true" style="color: #b91c1c;">*</span>
                                     <input class="mt-2 w-full rounded-xl border border-wine/15 bg-cream px-4 py-3 font-normal outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10" type="date" name="preferred_date" required value="{{ old('preferred_date', $draft['preferred_date'] ?? '') }}">
-                                    <span class="mt-2 block text-xs font-normal leading-5 text-muted">Please book at least 48 hours before your preferred pickup or delivery schedule.</span>
+                                    <span class="mt-2 block text-xs font-normal leading-5 text-muted">Please book at least 24 hours before your preferred pickup or delivery schedule.</span>
                                 </label>
                                 <label class="block text-sm font-bold text-ink">Preferred pickup or delivery time <span aria-hidden="true" style="color: #b91c1c;">*</span>
                                     <select class="mt-2 w-full rounded-xl border border-wine/15 bg-cream px-4 py-3 font-normal outline-none transition focus:border-rust focus:ring-4 focus:ring-rust/10" name="preferred_time" required>

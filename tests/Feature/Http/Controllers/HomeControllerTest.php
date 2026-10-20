@@ -29,7 +29,7 @@ class HomeControllerTest extends TestCase
             ->assertSee('Fiesta-ready')
             ->assertSee('Starts at ₱2,000')
             ->assertSee('aria-label="Toño’s Bellyssimo hero"', false)
-            ->assertSee('Please book at least 48 hours before your preferred pickup or delivery.')
+            ->assertSee('Please book at least 24 hours before your preferred pickup or delivery.')
             ->assertSee(asset('css/site-v3.css'), false)
             ->assertSee(asset('images/home-hero-filipino-v2-800.jpg'), false)
             ->assertSee(asset('images/home-hero-filipino-v2-1600.jpg'), false)

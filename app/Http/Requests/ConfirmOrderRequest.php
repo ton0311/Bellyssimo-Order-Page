@@ -97,12 +97,12 @@ class ConfirmOrderRequest extends FormRequest
                 $this->string('preferred_date').' '.$this->string('preferred_time'),
                 'Asia/Manila',
             );
-            $bookingCutoff = CarbonImmutable::now('Asia/Manila')->addHours(48);
+            $bookingCutoff = CarbonImmutable::now('Asia/Manila')->addHours(24);
 
             if ($preferredSchedule->lt($bookingCutoff)) {
                 $validator->errors()->add(
                     'preferred_date',
-                    'Bookings must be placed at least 48 hours before the preferred pickup or delivery time.',
+                    'Bookings must be placed at least 24 hours before the preferred pickup or delivery time.',
                 );
             }
         });

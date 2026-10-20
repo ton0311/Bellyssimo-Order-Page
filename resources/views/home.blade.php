@@ -232,7 +232,7 @@
 <div>
 <span class="font-label-md text-label-md text-primary font-bold">Booking Advisory</span>
 <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-            Please book at least 48 hours before your preferred pickup or delivery. Your reservation is subject to availability and is confirmed only after Toño’s Bellyssimo contacts you directly.
+            Please book at least 24 hours before your preferred pickup or delivery. Your reservation is subject to availability and is confirmed only after Toño’s Bellyssimo contacts you directly.
           </p>
 </div>
 </div>
@@ -326,7 +326,7 @@
 </div>
 <div class="flex min-w-0 flex-col gap-space-sm">
 <h3 class="flex min-h-[1.75rem] items-center font-title-md text-title-md text-on-surface">Booking Advisory</h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">Please book at least 48 hours before pickup or delivery. Reservations are subject to availability and confirmed only after Toño’s Bellyssimo contacts you.</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">Please book at least 24 hours before pickup or delivery. Reservations are subject to availability and confirmed only after Toño’s Bellyssimo contacts you.</p>
 <div class="p-space-sm bg-surface rounded-lg">
 <p class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider mb-1">Reservation Requests</p>
 <p class="font-body-sm text-body-sm text-on-surface-variant">Message us with your preferred date and time. We will confirm availability directly.</p>
