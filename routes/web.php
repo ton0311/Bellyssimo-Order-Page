@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\AdminCustomerController;
 use App\Http\Controllers\AdminInventoryController;
 use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\AdminOrderNotificationController;
@@ -41,7 +42,9 @@ Route::middleware('admin.auth')->group(function (): void {
     Route::get('/admin/orders', [AdminOrderController::class, 'index'])->name('admin.orders');
     Route::post('/admin/orders', [AdminOrderController::class, 'store'])->name('admin.orders.store');
     Route::patch('/admin/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.status');
+    Route::patch('/admin/orders/{order}/payment', [AdminOrderController::class, 'updatePayment'])->name('admin.orders.payment');
     Route::delete('/admin/orders/{order}', [AdminOrderController::class, 'destroy'])->name('admin.orders.destroy');
+    Route::delete('/admin/customers/{customer}', [AdminCustomerController::class, 'destroy'])->name('admin.customers.destroy');
     Route::post('/admin/inventory', [AdminInventoryController::class, 'store'])->name('admin.inventory.store');
     Route::patch('/admin/inventory/{inventoryItem}', [AdminInventoryController::class, 'update'])->name('admin.inventory.update');
 });

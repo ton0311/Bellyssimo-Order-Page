@@ -19,6 +19,7 @@ class Order extends Model
         'package_subtotal',
         'spicy_subtotal',
         'order_total',
+        'amount_paid',
         'fulfillment',
         'delivery_location',
         'customer_name',
@@ -41,6 +42,7 @@ class Order extends Model
     {
         return [
             'items' => 'array',
+            'amount_paid' => 'integer',
             'preferred_date' => 'date',
             'submitted_at' => 'datetime',
             'completed_at' => 'datetime',

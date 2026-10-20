@@ -47,6 +47,9 @@ class AdminOrderPageTest extends TestCase
             ->assertSee('Completed')
             ->assertSee('Cancelled')
             ->assertSee('Delete order')
+            ->assertSee('Down payment amount')
+            ->assertDontSee('data-inspector-tab', false)
+            ->assertSee('Delete customer details?')
             ->assertSee('Live order feed')
             ->assertSee('TB-20261017-LIVE')
             ->assertSee('Ana Santos')
@@ -73,6 +76,29 @@ class AdminOrderPageTest extends TestCase
 
         $this->assertDatabaseMissing('orders', ['id' => $order->id]);
         $this->assertDatabaseHas('customers', ['id' => $customer->id]);
+    }
+
+    public function test_admin_can_delete_customer_details_without_deleting_order_history(): void
+    {
+        $customer = Customer::factory()->create([
+            'name' => 'Ana Santos',
+            'contact_number' => '+639171234567',
+        ]);
+        $order = Order::factory()->create([
+            'customer_name' => $customer->name,
+            'contact_number' => $customer->contact_number,
+        ]);
+
+        $this->deleteJson(route('admin.customers.destroy', $customer))
+            ->assertOk()
+            ->assertJsonPath('message', 'Customer details for Ana Santos were deleted.');
+
+        $this->assertDatabaseMissing('customers', ['id' => $customer->id]);
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'customer_name' => 'Ana Santos',
+            'contact_number' => '+639171234567',
+        ]);
     }
 
     public function test_roasting_schedule_displays_orders_in_the_selected_month(): void
@@ -242,7 +268,71 @@ class AdminOrderPageTest extends TestCase
 
         $this->assertSame('Completed', $order->status);
         $this->assertSame('Paid', $order->payment_status);
+        $this->assertSame(2000, $order->amount_paid);
         $this->assertNotNull($order->completed_at);
+    }
+
+    public function test_admin_can_record_a_down_payment_and_see_the_remaining_balance(): void
+    {
+        $order = Order::factory()->create([
+            'order_total' => 2000,
+            'amount_paid' => 0,
+            'payment_status' => 'Unpaid',
+        ]);
+
+        $this->patchJson(route('admin.orders.payment', $order), [
+            'amount_paid' => 750,
+        ])->assertOk()
+            ->assertJsonPath('message', 'Payment amount saved.')
+            ->assertJsonPath('order.amount_paid', 750)
+            ->assertJsonPath('order.remaining_balance', 1250)
+            ->assertJsonPath('order.payment', 'Deposit received');
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'amount_paid' => 750,
+            'payment_status' => 'Deposit received',
+        ]);
+    }
+
+    public function test_down_payment_cannot_exceed_the_order_total(): void
+    {
+        $order = Order::factory()->create([
+            'order_total' => 2000,
+            'amount_paid' => 0,
+        ]);
+
+        $this->patchJson(route('admin.orders.payment', $order), [
+            'amount_paid' => 2001,
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('amount_paid');
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'amount_paid' => 0,
+        ]);
+    }
+
+    public function test_completed_order_payment_cannot_be_reduced(): void
+    {
+        $order = Order::factory()->create([
+            'status' => 'Completed',
+            'payment_status' => 'Paid',
+            'order_total' => 2000,
+            'amount_paid' => 2000,
+            'completed_at' => now(),
+        ]);
+
+        $this->patchJson(route('admin.orders.payment', $order), [
+            'amount_paid' => 750,
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('amount_paid');
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'amount_paid' => 2000,
+            'payment_status' => 'Paid',
+        ]);
     }
 
     public function test_legacy_progress_statuses_are_rejected(): void

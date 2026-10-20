@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let orders = structuredClone(initialOrders);
     let selectedOrderId = orders[0]?.id ?? null;
     let activeStatus = 'all';
+    let selectedCustomerId = null;
 
     const elements = {
         body: document.querySelector('#orders-body'),
@@ -26,6 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
         inventoryDialog: document.querySelector('#inventory-dialog'),
         inventoryForm: document.querySelector('#inventory-form'),
         deleteDialog: document.querySelector('#delete-order-dialog'),
+        paymentForm: document.querySelector('#payment-form'),
+        deleteCustomerDialog: document.querySelector('#delete-customer-dialog'),
     };
 
     function escapeHtml(value) {
@@ -84,8 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#metric-attention').textContent = counts['Pending confirmation'] ?? 0;
         document.querySelector('#metric-confirmed').textContent = counts['Confirmed'] ?? 0;
         document.querySelector('#metric-not-proceeding').textContent = (counts['Declined'] ?? 0) + (counts['Cancelled'] ?? 0);
-        const completedPaid = orders.filter((order) => order.status === 'Completed' && order.payment === 'Paid').reduce((sum, order) => sum + order.total, 0);
-        document.querySelector('#metric-sales').textContent = money.format(completedPaid);
+        const paymentsReceived = orders.reduce((sum, order) => sum + Number(order.amount_paid ?? 0), 0);
+        document.querySelector('#metric-sales').textContent = money.format(paymentsReceived);
         elements.tabs.querySelectorAll('button').forEach((button) => {
             const count = button.dataset.status === 'all' ? orders.length : (counts[button.dataset.status] ?? 0);
             button.querySelector('span').textContent = count;
@@ -128,6 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#order-fulfillment').textContent = order.fulfillment;
         document.querySelector('#order-payment').textContent = `${order.payment_method} · ${order.payment}`;
         document.querySelector('#order-note').textContent = order.note || 'No customer note.';
+        document.querySelector('#payment-amount-paid').textContent = money.format(order.amount_paid);
+        document.querySelector('#payment-balance').textContent = money.format(order.remaining_balance);
+        document.querySelector('#payment-balance-row').hidden = Number(order.amount_paid) <= 0;
+        const paymentInput = document.querySelector('#amount-paid-input');
+        paymentInput.max = order.total;
+        paymentInput.value = order.amount_paid;
+        paymentInput.disabled = order.status === 'Completed';
+        elements.paymentForm.querySelector('[type="submit"]').disabled = order.status === 'Completed';
+        document.querySelector('#payment-help').textContent = order.status === 'Completed'
+            ? 'Completed orders are fully paid and locked.'
+            : 'Enter the total amount received so far. It will be included in sales.';
         elements.statusSelect.value = order.status;
     }
 
@@ -165,6 +179,39 @@ document.addEventListener('DOMContentLoaded', () => {
         activeStatus = button.dataset.status;
         elements.tabs.querySelectorAll('button').forEach((item) => item.classList.toggle('active', item === button));
         render();
+    });
+    elements.paymentForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const order = orders.find((item) => item.id === selectedOrderId);
+        if (!order) return;
+        const button = elements.paymentForm.querySelector('[type="submit"]');
+        button.disabled = true;
+
+        try {
+            const url = window.bellyssimoAdmin.paymentUrlTemplate.replace('__ORDER__', order.database_id);
+            const response = await fetch(url, {
+                method: 'PATCH',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify({ amount_paid: Number(document.querySelector('#amount-paid-input').value) }),
+            });
+            const payload = await response.json();
+            if (!response.ok) {
+                const firstError = Object.values(payload.errors ?? {})[0]?.[0];
+                throw new Error(firstError ?? payload.message ?? 'Unable to save this payment right now.');
+            }
+
+            orders = orders.map((item) => item.database_id === payload.order.database_id ? payload.order : item);
+            render();
+            showToast(payload.message);
+        } catch (error) {
+            showToast(error.message);
+        } finally {
+            button.disabled = false;
+        }
     });
 
     document.querySelector('#save-status').addEventListener('click', async () => {
@@ -238,6 +285,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    document.querySelectorAll('[data-customer-delete]').forEach((button) => button.addEventListener('click', () => {
+        selectedCustomerId = button.dataset.customerDelete;
+        document.querySelector('#delete-customer-name').textContent = button.dataset.customerName;
+        elements.deleteCustomerDialog.showModal();
+    }));
+    document.querySelector('#close-delete-customer-dialog').addEventListener('click', () => elements.deleteCustomerDialog.close());
+    document.querySelector('#cancel-delete-customer').addEventListener('click', () => elements.deleteCustomerDialog.close());
+    elements.deleteCustomerDialog.addEventListener('click', (event) => {
+        if (event.target === elements.deleteCustomerDialog) elements.deleteCustomerDialog.close();
+    });
+    document.querySelector('#confirm-delete-customer').addEventListener('click', async () => {
+        if (!selectedCustomerId) return;
+        const button = document.querySelector('#confirm-delete-customer');
+        button.disabled = true;
+
+        try {
+            const url = window.bellyssimoAdmin.customerDeleteUrlTemplate.replace('__CUSTOMER__', selectedCustomerId);
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            });
+            const payload = await response.json();
+            if (!response.ok) throw new Error(payload.message ?? 'Unable to delete these customer details right now.');
+
+            elements.deleteCustomerDialog.close();
+            showToast(payload.message);
+            window.location.hash = 'customers';
+            window.setTimeout(() => window.location.reload(), 450);
+        } catch (error) {
+            showToast(error.message);
+        } finally {
+            button.disabled = false;
+        }
+    });
+
     document.querySelector('#new-order-button').addEventListener('click', () => elements.dialog.showModal());
     document.querySelector('#close-dialog').addEventListener('click', () => elements.dialog.close());
     document.querySelector('#cancel-dialog').addEventListener('click', () => elements.dialog.close());
@@ -290,8 +372,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelector('#export-button').addEventListener('click', () => {
-        const headers = ['Order ID','Customer','Phone','Email','Package','Flavor','Schedule','Fulfillment','Payment Method','Payment Status','Total','Status','Note'];
-        const rows = orders.map((order) => [order.id, order.customer, order.phone, order.email ?? '', order.package, order.flavor, order.schedule, order.fulfillment, order.payment_method, order.payment, order.total, order.status, order.note]);
+        const headers = ['Order ID','Customer','Phone','Email','Package','Flavor','Schedule','Fulfillment','Payment Method','Payment Status','Total','Amount Paid','Remaining Balance','Status','Note'];
+        const rows = orders.map((order) => [order.id, order.customer, order.phone, order.email ?? '', order.package, order.flavor, order.schedule, order.fulfillment, order.payment_method, order.payment, order.total, order.amount_paid, order.remaining_balance, order.status, order.note]);
         const csv = [headers, ...rows].map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\n');
         const link = document.createElement('a');
         link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));

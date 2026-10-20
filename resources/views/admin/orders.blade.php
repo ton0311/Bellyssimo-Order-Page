@@ -143,9 +143,9 @@
                     <p>Declined or cancelled</p>
                 </article>
                 <article class="metric-card">
-                    <div><span class="material-symbols-rounded">payments</span><small>Confirmed sales</small></div>
+                    <div><span class="material-symbols-rounded">payments</span><small>Payments received</small></div>
                     <strong id="metric-sales">₱0</strong>
-                    <p>Completed &amp; paid</p>
+                    <p>Down payments and settled orders</p>
                 </article>
             </section>
 
@@ -236,6 +236,20 @@
                             <div><dt><span class="material-symbols-rounded">sticky_note_2</span>Customer note</dt><dd id="order-note"></dd></div>
                         </dl>
 
+                        <div class="payment-panel">
+                            <h3>Down payment</h3>
+                            <div class="payment-summary">
+                                <div><span>Amount received</span><strong id="payment-amount-paid"></strong></div>
+                                <div class="balance" id="payment-balance-row" hidden><span>Remaining balance</span><strong id="payment-balance"></strong></div>
+                            </div>
+                            <form id="payment-form">
+                                <label for="amount-paid-input">Down payment amount</label>
+                                <span class="currency-input"><b>₱</b><input id="amount-paid-input" name="amount_paid" type="number" min="0" step="1" inputmode="numeric" required></span>
+                                <small id="payment-help">Enter the total amount received so far. It will be included in sales.</small>
+                                <button class="primary-button" type="submit">Save payment</button>
+                            </form>
+                        </div>
+
                         <div class="status-control">
                             <label for="status-select">Update progress</label>
                             <select id="status-select">
@@ -259,13 +273,13 @@
             <section class="admin-section" data-admin-section="customers" id="customers" hidden>
                 <div class="page-heading">
                     <div><p class="eyebrow">Customer directory</p><h1>Customers for future reference</h1><p>Every submitted booking automatically creates or refreshes a customer record.</p></div>
-                    <div class="summary-pill"><span class="material-symbols-rounded">group</span><strong>{{ $customers->count() }}</strong> customers</div>
+                    <div class="summary-pill"><span class="material-symbols-rounded">group</span><strong id="customer-count">{{ $customers->count() }}</strong> customers</div>
                 </div>
                 <div class="data-panel">
                     <div class="panel-heading"><div><h2>Customer records</h2><p>Name, contact details, order history, and completed revenue.</p></div></div>
                     <div class="table-wrap customer-table">
                         <table>
-                            <thead><tr><th>Customer</th><th>Phone</th><th>Email address</th><th>Orders</th><th>Completed</th><th>Lifetime value</th><th>Last order</th></tr></thead>
+                            <thead><tr><th>Customer</th><th>Phone</th><th>Email address</th><th>Orders</th><th>Completed</th><th>Lifetime value</th><th>Last order</th><th><span class="sr-only">Actions</span></th></tr></thead>
                             <tbody>
                                 @forelse ($customers as $customer)
                                     <tr>
@@ -282,9 +296,10 @@
                                         <td>{{ $customer['completed_orders'] }}</td>
                                         <td class="amount">₱{{ number_format($customer['lifetime_value']) }}</td>
                                         <td>{{ $customer['last_order'] }}</td>
+                                        <td><button class="row-action customer-delete" type="button" data-customer-delete="{{ $customer['database_id'] }}" data-customer-name="{{ $customer['name'] }}"><span class="material-symbols-rounded">delete</span>Delete</button></td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="7"><div class="empty-state"><span class="material-symbols-rounded">group_off</span><h3>No customers yet</h3><p>Customer records appear here after the first booking.</p></div></td></tr>
+                                    <tr><td colspan="8"><div class="empty-state"><span class="material-symbols-rounded">group_off</span><h3>No customers yet</h3><p>Customer records appear here after the first booking.</p></div></td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -423,6 +438,18 @@
         <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-delete-order">Keep order</button><button class="danger-button confirm-delete" type="button" id="confirm-delete-order"><span class="material-symbols-rounded">delete_forever</span>Delete permanently</button></div>
     </dialog>
 
+    <dialog class="confirm-dialog" id="delete-customer-dialog">
+        <div class="dialog-head">
+            <div><p class="eyebrow">Permanent action</p><h2>Delete customer details?</h2></div>
+            <button class="icon-button" type="button" id="close-delete-customer-dialog" aria-label="Close"><span class="material-symbols-rounded">close</span></button>
+        </div>
+        <div class="delete-dialog-copy">
+            <span class="material-symbols-rounded">person_remove</span>
+            <div><strong id="delete-customer-name"></strong><p>The saved contact profile will be permanently removed. Existing orders and their customer details will stay in order history.</p></div>
+        </div>
+        <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-delete-customer">Keep customer</button><button class="danger-button confirm-delete" type="button" id="confirm-delete-customer"><span class="material-symbols-rounded">delete_forever</span>Delete details</button></div>
+    </dialog>
+
     <div class="toast" id="toast" role="status" aria-live="polite"><span class="material-symbols-rounded">check_circle</span><span id="toast-message">Saved</span></div>
 
     <script>
@@ -431,7 +458,9 @@
             inventoryItems: @json($inventoryItems),
             storeUrl: @json(route('admin.orders.store')),
             statusUrlTemplate: @json(route('admin.orders.status', ['order' => '__ORDER__'])),
+            paymentUrlTemplate: @json(route('admin.orders.payment', ['order' => '__ORDER__'])),
             deleteUrlTemplate: @json(route('admin.orders.destroy', ['order' => '__ORDER__'])),
+            customerDeleteUrlTemplate: @json(route('admin.customers.destroy', ['customer' => '__CUSTOMER__'])),
             inventoryStoreUrl: @json(route('admin.inventory.store')),
             inventoryUpdateUrlTemplate: @json(route('admin.inventory.update', ['inventoryItem' => '__ITEM__'])),
         };

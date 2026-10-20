@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAdminOrderRequest;
+use App\Http\Requests\UpdateOrderPaymentRequest;
 use App\Http\Requests\UpdateOrderStatusRequest;
 use App\Jobs\SendOrderEmail;
 use App\Models\Customer;
@@ -63,6 +64,7 @@ class AdminOrderController extends Controller
                     ->where('payment_status', 'Paid');
 
                 return [
+                    'database_id' => $customer->getKey(),
                     'name' => $customer->name,
                     'phone' => $customer->contact_number,
                     'email' => $customer->email,
@@ -148,6 +150,7 @@ class AdminOrderController extends Controller
             'package_subtotal' => $package['price'],
             'spicy_subtotal' => $spicyUpgrade,
             'order_total' => $package['price'] + $spicyUpgrade,
+            'amount_paid' => $data['payment'] === 'Paid' ? $package['price'] + $spicyUpgrade : 0,
             'fulfillment' => $data['fulfillment'],
             'delivery_location' => $data['delivery_location'] ?? null,
             'customer_name' => $data['customer'],
@@ -186,6 +189,7 @@ class AdminOrderController extends Controller
 
         if ($status === 'Completed') {
             $updates['payment_status'] = 'Paid';
+            $updates['amount_paid'] = $order->order_total;
             $updates['completed_at'] = $order->completed_at ?? now();
         }
 
@@ -218,6 +222,27 @@ class AdminOrderController extends Controller
             'message' => $status === 'Completed'
                 ? 'Order marked Completed and Paid.'
                 : 'Order status updated.',
+            'order' => $this->dashboardPayload($order),
+        ]);
+    }
+
+    public function updatePayment(UpdateOrderPaymentRequest $request, Order $order): JsonResponse
+    {
+        $amountPaid = (int) $request->validated('amount_paid');
+        $paymentStatus = match (true) {
+            $amountPaid === 0 => 'Unpaid',
+            $amountPaid >= $order->order_total => 'Paid',
+            default => 'Deposit received',
+        };
+
+        $order->update([
+            'amount_paid' => $amountPaid,
+            'payment_status' => $paymentStatus,
+        ]);
+        $order->refresh();
+
+        return response()->json([
+            'message' => $amountPaid > 0 ? 'Payment amount saved.' : 'Payment amount cleared.',
             'order' => $this->dashboardPayload($order),
         ]);
     }
@@ -273,6 +298,8 @@ class AdminOrderController extends Controller
             'payment' => $order->payment_status,
             'payment_method' => $order->payment_method,
             'total' => $order->order_total,
+            'amount_paid' => $order->amount_paid,
+            'remaining_balance' => max(0, $order->order_total - $order->amount_paid),
             'status' => $order->status,
             'created' => 'Added '.$order->submitted_at->diffForHumans(),
             'note' => $order->notes ?: 'No customer note.',

@@ -38,6 +38,7 @@ class OrderFactory extends Factory
             'package_subtotal' => 2000,
             'spicy_subtotal' => 0,
             'order_total' => 2000,
+            'amount_paid' => 0,
             'fulfillment' => 'Pickup',
             'delivery_location' => null,
             'customer_name' => fake()->name(),
