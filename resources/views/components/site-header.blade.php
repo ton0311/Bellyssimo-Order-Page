@@ -37,10 +37,10 @@
         <div class="flex shrink-0 items-center gap-2">
             <a class="inline-flex items-center justify-center rounded-lg bg-[#8a2317] px-3 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#a84425] active:scale-95 sm:px-4" href="{{ route('order') }}">Book Now</a>
             <a aria-label="Call Toño’s Bellyssimo at 0976-2271-228" class="hidden size-8 shrink-0 items-center justify-center rounded-full bg-[#5b0d07] sm:flex" href="tel:+639762271228">
-                <span aria-hidden="true" class="material-symbols-outlined text-[18px] text-white">call</span>
+                <x-site-icon name="call" class="text-[18px] text-white" />
             </a>
             <a aria-label="Message Toño’s Bellyssimo on Facebook" class="hidden size-8 shrink-0 items-center justify-center rounded-full bg-[#5b0d07] sm:flex" href="https://www.facebook.com/profile.php?id=61572029845712" rel="noopener noreferrer" target="_blank">
-                <span aria-hidden="true" class="material-symbols-outlined text-[18px] text-white">chat</span>
+                <x-site-icon name="chat" class="text-[18px] text-white" />
             </a>
         </div>
     </div>

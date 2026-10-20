@@ -29,14 +29,21 @@ class HomeControllerTest extends TestCase
             ->assertSee('Fiesta-ready')
             ->assertSee('Starts at ₱2,000')
             ->assertSee('aria-label="Toño’s Bellyssimo hero"', false)
+            ->assertSee('name="description"', false)
+            ->assertSee('Order crispy, juicy Toño’s Bellyssimo lechon belly', false)
             ->assertSee('Please book at least 24 hours before your preferred pickup or delivery.')
             ->assertSee(asset('css/site-v3.css'), false)
+            ->assertSee(asset('images/home-hero-filipino-v2-800.avif'), false)
+            ->assertSee(asset('images/home-hero-filipino-v2-1600.avif'), false)
+            ->assertSee(asset('images/home-hero-filipino-v2-800.webp'), false)
+            ->assertSee(asset('images/home-hero-filipino-v2-1600.webp'), false)
             ->assertSee(asset('images/home-hero-filipino-v2-800.jpg'), false)
             ->assertSee(asset('images/home-hero-filipino-v2-1600.jpg'), false)
             ->assertDontSee(asset('images/lechon-barkadahan-3kg-480.jpg'), false)
             ->assertDontSee(asset('images/lechon-salo-salo-4kg-480.jpg'), false)
             ->assertDontSee(asset('images/lechon-handaan-5kg-480.jpg'), false)
             ->assertSee('fetchpriority="high"', false)
+            ->assertDontSee('material-symbols-outlined', false)
             ->assertDontSee('@tailwindcss/browser', false)
             ->assertDontSee('fonts.googleapis.com', false)
             ->assertSee(route('belly'), false)
@@ -44,6 +51,11 @@ class HomeControllerTest extends TestCase
             ->assertSee('0976-2271-228')
             ->assertSee('href="tel:+639762271228"', false)
             ->assertSee('https://www.facebook.com/profile.php?id=61572029845712', false);
+
+        $this->assertFileExists(public_path('images/home-hero-filipino-v2-800.avif'));
+        $this->assertFileExists(public_path('images/home-hero-filipino-v2-1600.avif'));
+        $this->assertFileExists(public_path('images/home-hero-filipino-v2-800.webp'));
+        $this->assertFileExists(public_path('images/home-hero-filipino-v2-1600.webp'));
     }
 
     public function test_valid_business_type_returns_success_response(): void

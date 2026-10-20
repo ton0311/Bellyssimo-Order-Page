@@ -5,8 +5,9 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
 <x-favicon />
 <meta content="web_standard" name="shell-type">
+<meta name="description" content="Order crispy, juicy Toño’s Bellyssimo lechon belly for pickup or delivery in Ozamiz City. Available in 3kg, 4kg, and 5kg sizes.">
 <title>Toño's Bellyssimo | Basta belly, diri mismo!</title>
-<link rel="preload" as="image" href="{{ asset('images/home-hero-filipino-v2-800.jpg') }}" imagesrcset="{{ asset('images/home-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/home-hero-filipino-v2-1600.jpg') }} 1600w" imagesizes="100vw" fetchpriority="high">
+<link rel="preload" as="image" type="image/avif" href="{{ asset('images/home-hero-filipino-v2-800.avif') }}" imagesrcset="{{ asset('images/home-hero-filipino-v2-800.avif') }} 800w, {{ asset('images/home-hero-filipino-v2-1600.avif') }} 1600w" imagesizes="100vw" fetchpriority="high">
 <link href="{{ asset('css/site-v3.css') }}" rel="stylesheet">
 </head>
 <body id="top" class="min-h-screen overflow-x-hidden bg-background pb-16 font-body-md text-on-surface antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed lg:pb-0">
@@ -16,6 +17,8 @@
 <!-- HERO SECTION -->
 <section aria-label="Toño’s Bellyssimo hero" class="relative isolate min-h-[640px] w-full overflow-hidden py-space-2xl md:min-h-[680px]">
 <picture aria-hidden="true" class="absolute inset-0 -z-20 block">
+<source type="image/avif" srcset="{{ asset('images/home-hero-filipino-v2-800.avif') }} 800w, {{ asset('images/home-hero-filipino-v2-1600.avif') }} 1600w" sizes="100vw">
+<source type="image/webp" srcset="{{ asset('images/home-hero-filipino-v2-800.webp') }} 800w, {{ asset('images/home-hero-filipino-v2-1600.webp') }} 1600w" sizes="100vw">
 <source media="(max-width: 767px)" srcset="{{ asset('images/home-hero-filipino-v2-800.jpg') }}">
 <img src="{{ asset('images/home-hero-filipino-v2-1600.jpg') }}" srcset="{{ asset('images/home-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/home-hero-filipino-v2-1600.jpg') }} 1600w" sizes="100vw" width="1600" height="900" alt="" class="h-full w-full object-cover object-right" fetchpriority="high" decoding="async">
 </picture>
@@ -25,7 +28,7 @@
 <div class="relative mx-auto flex min-h-[560px] max-w-7xl items-center px-gutter md:min-h-[600px] md:px-margin-md lg:px-margin-lg">
 <div class="flex w-full max-w-3xl flex-col space-y-space-md">
 <div class="inline-flex w-fit items-center gap-space-xs rounded-full border border-white/20 bg-tertiary-fixed/95 px-3 py-1.5 text-on-tertiary-fixed-variant shadow-lg backdrop-blur-sm">
-<span class="material-symbols-outlined text-[18px] text-secondary">local_fire_department</span>
+<x-site-icon name="local_fire_department" class="text-[18px] text-secondary" />
 <span class="font-label-sm text-label-sm uppercase tracking-wider font-bold">Est. 2026 • Ozamiz City</span>
 </div>
 <div class="space-y-space-xs">
@@ -42,10 +45,10 @@
 <div class="grid grid-cols-1 gap-space-sm pt-space-xs sm:flex sm:flex-wrap sm:items-center sm:gap-space-md">
 <a class="group inline-flex min-w-0 items-center justify-center gap-2 rounded-lg bg-tertiary-fixed px-space-lg py-3.5 font-label-lg text-label-lg text-on-tertiary-fixed shadow-lg transition-all hover:bg-white active:scale-95" data-path="book-now" href="{{ route('order') }}">
 <span class="">Book Your Belly</span>
-<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+<x-site-icon name="arrow_forward" class="text-[20px] transition-transform group-hover:translate-x-1" />
 </a>
 <a class="inline-flex min-w-0 items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/15 px-space-lg py-3.5 font-label-lg text-label-lg text-white shadow-lg backdrop-blur-md transition-all hover:bg-white hover:text-primary active:scale-95" href="{{ route('belly') }}">
-<span class="material-symbols-outlined text-[20px]">restaurant_menu</span>
+<x-site-icon name="restaurant_menu" class="text-[20px]" />
 <span class="">View Packages</span>
 </a>
 </div>
@@ -53,7 +56,7 @@
 <div aria-label="Bellyssimo quick facts" class="pt-space-md grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
 <div class="flex min-w-0 items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
 <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
-<span class="material-symbols-outlined text-[18px]">scale</span>
+<x-site-icon name="scale" class="text-[18px]" />
 </div>
 <div class="flex flex-col min-w-0">
 <span class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">3 Belly Sizes</span>
@@ -62,7 +65,7 @@
 </div>
 <div class="flex min-w-0 items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
 <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-secondary shrink-0">
-<span class="material-symbols-outlined text-[18px]">groups</span>
+<x-site-icon name="groups" class="text-[18px]" />
 </div>
 <div class="flex flex-col min-w-0">
 <span class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">Serves 8–18</span>
@@ -71,7 +74,7 @@
 </div>
 <div class="flex min-w-0 items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
 <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
-<span class="material-symbols-outlined text-[18px]">whatshot</span>
+<x-site-icon name="whatshot" class="text-[18px]" />
 </div>
 <div class="flex flex-col min-w-0">
 <span class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">Flavor Options</span>
@@ -80,7 +83,7 @@
 </div>
 <div class="flex min-w-0 items-center gap-2 rounded-lg border border-white/25 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
 <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-tertiary-fixed-dim shrink-0">
-<span class="material-symbols-outlined text-[18px] text-tertiary">celebration</span>
+<x-site-icon name="celebration" class="text-[18px] text-tertiary" />
 </div>
 <div class="flex flex-col min-w-0">
 <span class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">For Celebrations</span>
@@ -89,7 +92,7 @@
 </div>
 </div>
 <div class="hidden w-fit items-center gap-1.5 rounded-full border border-white/20 bg-black/25 px-4 py-2 text-white shadow-lg backdrop-blur-md sm:flex">
-<span class="material-symbols-outlined text-[18px]">verified</span>
+<x-site-icon name="verified" class="text-[18px]" />
 <span class="font-label-sm text-label-sm font-black uppercase">3 kg • 4 kg • 5 kg &nbsp;·&nbsp; Starts at ₱2,000</span>
 </div>
 </div>
@@ -114,7 +117,7 @@
 <div class="rounded-xl bg-surface p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
 <div>
 <div class="w-12 h-12 rounded-lg bg-surface-container-high text-primary flex items-center justify-center mb-space-md group-hover:bg-primary group-hover:text-on-primary transition-colors">
-<span class="material-symbols-outlined text-[26px]">cake</span>
+<x-site-icon name="cake" class="text-[26px]" />
 </div>
 <h3 class="font-title-md text-title-md text-on-surface font-bold mb-1">Birthdays &amp; Milestones</h3>
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
@@ -129,7 +132,7 @@
 <div class="rounded-xl bg-surface p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
 <div>
 <div class="w-12 h-12 rounded-lg bg-surface-container-high text-secondary flex items-center justify-center mb-space-md group-hover:bg-secondary group-hover:text-on-secondary transition-colors">
-<span class="material-symbols-outlined text-[26px]">family_restroom</span>
+<x-site-icon name="family_restroom" class="text-[26px]" />
 </div>
 <h3 class="font-title-md text-title-md text-on-surface font-bold mb-1">Family Sunday Salu-Salo</h3>
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
@@ -144,7 +147,7 @@
 <div class="rounded-xl bg-surface p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
 <div>
 <div class="w-12 h-12 rounded-lg bg-surface-container-high text-primary flex items-center justify-center mb-space-md group-hover:bg-primary group-hover:text-on-primary transition-colors">
-<span class="material-symbols-outlined text-[26px]">sports_bar</span>
+<x-site-icon name="sports_bar" class="text-[26px]" />
 </div>
 <h3 class="font-title-md text-title-md text-on-surface font-bold mb-1">Barkada Nights &amp; Reunions</h3>
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
@@ -159,7 +162,7 @@
 <div class="rounded-xl bg-surface p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
 <div>
 <div class="w-12 h-12 rounded-lg bg-surface-container-high text-tertiary flex items-center justify-center mb-space-md group-hover:bg-tertiary group-hover:text-on-tertiary transition-colors">
-<span class="material-symbols-outlined text-[26px]">festival</span>
+<x-site-icon name="festival" class="text-[26px]" />
 </div>
 <h3 class="font-title-md text-title-md text-on-surface font-bold mb-1">Fiestas &amp; Office Celebrations</h3>
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
@@ -194,7 +197,7 @@
 <span class="w-10 h-10 rounded-full bg-primary text-on-primary font-headline-sm text-headline-sm font-bold flex items-center justify-center shadow-sm">
               1
             </span>
-<span class="material-symbols-outlined text-secondary text-[28px]">format_list_bulleted</span>
+<x-site-icon name="format_list_bulleted" class="text-[28px] text-secondary" />
 </div>
 <h3 class="font-title-md text-title-md text-on-surface font-bold mb-2">Choose Your Belly</h3>
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Pick from our 3kg, 4kg, or 5kg lechon belly packages. Choose Regular or add the Spicy option for ₱50.</p>
@@ -205,7 +208,7 @@
 <span class="w-10 h-10 rounded-full bg-secondary text-on-secondary font-headline-sm text-headline-sm font-bold flex items-center justify-center shadow-sm">
               2
             </span>
-<span class="material-symbols-outlined text-secondary text-[28px]">calendar_month</span>
+<x-site-icon name="calendar_month" class="text-[28px] text-secondary" />
 </div>
 <h3 class="font-title-md text-title-md text-on-surface font-bold mb-2">Select Preferred Schedule</h3>
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
@@ -218,7 +221,7 @@
 <span class="w-10 h-10 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-bold flex items-center justify-center shadow-sm">
               3
             </span>
-<span class="material-symbols-outlined text-primary text-[28px]">verified_user</span>
+<x-site-icon name="verified_user" class="text-[28px] text-primary" />
 </div>
 <h3 class="font-title-md text-title-md text-on-surface font-bold mb-2">Wait for Confirmation</h3>
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
@@ -228,7 +231,7 @@
 </div>
 <!-- Critical Notice Callout -->
 <div class="mt-space-lg p-space-md rounded-xl bg-surface-container-highest flex items-start gap-space-sm">
-<span class="material-symbols-outlined text-primary text-[24px] shrink-0 mt-0.5">info</span>
+<x-site-icon name="info" class="mt-0.5 text-[24px] text-primary" />
 <div>
 <span class="font-label-md text-label-md text-primary font-bold">Booking Advisory</span>
 <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
@@ -245,7 +248,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-md items-center">
 <div class="lg:col-span-8 space-y-space-sm">
 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-secondary font-label-sm text-label-sm font-bold">
-<span class="material-symbols-outlined text-[16px]">location_on</span>
+<x-site-icon name="location_on" class="text-[16px]" />
               Ozamiz City, Misamis Occidental
             </div>
 <h2 class="font-headline-lg text-headline-lg text-primary font-black">
@@ -256,15 +259,15 @@
             </p>
 <div class="pt-space-xs flex flex-wrap items-center gap-space-sm">
 <a class="inline-flex items-center gap-2 px-space-md py-3 rounded-lg bg-surface-container-highest text-on-surface font-label-md text-label-md font-bold hover:bg-secondary-fixed transition-colors" href="https://www.facebook.com/profile.php?id=61572029845712" rel="noopener noreferrer" target="_blank">
-<span class="material-symbols-outlined text-secondary text-[20px]">chat</span>
+<x-site-icon name="chat" class="text-[20px] text-secondary" />
 <span class="">Message Us on Facebook</span>
 </a>
 <a class="inline-flex items-center gap-2 px-space-md py-3 rounded-lg bg-surface-container-highest text-on-surface font-label-md text-label-md font-bold hover:bg-secondary-fixed transition-colors" href="tel:+639762271228">
-<span class="material-symbols-outlined text-secondary text-[20px]">call</span>
+<x-site-icon name="call" class="text-[20px] text-secondary" />
 <span>Call 0976-2271-228</span>
 </a>
 <a class="inline-flex items-center gap-2 px-space-md py-3 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold hover:bg-secondary transition-colors shadow-sm" data-path="book-now" href="{{ route('order') }}">
-<span class="material-symbols-outlined text-[20px]">event_available</span>
+<x-site-icon name="event_available" class="text-[20px]" />
 <span class="">Book Now</span>
 </a>
 </div>
@@ -302,7 +305,7 @@
 <p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed">“Beautifully crispy, dangerously juicy”</p>
 <p class="font-label-md text-label-md text-secondary font-semibold">Basta belly, diri mismo!</p>
 <span class="inline-flex w-fit items-center gap-1.5 rounded-full bg-surface-container px-3 py-1 font-label-sm text-label-sm text-on-surface">
-<span class="material-symbols-outlined text-[15px] text-secondary">pin_drop</span>Ozamiz City, Misamis Occidental</span>
+<x-site-icon name="pin_drop" class="text-[15px] text-secondary" />Ozamiz City, Misamis Occidental</span>
 </div>
 <div class="flex min-w-0 flex-col gap-space-sm">
 <h3 class="flex min-h-[1.75rem] items-center font-title-md text-title-md text-on-surface">Fiesta Menu &amp; Info</h3>
@@ -336,9 +339,9 @@
 <h3 class="flex min-h-[1.75rem] items-center font-title-md text-title-md text-on-surface">Community</h3>
 <p class="font-body-sm text-body-sm text-on-surface-variant">Connect directly with our team in Ozamiz City:</p>
 <a class="inline-flex w-full items-center gap-2 rounded-lg bg-surface-container px-4 py-2.5 font-label-md text-label-md text-on-surface shadow-sm transition-all hover:bg-secondary-container hover:text-on-secondary-container" href="tel:+639762271228">
-<span class="material-symbols-outlined text-[18px] text-secondary">call</span>0976-2271-228</a>
+<x-site-icon name="call" class="text-[18px] text-secondary" />0976-2271-228</a>
 <a class="inline-flex w-full items-center gap-2 rounded-lg bg-surface-container px-4 py-2.5 font-label-md text-label-md text-on-surface shadow-sm transition-all hover:bg-secondary-container hover:text-on-secondary-container" href="https://www.facebook.com/profile.php?id=61572029845712" rel="noopener noreferrer" target="_blank">
-<span class="material-symbols-outlined text-[18px] text-secondary">chat</span>Message Us on Facebook</a>
+<x-site-icon name="chat" class="text-[18px] text-secondary" />Message Us on Facebook</a>
 <p class="font-label-sm text-label-sm text-on-surface-variant">Est. 2026 • Ozamiz City, Misamis Occidental, Philippines</p>
 </div>
 </div>
@@ -350,19 +353,19 @@
 </footer>
 <div class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-lg px-gutter py-space-sm flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
 <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary" data-path="home" href="#top">
-<span class="material-symbols-outlined text-[20px]">home</span>
+<x-site-icon name="home" class="text-[20px]" />
 <span class="font-label-sm text-label-sm">Home</span>
 </a>
 <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary" data-path="our-belly" href="{{ route('belly') }}">
-<span class="material-symbols-outlined text-[20px]">restaurant_menu</span>
+<x-site-icon name="restaurant_menu" class="text-[20px]" />
 <span class="font-label-sm text-label-sm">Belly</span>
 </a>
 <a class="flex flex-col items-center gap-0.5 text-primary font-bold" data-path="book-now" href="{{ route('order') }}">
-<span class="material-symbols-outlined text-[20px]">event_available</span>
+<x-site-icon name="event_available" class="text-[20px]" />
 <span class="font-label-sm text-label-sm">Book</span>
 </a>
 <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary" data-path="contact" href="#contact">
-<span class="material-symbols-outlined text-[20px]">call</span>
+<x-site-icon name="call" class="text-[20px]" />
 <span class="font-label-sm text-label-sm">Contact</span>
 </a>
 </div>
