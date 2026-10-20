@@ -41,6 +41,7 @@ Route::middleware('admin.auth')->group(function (): void {
     Route::delete('/admin/email-alerts', [AdminOrderNotificationController::class, 'destroy'])->name('admin.notifications.destroy');
     Route::get('/admin/orders', [AdminOrderController::class, 'index'])->name('admin.orders');
     Route::post('/admin/orders', [AdminOrderController::class, 'store'])->name('admin.orders.store');
+    Route::patch('/admin/orders/{order}', [AdminOrderController::class, 'update'])->name('admin.orders.update');
     Route::patch('/admin/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.status');
     Route::patch('/admin/orders/{order}/payment', [AdminOrderController::class, 'updatePayment'])->name('admin.orders.payment');
     Route::delete('/admin/orders/{order}', [AdminOrderController::class, 'destroy'])->name('admin.orders.destroy');

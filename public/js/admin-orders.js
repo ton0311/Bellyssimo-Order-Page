@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
         statusSelect: document.querySelector('#status-select'),
         dialog: document.querySelector('#new-order-dialog'),
         form: document.querySelector('#new-order-form'),
+        editDialog: document.querySelector('#edit-order-dialog'),
+        editForm: document.querySelector('#edit-order-form'),
         toast: document.querySelector('#toast'),
         inventoryDialog: document.querySelector('#inventory-dialog'),
         inventoryForm: document.querySelector('#inventory-form'),
@@ -131,6 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#order-fulfillment').textContent = order.fulfillment;
         document.querySelector('#order-payment').textContent = `${order.payment_method} · ${order.payment}`;
         document.querySelector('#order-note').textContent = order.note || 'No customer note.';
+        const riderDraftPanel = document.querySelector('#rider-draft-panel');
+        const isDelivery = order.fulfillment_method === 'Delivery';
+        riderDraftPanel.hidden = !isDelivery;
+        document.querySelector('#rider-draft').value = isDelivery ? riderDraft(order, schedule.full) : '';
         document.querySelector('#payment-amount-paid').textContent = money.format(order.amount_paid);
         document.querySelector('#payment-balance').textContent = money.format(order.remaining_balance);
         document.querySelector('#payment-balance-row').hidden = Number(order.amount_paid) <= 0;
@@ -143,6 +149,37 @@ document.addEventListener('DOMContentLoaded', () => {
             ? 'Completed orders are fully paid and locked.'
             : 'Enter the total amount received so far. It will be included in sales.';
         elements.statusSelect.value = order.status;
+    }
+
+    function riderDraft(order, formattedSchedule) {
+        const isDelivery = order.fulfillment_method === 'Delivery';
+        const itemLines = order.items.map((item) => `- ${item.name} (${item.weight}) · ${item.flavor}`).join('\n');
+        const handoffLine = isDelivery
+            ? `Drop-off: ${order.delivery_location || 'Address to be confirmed'}`
+            : 'Handoff: Customer pickup at Bellyssimo';
+        const balanceLine = Number(order.remaining_balance) > 0
+            ? `Amount to collect: ${money.format(order.remaining_balance)}`
+            : 'Amount to collect: Fully paid';
+        const notes = order.note_raw?.trim() || 'None';
+
+        return `BELLYSSIMO ${isDelivery ? 'DELIVERY' : 'PICKUP'} DETAILS
+
+Order: #${order.id}
+Pickup point: Bellyssimo, Perayra Village, Maningcol
+${handoffLine}
+
+Customer: ${order.customer}
+Contact: ${order.phone}
+Schedule: ${formattedSchedule}
+
+Items:
+${itemLines}
+
+Order total: ${money.format(order.total)}
+Payment: ${order.payment_method} · ${order.payment}
+${balanceLine}
+
+Notes: ${notes}`;
     }
 
     function selectOrder(id) {
@@ -179,6 +216,92 @@ document.addEventListener('DOMContentLoaded', () => {
         activeStatus = button.dataset.status;
         elements.tabs.querySelectorAll('button').forEach((item) => item.classList.toggle('active', item === button));
         render();
+    });
+
+    document.querySelector('#copy-rider-draft').addEventListener('click', async () => {
+        const draft = document.querySelector('#rider-draft');
+        const text = draft.value.trim();
+        if (!text) return;
+
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast('Rider details copied.');
+        } catch {
+            draft.focus();
+            draft.select();
+            const copied = document.execCommand('copy');
+            draft.setSelectionRange(0, 0);
+            if (copied) {
+                showToast('Rider details copied.');
+            } else {
+                showToast('Copy failed. Select the draft and copy it manually.');
+            }
+        }
+    });
+
+    const editFulfillmentSelect = document.querySelector('#edit-fulfillment');
+    const editDeliveryLocation = document.querySelector('#edit-delivery-location');
+
+    function updateEditDeliveryField() {
+        const isDelivery = editFulfillmentSelect.value === 'Delivery';
+        editDeliveryLocation.hidden = !isDelivery;
+        editDeliveryLocation.querySelector('input').required = isDelivery;
+    }
+
+    document.querySelector('#edit-order').addEventListener('click', () => {
+        const order = orders.find((item) => item.id === selectedOrderId);
+        if (!order) return;
+
+        const phoneDigits = String(order.phone).replace(/\D/g, '').replace(/^63/, '').replace(/^0/, '');
+        elements.editForm.elements.customer.value = order.customer;
+        elements.editForm.elements.phone.value = phoneDigits;
+        elements.editForm.elements.email.value = order.email ?? '';
+        elements.editForm.elements.schedule.value = order.schedule;
+        elements.editForm.elements.fulfillment.value = order.fulfillment_method;
+        elements.editForm.elements.delivery_location.value = order.delivery_location ?? '';
+        elements.editForm.elements.payment_method.value = order.payment_method;
+        elements.editForm.elements.note.value = order.note_raw ?? '';
+        updateEditDeliveryField();
+        elements.editDialog.showModal();
+    });
+    document.querySelector('#close-edit-order-dialog').addEventListener('click', () => elements.editDialog.close());
+    document.querySelector('#cancel-edit-order').addEventListener('click', () => elements.editDialog.close());
+    elements.editDialog.addEventListener('click', (event) => {
+        if (event.target === elements.editDialog) elements.editDialog.close();
+    });
+    editFulfillmentSelect.addEventListener('change', updateEditDeliveryField);
+
+    elements.editForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const order = orders.find((item) => item.id === selectedOrderId);
+        if (!order) return;
+
+        const submitButton = elements.editForm.querySelector('[type="submit"]');
+        submitButton.disabled = true;
+
+        try {
+            const url = window.bellyssimoAdmin.updateUrlTemplate.replace('__ORDER__', order.database_id);
+            const response = await fetch(url, {
+                method: 'PATCH',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: new FormData(elements.editForm),
+            });
+            const payload = await response.json();
+            if (!response.ok) {
+                const firstError = Object.values(payload.errors ?? {})[0]?.[0];
+                throw new Error(firstError ?? payload.message ?? 'Unable to update this order right now.');
+            }
+
+            orders = orders.map((item) => item.database_id === payload.order.database_id ? payload.order : item);
+            elements.editDialog.close();
+            render();
+            showToast(payload.message);
+            window.setTimeout(() => window.location.reload(), 450);
+        } catch (error) {
+            showToast(error.message);
+        } finally {
+            submitButton.disabled = false;
+        }
     });
     elements.paymentForm.addEventListener('submit', async (event) => {
         event.preventDefault();

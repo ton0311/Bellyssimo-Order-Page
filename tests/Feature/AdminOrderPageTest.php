@@ -48,6 +48,8 @@ class AdminOrderPageTest extends TestCase
             ->assertSee('Cancelled')
             ->assertSee('Delete order')
             ->assertSee('Down payment amount')
+            ->assertSee('Rider hand-off')
+            ->assertSee('Copy rider details')
             ->assertDontSee('data-inspector-tab', false)
             ->assertSee('Delete customer details?')
             ->assertSee('Live order feed')
@@ -156,6 +158,68 @@ class AdminOrderPageTest extends TestCase
             'id' => $order->id,
             'status' => 'Confirmed',
         ]);
+    }
+
+    public function test_admin_can_edit_customer_order_details_without_changing_items_or_total(): void
+    {
+        $order = Order::factory()->create([
+            'customer_name' => 'Old Customer',
+            'contact_number' => '+639171111111',
+            'email' => 'old@example.com',
+            'preferred_date' => now()->addDay()->toDateString(),
+            'preferred_time' => '10:00',
+            'fulfillment' => 'Pickup',
+            'delivery_location' => null,
+            'payment_method' => 'Cash',
+            'notes' => null,
+            'order_total' => 2550,
+        ]);
+        $originalItems = $order->items;
+
+        $this->patchJson(route('admin.orders.update', $order), [
+            'customer' => 'Ana Santos',
+            'phone' => '09181234567',
+            'email' => 'ANA@EXAMPLE.COM',
+            'schedule' => now()->addDays(3)->format('Y-m-d\T15:30'),
+            'fulfillment' => 'Delivery',
+            'delivery_location' => 'Carmen Annex, Ozamiz City',
+            'payment_method' => 'GCash',
+            'note' => 'Call before delivery.',
+        ])->assertOk()
+            ->assertJsonPath('message', 'Order details updated.')
+            ->assertJsonPath('order.customer', 'Ana Santos')
+            ->assertJsonPath('order.phone', '+639181234567')
+            ->assertJsonPath('order.email', 'ana@example.com')
+            ->assertJsonPath('order.fulfillment_method', 'Delivery')
+            ->assertJsonPath('order.delivery_location', 'Carmen Annex, Ozamiz City')
+            ->assertJsonPath('order.payment_method', 'GCash')
+            ->assertJsonPath('order.total', 2550);
+
+        $order->refresh();
+        $this->assertSame($originalItems, $order->items);
+        $this->assertSame(2550, $order->order_total);
+        $this->assertDatabaseHas('customers', [
+            'name' => 'Ana Santos',
+            'contact_number' => '+639181234567',
+            'email' => 'ana@example.com',
+        ]);
+    }
+
+    public function test_editing_an_order_requires_a_delivery_location_for_delivery(): void
+    {
+        $order = Order::factory()->create();
+
+        $this->patchJson(route('admin.orders.update', $order), [
+            'customer' => 'Ana Santos',
+            'phone' => '09181234567',
+            'email' => null,
+            'schedule' => now()->addDay()->format('Y-m-d\TH:i'),
+            'fulfillment' => 'Delivery',
+            'delivery_location' => '',
+            'payment_method' => 'Cash',
+            'note' => null,
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('delivery_location');
     }
 
     public function test_status_change_queues_a_customer_email_when_an_address_is_available(): void

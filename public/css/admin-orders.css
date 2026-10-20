@@ -250,6 +250,17 @@ tbody tr.selected { background: #fbf0ea; box-shadow: inset 3px 0 var(--orange); 
 .detail-grid dt { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; }
 .detail-grid dt .material-symbols-rounded { color: #aa8e82; font-size: 16px; }
 .detail-grid dd { margin: 0; font-size: 10px; font-weight: 600; line-height: 1.5; }
+.rider-draft-panel { padding: 16px 18px 18px; border-top: 1px solid var(--line); background: #fffaf6; }
+.rider-draft-heading { margin-bottom: 11px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.rider-draft-heading > div { min-width: 0; display: flex; align-items: flex-start; gap: 9px; }
+.rider-draft-heading > div > .material-symbols-rounded { width: 32px; height: 32px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 9px; color: var(--wine); background: var(--orange-soft); font-size: 18px; }
+.rider-draft-heading strong, .rider-draft-heading small { display: block; }
+.rider-draft-heading strong { color: var(--wine-dark); font-size: 11px; }
+.rider-draft-heading small { margin-top: 3px; color: var(--muted); font-size: 9px; line-height: 1.45; }
+.draft-type { padding: 4px 7px; border-radius: 99px; color: var(--green); background: var(--green-soft); font-size: 8px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+#rider-draft { width: 100%; min-height: 210px; padding: 12px; border: 1px solid var(--line); border-radius: 11px; outline: none; color: var(--ink); background: white; font: 500 10px/1.55 "DM Sans", sans-serif; resize: vertical; }
+#rider-draft:focus { border-color: #c88a6e; box-shadow: 0 0 0 3px rgba(213,100,40,.1); }
+.rider-draft-panel .primary-button { width: 100%; margin-top: 9px; min-height: 40px; font-size: 11px; }
 .payment-panel { padding: 14px 18px 18px; border-top: 1px solid var(--line); }
 .payment-panel h3 { margin: 0 0 9px; color: var(--muted); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
 .payment-summary { overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: #fbf8f5; }
@@ -271,6 +282,12 @@ tbody tr.selected { background: #fbf0ea; box-shadow: inset 3px 0 var(--orange); 
 .status-control label { grid-column: 1 / -1; font-size: 10px; font-weight: 800; }
 .status-control select { min-width: 0; height: 41px; padding: 0 10px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: white; font-size: 11px; }
 .status-control .primary-button { min-height: 41px; padding-inline: 13px; font-size: 11px; }
+.order-edit-zone { padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid var(--line); background: #fffdfb; }
+.order-edit-zone > div { min-width: 0; }
+.order-edit-zone strong, .order-edit-zone span { display: block; }
+.order-edit-zone strong { color: var(--wine-dark); font-size: 10px; }
+.order-edit-zone > div > span { margin-top: 3px; color: var(--muted); font-size: 9px; line-height: 1.4; }
+.order-edit-zone .secondary-button { min-height: 38px; padding-inline: 12px; font-size: 10px; white-space: nowrap; }
 .order-danger-zone { padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid #f0ddda; background: #fff8f7; }
 .order-danger-zone > div { min-width: 0; }
 .order-danger-zone strong, .order-danger-zone span { display: block; }
@@ -295,6 +312,7 @@ dialog::backdrop { background: rgba(37,20,16,.57); backdrop-filter: blur(3px); }
 .admin-phone-field:focus-within { border-color: #c88a6e; box-shadow: 0 0 0 3px rgba(213,100,40,.1); }
 .admin-phone-field b { padding: 0 10px; display: flex; align-items: center; border-right: 1px solid var(--line); color: var(--wine); background: var(--surface-warm); font-size: 11px; }
 .form-grid .admin-phone-field input { min-width: 0; border: 0; border-radius: 0; box-shadow: none; }
+.form-note { margin: 0; padding: 10px 12px; border-radius: 10px; color: var(--muted); background: var(--surface-warm); font-size: 10px; line-height: 1.5; }
 .dialog-actions { padding: 14px 24px 22px; display: flex; justify-content: flex-end; gap: 9px; }
 .confirm-dialog { width: min(480px, calc(100% - 28px)); }
 .delete-dialog-copy { margin: 22px 24px 8px; padding: 16px; display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 12px; border: 1px solid #f0d3d0; border-radius: 13px; background: #fff8f7; }

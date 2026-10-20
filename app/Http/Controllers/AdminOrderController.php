@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAdminOrderRequest;
+use App\Http\Requests\UpdateAdminOrderRequest;
 use App\Http\Requests\UpdateOrderPaymentRequest;
 use App\Http\Requests\UpdateOrderStatusRequest;
 use App\Jobs\SendOrderEmail;
@@ -226,6 +227,33 @@ class AdminOrderController extends Controller
         ]);
     }
 
+    public function update(
+        UpdateAdminOrderRequest $request,
+        Order $order,
+    ): JsonResponse {
+        $data = $request->validated();
+        $schedule = CarbonImmutable::parse($data['schedule']);
+
+        $order->update([
+            'customer_name' => $data['customer'],
+            'contact_number' => '+63'.$data['phone'],
+            'email' => $data['email'] ?? null,
+            'preferred_date' => $schedule->toDateString(),
+            'preferred_time' => $schedule->format('H:i'),
+            'fulfillment' => $data['fulfillment'],
+            'delivery_location' => $data['delivery_location'] ?? null,
+            'payment_method' => $data['payment_method'],
+            'notes' => $data['note'] ?? null,
+        ]);
+        $order->refresh();
+        $this->syncCustomer($order);
+
+        return response()->json([
+            'message' => 'Order details updated.',
+            'order' => $this->dashboardPayload($order),
+        ]);
+    }
+
     public function updatePayment(UpdateOrderPaymentRequest $request, Order $order): JsonResponse
     {
         $amountPaid = (int) $request->validated('amount_paid');
@@ -295,6 +323,8 @@ class AdminOrderController extends Controller
             'flavor' => $flavorSummary,
             'schedule' => $order->preferred_date->format('Y-m-d').'T'.substr($order->preferred_time, 0, 5),
             'fulfillment' => $fulfillment,
+            'fulfillment_method' => $order->fulfillment,
+            'delivery_location' => $order->delivery_location,
             'payment' => $order->payment_status,
             'payment_method' => $order->payment_method,
             'total' => $order->order_total,
@@ -303,6 +333,7 @@ class AdminOrderController extends Controller
             'status' => $order->status,
             'created' => 'Added '.$order->submitted_at->diffForHumans(),
             'note' => $order->notes ?: 'No customer note.',
+            'note_raw' => $order->notes,
         ];
     }
 

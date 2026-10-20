@@ -236,6 +236,16 @@
                             <div><dt><span class="material-symbols-rounded">sticky_note_2</span>Customer note</dt><dd id="order-note"></dd></div>
                         </dl>
 
+                        <div class="rider-draft-panel" id="rider-draft-panel" hidden>
+                            <div class="rider-draft-heading">
+                                <div><span class="material-symbols-rounded">two_wheeler</span><div><strong>Rider hand-off</strong><small>Edit the draft if needed, then copy and paste it to your rider.</small></div></div>
+                                <span class="draft-type" id="rider-draft-type">Delivery</span>
+                            </div>
+                            <label for="rider-draft" class="sr-only">Pickup and delivery details for rider</label>
+                            <textarea id="rider-draft" rows="12" spellcheck="true"></textarea>
+                            <button class="primary-button" id="copy-rider-draft" type="button"><span class="material-symbols-rounded">content_copy</span>Copy rider details</button>
+                        </div>
+
                         <div class="payment-panel">
                             <h3>Down payment</h3>
                             <div class="payment-summary">
@@ -260,6 +270,10 @@
                                 <option>Cancelled</option>
                             </select>
                             <button class="primary-button" id="save-status">Save status</button>
+                        </div>
+                        <div class="order-edit-zone">
+                            <div><strong>Booking details</strong><span>Update the customer, schedule, fulfillment, payment method, or notes.</span></div>
+                            <button class="secondary-button" id="edit-order" type="button"><span class="material-symbols-rounded">edit</span>Edit order</button>
                         </div>
                         <div class="order-danger-zone">
                             <div><strong>Delete order</strong><span>Permanently remove this booking from the dashboard and reports.</span></div>
@@ -406,6 +420,27 @@
         </form>
     </dialog>
 
+    <dialog id="edit-order-dialog">
+        <form id="edit-order-form" method="dialog">
+            <div class="dialog-head">
+                <div><p class="eyebrow">Booking details</p><h2>Edit customer order</h2></div>
+                <button class="icon-button" type="button" id="close-edit-order-dialog" aria-label="Close"><span class="material-symbols-rounded">close</span></button>
+            </div>
+            <div class="form-grid">
+                <label class="full">Customer name<input name="customer" required maxlength="100"></label>
+                <label>Contact number<span class="admin-phone-field"><b>+63</b><input name="phone" required inputmode="numeric" pattern="9[0-9]{9}" maxlength="10"></span></label>
+                <label>Email address <span>(optional)</span><input name="email" type="email" maxlength="254"></label>
+                <label>Schedule<input name="schedule" required type="datetime-local"></label>
+                <label>Fulfillment<select name="fulfillment" id="edit-fulfillment"><option value="Pickup">Pickup at Perayra Village</option><option value="Delivery">Delivery — fee to confirm</option></select></label>
+                <label>Payment method<select name="payment_method"><option>Cash</option><option>GCash</option></select></label>
+                <label class="full" id="edit-delivery-location" hidden>Delivery location<input name="delivery_location" maxlength="300" placeholder="Barangay, landmark, or full address"></label>
+                <label class="full">Customer note<textarea name="note" rows="3" maxlength="300" placeholder="Optional preparation or hand-off notes"></textarea></label>
+                <p class="form-note full">Package items, total, payment amount, and progress are managed separately and will not change.</p>
+            </div>
+            <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-edit-order">Cancel</button><button class="primary-button" type="submit">Save changes</button></div>
+        </form>
+    </dialog>
+
     <dialog id="inventory-dialog">
         <form id="inventory-form" method="dialog">
             <div class="dialog-head">
@@ -457,6 +492,7 @@
             orders: @json($orders),
             inventoryItems: @json($inventoryItems),
             storeUrl: @json(route('admin.orders.store')),
+            updateUrlTemplate: @json(route('admin.orders.update', ['order' => '__ORDER__'])),
             statusUrlTemplate: @json(route('admin.orders.status', ['order' => '__ORDER__'])),
             paymentUrlTemplate: @json(route('admin.orders.payment', ['order' => '__ORDER__'])),
             deleteUrlTemplate: @json(route('admin.orders.destroy', ['order' => '__ORDER__'])),
