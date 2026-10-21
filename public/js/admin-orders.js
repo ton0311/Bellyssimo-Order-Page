@@ -166,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 Order: #${order.id}
 Pickup point: Bellyssimo, Perayra Village, Maningcol
+Pickup contact: ${window.bellyssimoAdmin.businessContact}
 ${handoffLine}
 
 Customer: ${order.customer}

@@ -491,6 +491,7 @@
         window.bellyssimoAdmin = {
             orders: @json($orders),
             inventoryItems: @json($inventoryItems),
+            businessContact: @json('Toño’s Bellyssimo · 0976-2271-228'),
             storeUrl: @json(route('admin.orders.store')),
             updateUrlTemplate: @json(route('admin.orders.update', ['order' => '__ORDER__'])),
             statusUrlTemplate: @json(route('admin.orders.status', ['order' => '__ORDER__'])),

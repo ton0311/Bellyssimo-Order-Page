@@ -50,6 +50,7 @@ class AdminOrderPageTest extends TestCase
             ->assertSee('Down payment amount')
             ->assertSee('Rider hand-off')
             ->assertSee('Copy rider details')
+            ->assertSee('0976-2271-228')
             ->assertDontSee('data-inspector-tab', false)
             ->assertSee('Delete customer details?')
             ->assertSee('Live order feed')
