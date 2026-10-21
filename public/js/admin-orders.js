@@ -281,10 +281,12 @@ Notes: ${notes}`;
 
         try {
             const url = window.bellyssimoAdmin.updateUrlTemplate.replace('__ORDER__', order.database_id);
+            const data = new FormData(elements.editForm);
+            data.set('_method', 'PATCH');
             const response = await fetch(url, {
-                method: 'PATCH',
+                method: 'POST',
                 headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                body: new FormData(elements.editForm),
+                body: data,
             });
             const payload = await response.json();
             if (!response.ok) {
