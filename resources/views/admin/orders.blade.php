@@ -9,8 +9,7 @@
     <title>Admin Dashboard | Toño's Bellyssimo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/admin-orders.css') }}?v={{ filemtime(public_path('css/admin-orders.css')) }}">
 </head>
 <body>
@@ -26,7 +25,7 @@
             <nav class="nav-list">
                 <p>Workspace</p>
                 <a href="#overview" data-section-link="overview"><span class="material-symbols-rounded">space_dashboard</span>Overview</a>
-                <a href="#orders" data-section-link="orders"><span class="material-symbols-rounded">receipt_long</span>Orders <b id="nav-order-count">0</b></a>
+                <a href="#orders" data-section-link="orders"><span class="material-symbols-rounded">receipt_long</span>Orders <b id="nav-order-count">{{ $dashboard['total_orders'] }}</b></a>
                 <a href="{{ route('admin.schedule') }}"><span class="material-symbols-rounded">calendar_month</span>Roasting schedule</a>
                 <a href="#customers" data-section-link="customers"><span class="material-symbols-rounded">group</span>Customers</a>
                 <p>Manage</p>
@@ -81,16 +80,16 @@
                 </div>
 
                 <div class="metrics" aria-label="Business overview">
-                    <article class="metric-card metric-accent"><div><span class="material-symbols-rounded">pending_actions</span><small>Needs response</small></div><strong>{{ $dashboard['pending'] }}</strong><p>Pending confirmation</p></article>
-                    <article class="metric-card"><div><span class="material-symbols-rounded">event_upcoming</span><small>Next 7 days</small></div><strong>{{ $dashboard['upcoming_confirmed'] }}</strong><p>Confirmed orders</p></article>
-                    <article class="metric-card"><div><span class="material-symbols-rounded">inventory_2</span><small>Inventory alert</small></div><strong>{{ $dashboard['low_stock_count'] }}</strong><p>Low-stock items</p></article>
-                    <article class="metric-card"><div><span class="material-symbols-rounded">payments</span><small>Bookings this month</small></div><strong>₱{{ number_format($dashboard['month_revenue']) }}</strong><p>Amount collected</p></article>
+                    <article class="metric-card metric-accent"><div><span class="material-symbols-rounded">pending_actions</span><small>Needs response</small></div><strong id="overview-pending">{{ $dashboard['pending'] }}</strong><p>Pending confirmation</p></article>
+                    <article class="metric-card"><div><span class="material-symbols-rounded">event_upcoming</span><small>Next 7 days</small></div><strong id="overview-upcoming">{{ $dashboard['upcoming_confirmed'] }}</strong><p>Confirmed orders</p></article>
+                    <article class="metric-card"><div><span class="material-symbols-rounded">inventory_2</span><small>Inventory alert</small></div><strong id="overview-low-stock">{{ $dashboard['low_stock_count'] }}</strong><p>Low-stock items</p></article>
+                    <article class="metric-card"><div><span class="material-symbols-rounded">payments</span><small>Bookings this month</small></div><strong id="overview-month-revenue">₱{{ number_format($dashboard['month_revenue']) }}</strong><p>Amount collected</p></article>
                 </div>
 
                 <div class="dashboard-grid overview-insights">
                     <article class="dashboard-card chart-card">
-                        <div class="card-title"><div><p class="eyebrow">Revenue trend</p><h2>Collections by booking month</h2></div><strong>₱{{ number_format($dashboard['total_revenue']) }}</strong></div>
-                        <div class="bar-chart" aria-label="Six-month collections by booking month">
+                        <div class="card-title"><div><p class="eyebrow">Revenue trend</p><h2>Collections by booking month</h2></div><strong id="overview-total-revenue">₱{{ number_format($dashboard['total_revenue']) }}</strong></div>
+                        <div class="bar-chart" id="overview-monthly-chart" aria-label="Six-month collections by booking month">
                             @foreach ($dashboard['monthly'] as $month)
                                 <div class="bar-column"><span class="bar-value">₱{{ number_format($month['revenue'] / 1000, 1) }}k</span><i style="height: {{ $month['height'] }}%"></i><small>{{ $month['label'] }}</small></div>
                             @endforeach
@@ -100,15 +99,15 @@
                         <div class="card-title"><div><p class="eyebrow">Order pipeline</p><h2>Order progress</h2></div><span class="material-symbols-rounded card-icon">donut_large</span></div>
                         <div class="status-breakdown">
                             @foreach ($dashboard['status_counts'] as $status => $count)
-                                <div><span><i data-status="{{ $status }}"></i>{{ $status }}</span><strong>{{ $count }}</strong></div>
+                                <div><span><i data-status="{{ $status }}"></i>{{ $status }}</span><strong data-dashboard-status-count="{{ $status }}">{{ $count }}</strong></div>
                             @endforeach
                         </div>
                     </article>
                     <article class="dashboard-card attention-card">
                         <div class="card-title"><div><p class="eyebrow">Attention queue</p><h2>Owner actions</h2></div><span class="material-symbols-rounded card-icon">notification_important</span></div>
-                        <a href="#orders" data-section-link="orders"><span class="material-symbols-rounded">pending_actions</span><div><strong>{{ $dashboard['pending'] }} pending requests</strong><small>Confirm or decline newly submitted orders.</small></div></a>
-                        <a href="#orders" data-section-link="orders"><span class="material-symbols-rounded">history</span><div><strong>{{ $dashboard['overdue_pending'] }} overdue requests</strong><small>Pending orders whose preferred date has passed.</small></div></a>
-                        <a href="#inventory" data-section-link="inventory"><span class="material-symbols-rounded">inventory</span><div><strong>{{ $dashboard['low_stock_count'] }} low-stock items</strong><small>Restock items at or below their alert level.</small></div></a>
+                        <a href="#orders" data-section-link="orders"><span class="material-symbols-rounded">pending_actions</span><div><strong id="attention-pending">{{ $dashboard['pending'] }} pending requests</strong><small>Confirm or decline newly submitted orders.</small></div></a>
+                        <a href="#orders" data-section-link="orders"><span class="material-symbols-rounded">history</span><div><strong id="attention-overdue">{{ $dashboard['overdue_pending'] }} overdue requests</strong><small>Pending orders whose preferred date has passed.</small></div></a>
+                        <a href="#inventory" data-section-link="inventory"><span class="material-symbols-rounded">inventory</span><div><strong id="attention-low-stock">{{ $dashboard['low_stock_count'] }} low-stock items</strong><small>Restock items at or below their alert level.</small></div></a>
                     </article>
                 </div>
             </section>
@@ -129,17 +128,17 @@
             <section class="metrics" aria-label="Order summary">
                 <article class="metric-card metric-accent">
                     <div><span class="material-symbols-rounded">pending_actions</span><small>Needs attention</small></div>
-                    <strong id="metric-attention">0</strong>
+                    <strong id="metric-attention">{{ $dashboard['pending'] }}</strong>
                     <p>Pending confirmation</p>
                 </article>
                 <article class="metric-card">
                     <div><span class="material-symbols-rounded">verified</span><small>Scheduled work</small></div>
-                    <strong id="metric-confirmed">0</strong>
+                    <strong id="metric-confirmed">{{ $dashboard['confirmed'] }}</strong>
                     <p>Confirmed</p>
                 </article>
                 <article class="metric-card">
                     <div><span class="material-symbols-rounded">cancel</span><small>Not proceeding</small></div>
-                    <strong id="metric-not-proceeding">0</strong>
+                    <strong id="metric-not-proceeding">{{ $dashboard['declined'] + $dashboard['cancelled'] }}</strong>
                     <p>Declined or cancelled</p>
                 </article>
                 <article class="metric-card">
@@ -178,12 +177,12 @@
                     </div>
 
                     <div class="status-tabs" id="status-tabs" role="tablist" aria-label="Filter orders by status">
-                        <button class="active" data-status="all" role="tab">All <span>0</span></button>
-                        <button data-status="Pending confirmation" role="tab">Pending <span>0</span></button>
-                        <button data-status="Confirmed" role="tab">Confirmed <span>0</span></button>
-                        <button data-status="Completed" role="tab">Completed <span>0</span></button>
-                        <button data-status="Declined" role="tab">Declined <span>0</span></button>
-                        <button data-status="Cancelled" role="tab">Cancelled <span>0</span></button>
+                        <button class="active" data-status="all" role="tab">All <span>{{ $dashboard['total_orders'] }}</span></button>
+                        <button data-status="Pending confirmation" role="tab">Pending <span>{{ $dashboard['pending'] }}</span></button>
+                        <button data-status="Confirmed" role="tab">Confirmed <span>{{ $dashboard['confirmed'] }}</span></button>
+                        <button data-status="Completed" role="tab">Completed <span>{{ $dashboard['completed'] }}</span></button>
+                        <button data-status="Declined" role="tab">Declined <span>{{ $dashboard['declined'] }}</span></button>
+                        <button data-status="Cancelled" role="tab">Cancelled <span>{{ $dashboard['cancelled'] }}</span></button>
                     </div>
 
                     <div class="table-wrap">
@@ -199,6 +198,11 @@
                             <p>Try a different search or status filter.</p>
                         </div>
                     </div>
+                    <nav class="table-pagination" aria-label="Orders pagination">
+                        <button class="secondary-button" id="orders-prev" type="button"><span class="material-symbols-rounded">chevron_left</span>Previous</button>
+                        <span id="orders-page">Page 1 of {{ $ordersPagination['last_page'] }}</span>
+                        <button class="secondary-button" id="orders-next" type="button">Next<span class="material-symbols-rounded">chevron_right</span></button>
+                    </nav>
                 </div>
 
                 <aside class="inspector" id="order-inspector" aria-label="Selected order details">
@@ -287,55 +291,43 @@
             <section class="admin-section" data-admin-section="customers" id="customers" hidden>
                 <div class="page-heading">
                     <div><p class="eyebrow">Customer directory</p><h1>Customers for future reference</h1><p>Every submitted booking automatically creates or refreshes a customer record.</p></div>
-                    <div class="summary-pill"><span class="material-symbols-rounded">group</span><strong id="customer-count">{{ $customers->count() }}</strong> customers</div>
+                    <div class="summary-pill"><span class="material-symbols-rounded">group</span><strong id="customer-count">{{ $customerCount }}</strong> customers</div>
                 </div>
                 <div class="data-panel">
-                    <div class="panel-heading"><div><h2>Customer records</h2><p>Name, contact details, order history, and completed revenue.</p></div></div>
+                    <div class="panel-heading">
+                        <div><h2>Customer records</h2><p>Name, contact details, order history, and completed revenue.</p></div>
+                        <label class="search-box compact-search"><span class="material-symbols-rounded">search</span><input id="customer-search" type="search" placeholder="Search customers" autocomplete="off"></label>
+                    </div>
                     <div class="table-wrap customer-table">
                         <table>
                             <thead><tr><th>Customer</th><th>Phone</th><th>Email address</th><th>Orders</th><th>Completed</th><th>Lifetime value</th><th>Last order</th><th><span class="sr-only">Actions</span></th></tr></thead>
-                            <tbody>
-                                @forelse ($customers as $customer)
-                                    <tr>
-                                        <td><strong>{{ $customer['name'] }}</strong></td>
-                                        <td><a class="table-link" href="tel:{{ preg_replace('/\D+/', '', $customer['phone']) }}">{{ $customer['phone'] }}</a></td>
-                                        <td>
-                                            @if ($customer['email'])
-                                                <a class="table-link" href="mailto:{{ $customer['email'] }}">{{ $customer['email'] }}</a>
-                                            @else
-                                                <span class="cell-note">Not provided</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $customer['orders'] }}</td>
-                                        <td>{{ $customer['completed_orders'] }}</td>
-                                        <td class="amount">₱{{ number_format($customer['lifetime_value']) }}</td>
-                                        <td>{{ $customer['last_order'] }}</td>
-                                        <td><button class="row-action customer-delete" type="button" data-customer-delete="{{ $customer['database_id'] }}" data-customer-name="{{ $customer['name'] }}"><span class="material-symbols-rounded">delete</span>Delete</button></td>
-                                    </tr>
-                                @empty
-                                    <tr><td colspan="8"><div class="empty-state"><span class="material-symbols-rounded">group_off</span><h3>No customers yet</h3><p>Customer records appear here after the first booking.</p></div></td></tr>
-                                @endforelse
+                            <tbody id="customers-body">
+                                <tr><td colspan="8" class="table-loading">Customer records load when you open this section.</td></tr>
                             </tbody>
                         </table>
                     </div>
+                    <nav class="table-pagination" aria-label="Customer pagination">
+                        <button class="secondary-button" id="customers-prev" type="button"><span class="material-symbols-rounded">chevron_left</span>Previous</button>
+                        <span id="customers-page">Page 1</span>
+                        <button class="secondary-button" id="customers-next" type="button">Next<span class="material-symbols-rounded">chevron_right</span></button>
+                    </nav>
                 </div>
             </section>
-
             <section class="admin-section" data-admin-section="inventory" id="inventory" hidden>
                 <div class="page-heading">
                     <div><p class="eyebrow">Inventory control</p><h1>Track kitchen items and supplies</h1><p>Add items, current quantities, alert levels, units, and optional unit costs.</p></div>
                     <button class="primary-button" id="new-inventory-button"><span class="material-symbols-rounded">add</span>Add inventory item</button>
                 </div>
                 <div class="metrics inventory-metrics">
-                    <article class="metric-card"><div><span class="material-symbols-rounded">inventory_2</span><small>Tracked</small></div><strong>{{ $inventoryItems->count() }}</strong><p>Inventory items</p></article>
-                    <article class="metric-card {{ $dashboard['low_stock_count'] > 0 ? 'metric-alert' : '' }}"><div><span class="material-symbols-rounded">warning</span><small>Needs attention</small></div><strong>{{ $dashboard['low_stock_count'] }}</strong><p>At or below alert level</p></article>
+                    <article class="metric-card"><div><span class="material-symbols-rounded">inventory_2</span><small>Tracked</small></div><strong id="inventory-count">{{ $inventoryItems->count() }}</strong><p>Inventory items</p></article>
+                    <article class="metric-card {{ $dashboard['low_stock_count'] > 0 ? 'metric-alert' : '' }}"><div><span class="material-symbols-rounded">warning</span><small>Needs attention</small></div><strong id="inventory-low-count">{{ $dashboard['low_stock_count'] }}</strong><p>At or below alert level</p></article>
                 </div>
                 <div class="data-panel">
                     <div class="panel-heading"><div><h2>Current stock</h2><p>Quantities are manually maintained by the admin.</p></div></div>
                     <div class="table-wrap inventory-table">
                         <table>
                             <thead><tr><th>Item</th><th>Category</th><th>On hand</th><th>Alert at</th><th>Unit cost</th><th>Status</th><th></th></tr></thead>
-                            <tbody>
+                            <tbody id="inventory-body">
                                 @forelse ($inventoryItems as $item)
                                     @php($isLow = (float) $item->quantity <= (float) $item->low_stock_threshold)
                                     <tr>
@@ -362,15 +354,15 @@
                     <a class="secondary-button" href="#orders" data-section-link="orders"><span class="material-symbols-rounded">receipt_long</span>View order details</a>
                 </div>
                 <div class="metrics">
-                    <article class="metric-card metric-accent"><div><span class="material-symbols-rounded">payments</span><small>All time</small></div><strong>₱{{ number_format($dashboard['total_revenue']) }}</strong><p>Amount collected</p></article>
-                    <article class="metric-card"><div><span class="material-symbols-rounded">calendar_month</span><small>Bookings this month</small></div><strong>₱{{ number_format($dashboard['month_revenue']) }}</strong><p>Amount collected</p></article>
-                    <article class="metric-card"><div><span class="material-symbols-rounded">task_alt</span><small>Fulfilled</small></div><strong>{{ $dashboard['completed'] }}</strong><p>Completed orders</p></article>
-                    <article class="metric-card"><div><span class="material-symbols-rounded">receipt</span><small>Average</small></div><strong>₱{{ number_format($dashboard['average_order']) }}</strong><p>Completed order value</p></article>
+                    <article class="metric-card metric-accent"><div><span class="material-symbols-rounded">payments</span><small>All time</small></div><strong id="report-total-revenue">₱{{ number_format($dashboard['total_revenue']) }}</strong><p>Amount collected</p></article>
+                    <article class="metric-card"><div><span class="material-symbols-rounded">calendar_month</span><small>Bookings this month</small></div><strong id="report-month-revenue">₱{{ number_format($dashboard['month_revenue']) }}</strong><p>Amount collected</p></article>
+                    <article class="metric-card"><div><span class="material-symbols-rounded">task_alt</span><small>Fulfilled</small></div><strong id="report-completed">{{ $dashboard['completed'] }}</strong><p>Completed orders</p></article>
+                    <article class="metric-card"><div><span class="material-symbols-rounded">receipt</span><small>Average</small></div><strong id="report-average-order">₱{{ number_format($dashboard['average_order']) }}</strong><p>Completed order value</p></article>
                 </div>
                 <div class="dashboard-grid reports-grid">
                     <article class="dashboard-card chart-card wide-card">
                         <div class="card-title"><div><p class="eyebrow">Six-month view</p><h2>Collections by booking month</h2></div><span class="report-note">Cash + GCash</span></div>
-                        <div class="bar-chart report-chart">
+                        <div class="bar-chart report-chart" id="report-monthly-chart">
                             @foreach ($dashboard['monthly'] as $month)
                                 <div class="bar-column"><span class="bar-value">₱{{ number_format($month['revenue'] / 1000, 1) }}k</span><i style="height: {{ $month['height'] }}%"></i><small>{{ $month['label'] }} · {{ $month['orders'] }}</small></div>
                             @endforeach
@@ -378,17 +370,15 @@
                     </article>
                     <article class="dashboard-card">
                         <div class="card-title"><div><p class="eyebrow">Package demand</p><h2>Bellies ordered by size</h2></div><span class="material-symbols-rounded card-icon">restaurant</span></div>
-                        <div class="horizontal-chart">
-                            @foreach ($dashboard['package_mix'] as $package)
-                                <div><span>{{ $package['weight'] }}</span><i><b style="width: {{ $package['width'] }}%"></b></i><strong>{{ $package['count'] }}</strong></div>
-                            @endforeach
+                        <div class="horizontal-chart" id="package-mix">
+                            <p class="table-loading">Package demand loads when you open Reports.</p>
                         </div>
                     </article>
                     <article class="dashboard-card">
-                        <div class="card-title"><div><p class="eyebrow">Order outcomes</p><h2>Current status totals</h2></div><strong>{{ $dashboard['total_orders'] }}</strong></div>
+                        <div class="card-title"><div><p class="eyebrow">Order outcomes</p><h2>Current status totals</h2></div><strong id="report-total-orders">{{ $dashboard['total_orders'] }}</strong></div>
                         <div class="status-breakdown">
                             @foreach ($dashboard['status_counts'] as $status => $count)
-                                <div><span><i data-status="{{ $status }}"></i>{{ $status }}</span><strong>{{ $count }}</strong></div>
+                                <div><span><i data-status="{{ $status }}"></i>{{ $status }}</span><strong data-dashboard-status-count="{{ $status }}">{{ $count }}</strong></div>
                             @endforeach
                         </div>
                     </article>
@@ -490,7 +480,14 @@
     <script>
         window.bellyssimoAdmin = {
             orders: @json($orders),
+            ordersPagination: @json($ordersPagination),
+            dashboard: @json($dashboard),
             inventoryItems: @json($inventoryItems),
+            ordersDataUrl: @json(route('admin.orders.data')),
+            ordersExportUrl: @json(route('admin.orders.export')),
+            summaryUrl: @json(route('admin.dashboard.summary')),
+            customersDataUrl: @json(route('admin.customers.data')),
+            reportsDataUrl: @json(route('admin.reports.data')),
             businessContact: @json('Toño’s Bellyssimo · 0976-2271-228'),
             storeUrl: @json(route('admin.orders.store')),
             updateUrlTemplate: @json(route('admin.orders.update', ['order' => '__ORDER__'])),

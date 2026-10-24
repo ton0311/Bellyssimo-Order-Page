@@ -10,17 +10,22 @@ use App\Jobs\SendOrderEmail;
 use App\Models\Customer;
 use App\Models\InventoryItem;
 use App\Models\Order;
+use App\Services\OrderAuditLogger;
 use App\Services\OrderEmailService;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminOrderController extends Controller
 {
+    private const ORDERS_PER_PAGE = 50;
+
     private const PACKAGES = [
         'barkadahan' => [
             'name' => 'The Bellyssimo Barkadahan',
@@ -44,45 +49,141 @@ class AdminOrderController extends Controller
 
     public function index(): View
     {
-        $orderModels = Order::query()->latest('submitted_at')->get();
+        $orderModels = Order::query()
+            ->latest('submitted_at')->orderByDesc('id')
+            ->limit(self::ORDERS_PER_PAGE)
+            ->get();
         $orders = $orderModels
-            ->take(200)
             ->map(fn (Order $order): array => $this->dashboardPayload($order))
             ->values();
-        $ordersByCustomer = $orderModels->groupBy(
-            fn (Order $order): string => $this->customerKey($order->customer_name, $order->contact_number),
-        );
-        $customers = Customer::query()
-            ->latest('last_order_at')
-            ->get()
-            ->map(function (Customer $customer) use ($ordersByCustomer): array {
-                $customerOrders = $ordersByCustomer->get(
-                    $this->customerKey($customer->name, $customer->contact_number),
-                    collect(),
-                );
-                $completedOrders = $customerOrders
-                    ->where('status', 'Completed')
-                    ->where('payment_status', 'Paid');
-
-                return [
-                    'database_id' => $customer->getKey(),
-                    'name' => $customer->name,
-                    'phone' => $customer->contact_number,
-                    'email' => $customer->email,
-                    'orders' => $customerOrders->count(),
-                    'completed_orders' => $completedOrders->count(),
-                    'lifetime_value' => $completedOrders->sum('order_total'),
-                    'last_order' => $customer->last_order_at?->format('M j, Y') ?? 'No order date',
-                    'notes' => $customer->notes,
-                ];
-            });
         $inventoryItems = InventoryItem::query()->orderBy('name')->get();
+        $totalOrders = Order::query()->count();
 
         return view('admin.orders', [
             'orders' => $orders,
-            'customers' => $customers,
+            'ordersPagination' => [
+                'current_page' => 1,
+                'last_page' => max(1, (int) ceil($totalOrders / self::ORDERS_PER_PAGE)),
+                'per_page' => self::ORDERS_PER_PAGE,
+                'total' => $totalOrders,
+            ],
+            'customerCount' => Customer::query()->count(),
             'inventoryItems' => $inventoryItems,
-            'dashboard' => $this->dashboardData($orderModels, $inventoryItems),
+            'dashboard' => $this->dashboardData(),
+        ]);
+    }
+
+    public function data(Request $request): JsonResponse
+    {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', 'in:all,Pending confirmation,Confirmed,Completed,Declined,Cancelled'],
+            'date' => ['nullable', 'in:all,today,upcoming'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $paginator = $this->filteredOrdersQuery($filters)
+            ->latest('submitted_at')->orderByDesc('id')
+            ->paginate(self::ORDERS_PER_PAGE)
+            ->withQueryString();
+
+        return response()->json($this->paginatedOrdersPayload($paginator));
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', 'in:all,Pending confirmation,Confirmed,Completed,Declined,Cancelled'],
+            'date' => ['nullable', 'in:all,today,upcoming'],
+        ]);
+
+        return response()->streamDownload(function () use ($filters): void {
+            $output = fopen('php://output', 'wb');
+            $writeCsv = static fn (array $fields): int|false => fputcsv($output, $fields, ',', '"', '');
+            $writeCsv([
+                'Order ID',
+                'Customer',
+                'Phone',
+                'Email',
+                'Package',
+                'Flavor',
+                'Schedule',
+                'Fulfillment',
+                'Payment Method',
+                'Payment Status',
+                'Total',
+                'Amount Paid',
+                'Remaining Balance',
+                'Status',
+                'Note',
+            ]);
+
+            foreach ($this->filteredOrdersQuery($filters)->latest('submitted_at')->orderByDesc('id')->cursor() as $order) {
+                $payload = $this->dashboardPayload($order);
+                $writeCsv([
+                    $payload['id'],
+                    $payload['customer'],
+                    $payload['phone'],
+                    $payload['email'],
+                    $payload['package'],
+                    $payload['flavor'],
+                    $payload['schedule'],
+                    $payload['fulfillment'],
+                    $payload['payment_method'],
+                    $payload['payment'],
+                    $payload['total'],
+                    $payload['amount_paid'],
+                    $payload['remaining_balance'],
+                    $payload['status'],
+                    $payload['note'],
+                ]);
+            }
+
+            fclose($output);
+        }, 'bellyssimo-orders-'.now('Asia/Manila')->toDateString().'.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    public function summary(): JsonResponse
+    {
+        return response()->json([
+            'dashboard' => $this->dashboardData(),
+            'customer_count' => Customer::query()->count(),
+            'inventory_count' => InventoryItem::query()->count(),
+        ]);
+    }
+
+    public function reports(): JsonResponse
+    {
+        $packageMix = ['3 kg' => 0, '4 kg' => 0, '5 kg' => 0];
+
+        Order::query()
+            ->select(['id', 'items'])
+            ->orderBy('id')
+            ->chunkById(500, function ($orders) use (&$packageMix): void {
+                foreach ($orders as $order) {
+                    foreach ($order->items as $item) {
+                        $weight = $item['package']['weight'] ?? null;
+
+                        if (is_string($weight) && array_key_exists($weight, $packageMix)) {
+                            $packageMix[$weight]++;
+                        }
+                    }
+                }
+            });
+
+        $packageMax = max(1, ...array_values($packageMix));
+
+        return response()->json([
+            'package_mix' => collect($packageMix)->map(
+                fn (int $count, string $weight): array => [
+                    'weight' => $weight,
+                    'count' => $count,
+                    'width' => max(3, (int) round(($count / $packageMax) * 100)),
+                ],
+            )->values(),
         ]);
     }
 
@@ -130,7 +231,7 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    public function store(StoreAdminOrderRequest $request): JsonResponse
+    public function store(StoreAdminOrderRequest $request, OrderAuditLogger $auditLogger): JsonResponse
     {
         $data = $request->validated();
         $package = self::PACKAGES[$data['package']];
@@ -166,6 +267,18 @@ class AdminOrderController extends Controller
             'submitted_at' => now(),
         ]);
         $this->syncCustomer($order);
+        $auditLogger->record(
+            $order,
+            'admin_created',
+            [],
+            [
+                'status' => $order->status,
+                'payment_status' => $order->payment_status,
+                'amount_paid' => $order->amount_paid,
+                'order_total' => $order->order_total,
+            ],
+            $request,
+        );
 
         if ($order->email) {
             SendOrderEmail::dispatch(
@@ -182,10 +295,14 @@ class AdminOrderController extends Controller
         ], 201);
     }
 
-    public function updateStatus(UpdateOrderStatusRequest $request, Order $order): JsonResponse
-    {
+    public function updateStatus(
+        UpdateOrderStatusRequest $request,
+        Order $order,
+        OrderAuditLogger $auditLogger,
+    ): JsonResponse {
         $status = $request->validated('status');
         $previousStatus = $order->status;
+        $beforeValues = $order->only(['status', 'payment_status', 'amount_paid', 'completed_at']);
         $updates = ['status' => $status];
 
         if ($status === 'Completed') {
@@ -196,6 +313,16 @@ class AdminOrderController extends Controller
 
         $order->update($updates);
         $order->refresh();
+
+        if ($beforeValues !== $order->only(array_keys($beforeValues))) {
+            $auditLogger->record(
+                $order,
+                'status_updated',
+                $beforeValues,
+                $order->only(array_keys($beforeValues)),
+                $request,
+            );
+        }
 
         $emailKinds = match ($status) {
             'Confirmed' => array_values(array_filter([
@@ -254,8 +381,12 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    public function updatePayment(UpdateOrderPaymentRequest $request, Order $order): JsonResponse
-    {
+    public function updatePayment(
+        UpdateOrderPaymentRequest $request,
+        Order $order,
+        OrderAuditLogger $auditLogger,
+    ): JsonResponse {
+        $beforeValues = $order->only(['amount_paid', 'payment_status']);
         $amountPaid = (int) $request->validated('amount_paid');
         $paymentStatus = match (true) {
             $amountPaid === 0 => 'Unpaid',
@@ -269,15 +400,37 @@ class AdminOrderController extends Controller
         ]);
         $order->refresh();
 
+        if ($beforeValues !== $order->only(array_keys($beforeValues))) {
+            $auditLogger->record(
+                $order,
+                'payment_updated',
+                $beforeValues,
+                $order->only(array_keys($beforeValues)),
+                $request,
+            );
+        }
+
         return response()->json([
             'message' => $amountPaid > 0 ? 'Payment amount saved.' : 'Payment amount cleared.',
             'order' => $this->dashboardPayload($order),
         ]);
     }
 
-    public function destroy(Order $order): JsonResponse
+    public function destroy(Request $request, Order $order, OrderAuditLogger $auditLogger): JsonResponse
     {
         $reference = $order->reference;
+        $auditLogger->record(
+            $order,
+            'deleted',
+            [
+                'status' => $order->status,
+                'payment_status' => $order->payment_status,
+                'amount_paid' => $order->amount_paid,
+                'order_total' => $order->order_total,
+            ],
+            [],
+            $request,
+        );
         $order->delete();
 
         return response()->json([
@@ -338,89 +491,157 @@ class AdminOrderController extends Controller
     }
 
     /**
-     * @param  Collection<int, Order>  $orders
-     * @param  Collection<int, InventoryItem>  $inventoryItems
+     * @param  array<string, mixed>  $filters
+     */
+    private function filteredOrdersQuery(array $filters): Builder
+    {
+        $query = Order::query();
+        $search = trim((string) ($filters['q'] ?? ''));
+
+        if ($search !== '') {
+            $query->where(function (Builder $query) use ($search): void {
+                $like = '%'.$search.'%';
+
+                $query->where('reference', 'like', $like)
+                    ->orWhere('customer_name', 'like', $like)
+                    ->orWhere('contact_number', 'like', $like)
+                    ->orWhere('email', 'like', $like);
+            });
+        }
+
+        $status = $filters['status'] ?? 'all';
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $date = $filters['date'] ?? 'all';
+        $today = CarbonImmutable::now('Asia/Manila')->toDateString();
+        if ($date === 'today') {
+            $query->whereDate('preferred_date', $today);
+        } elseif ($date === 'upcoming') {
+            $query->whereDate('preferred_date', '>', $today);
+        }
+
+        return $query;
+    }
+
+    /**
+     * @param  LengthAwarePaginator<int, Order>  $paginator
      * @return array<string, mixed>
      */
-    private function dashboardData(Collection $orders, Collection $inventoryItems): array
+    private function paginatedOrdersPayload(LengthAwarePaginator $paginator): array
+    {
+        return [
+            'orders' => collect($paginator->items())
+                ->map(fn (Order $order): array => $this->dashboardPayload($order))
+                ->values(),
+            'pagination' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => max(1, $paginator->lastPage()),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function dashboardData(): array
     {
         $today = CarbonImmutable::now('Asia/Manila')->startOfDay();
-        $completed = $orders
-            ->where('status', 'Completed')
-            ->where('payment_status', 'Paid');
-        $collectedOrders = $orders->filter(fn (Order $order): bool => $order->amount_paid > 0);
-        $statusOrder = ['Pending confirmation', 'Confirmed', 'Completed', 'Declined', 'Cancelled'];
-        $statusCounts = collect($statusOrder)->mapWithKeys(
-            fn (string $status): array => [$status => $orders->where('status', $status)->count()],
-        );
+        $todayDate = $today->toDateString();
+        $weekEndDate = $today->addDays(7)->toDateString();
+
+        $summary = Order::query()
+            ->selectRaw('COUNT(*) as total_orders')
+            ->selectRaw('COALESCE(SUM(amount_paid), 0) as total_revenue')
+            ->selectRaw(
+                'COALESCE(AVG(CASE WHEN status = ? AND payment_status = ? THEN order_total END), 0) as average_order',
+                ['Completed', 'Paid'],
+            )
+            ->selectRaw(
+                'SUM(CASE WHEN status = ? AND preferred_date BETWEEN ? AND ? THEN 1 ELSE 0 END) as upcoming_confirmed',
+                ['Confirmed', $todayDate, $weekEndDate],
+            )
+            ->selectRaw(
+                'SUM(CASE WHEN status = ? AND preferred_date < ? THEN 1 ELSE 0 END) as overdue_pending',
+                ['Pending confirmation', $todayDate],
+            )
+            ->selectRaw(
+                'SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as pending',
+                ['Pending confirmation'],
+            )
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as confirmed', ['Confirmed'])
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as completed', ['Completed'])
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as declined', ['Declined'])
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as cancelled', ['Cancelled'])
+            ->first();
+
+        $monthlyQuery = Order::query()->selectRaw('COUNT(*) as ignored_total');
         $months = collect(range(5, 0))->map(
             fn (int $offset): CarbonImmutable => $today->startOfMonth()->subMonths($offset),
         );
-        $monthly = $months->map(function (CarbonImmutable $month) use ($collectedOrders): array {
-            $monthOrders = $collectedOrders->filter(function (Order $order) use ($month): bool {
-                return $order->submitted_at->copy()->setTimezone('Asia/Manila')->format('Y-m') === $month->format('Y-m');
-            });
 
-            return [
-                'label' => $month->format('M'),
-                'revenue' => $monthOrders->sum('amount_paid'),
-                'orders' => $monthOrders->count(),
-            ];
-        });
+        foreach ($months as $index => $month) {
+            $from = $month->utc()->format('Y-m-d H:i:s');
+            $until = $month->addMonth()->utc()->format('Y-m-d H:i:s');
+
+            $monthlyQuery
+                ->selectRaw(
+                    "COALESCE(SUM(CASE WHEN amount_paid > 0 AND submitted_at >= ? AND submitted_at < ? THEN amount_paid ELSE 0 END), 0) as revenue_{$index}",
+                    [$from, $until],
+                )
+                ->selectRaw(
+                    "SUM(CASE WHEN amount_paid > 0 AND submitted_at >= ? AND submitted_at < ? THEN 1 ELSE 0 END) as orders_{$index}",
+                    [$from, $until],
+                );
+        }
+
+        $monthlySummary = $monthlyQuery->first();
+        $monthly = $months->map(fn (CarbonImmutable $month, int $index): array => [
+            'label' => $month->format('M'),
+            'revenue' => (int) $monthlySummary->{"revenue_{$index}"},
+            'orders' => (int) $monthlySummary->{"orders_{$index}"},
+        ]);
         $monthlyMax = max(1, (int) $monthly->max('revenue'));
         $monthly = $monthly->map(fn (array $month): array => [
             ...$month,
             'height' => max(4, (int) round(($month['revenue'] / $monthlyMax) * 100)),
         ]);
-        $lowStock = $inventoryItems->filter(
-            fn (InventoryItem $item): bool => (float) $item->quantity <= (float) $item->low_stock_threshold,
-        );
-        $upcomingConfirmed = $orders->filter(function (Order $order) use ($today): bool {
-            $date = CarbonImmutable::parse($order->preferred_date->toDateString(), 'Asia/Manila');
 
-            return $order->status === 'Confirmed'
-                && $date->betweenIncluded($today, $today->addDays(7));
-        });
-        $overduePending = $orders->filter(function (Order $order) use ($today): bool {
-            return $order->status === 'Pending confirmation'
-                && $order->preferred_date->toDateString() < $today->toDateString();
-        });
-        $monthRevenue = $monthly->last()['revenue'];
-        $packageMix = ['3 kg' => 0, '4 kg' => 0, '5 kg' => 0];
+        $lowStockQuery = InventoryItem::query()
+            ->whereColumn('quantity', '<=', 'low_stock_threshold');
+        $lowStockCount = (clone $lowStockQuery)->count();
+        $lowStockItems = $lowStockQuery
+            ->orderBy('quantity')
+            ->limit(5)
+            ->get();
 
-        foreach ($orders as $order) {
-            foreach ($order->items as $item) {
-                $weight = $item['package']['weight'] ?? null;
-                if (is_string($weight) && array_key_exists($weight, $packageMix)) {
-                    $packageMix[$weight]++;
-                }
-            }
-        }
-
-        $packageMix = collect($packageMix);
-        $packageMax = max(1, (int) $packageMix->max());
+        $statusCounts = collect([
+            'Pending confirmation' => (int) $summary->pending,
+            'Confirmed' => (int) $summary->confirmed,
+            'Completed' => (int) $summary->completed,
+            'Declined' => (int) $summary->declined,
+            'Cancelled' => (int) $summary->cancelled,
+        ]);
 
         return [
-            'pending' => $statusCounts['Pending confirmation'],
-            'confirmed' => $statusCounts['Confirmed'],
-            'completed' => $statusCounts['Completed'],
-            'declined' => $statusCounts['Declined'],
-            'cancelled' => $statusCounts['Cancelled'],
-            'total_orders' => $orders->count(),
-            'total_revenue' => $collectedOrders->sum('amount_paid'),
-            'month_revenue' => $monthRevenue,
-            'average_order' => $completed->count() > 0 ? (int) round($completed->avg('order_total')) : 0,
-            'upcoming_confirmed' => $upcomingConfirmed->count(),
-            'overdue_pending' => $overduePending->count(),
-            'low_stock_count' => $lowStock->count(),
-            'low_stock_items' => $lowStock->take(5),
+            'pending' => (int) $summary->pending,
+            'confirmed' => (int) $summary->confirmed,
+            'completed' => (int) $summary->completed,
+            'declined' => (int) $summary->declined,
+            'cancelled' => (int) $summary->cancelled,
+            'total_orders' => (int) $summary->total_orders,
+            'total_revenue' => (int) $summary->total_revenue,
+            'month_revenue' => (int) $monthly->last()['revenue'],
+            'average_order' => (int) round((float) $summary->average_order),
+            'upcoming_confirmed' => (int) $summary->upcoming_confirmed,
+            'overdue_pending' => (int) $summary->overdue_pending,
+            'low_stock_count' => $lowStockCount,
+            'low_stock_items' => $lowStockItems,
             'status_counts' => $statusCounts,
             'monthly' => $monthly,
-            'package_mix' => $packageMix->map(fn (int $count, string $weight): array => [
-                'weight' => $weight,
-                'count' => $count,
-                'width' => max(3, (int) round(($count / $packageMax) * 100)),
-            ])->values(),
         ];
     }
 
@@ -436,10 +657,5 @@ class AdminOrderController extends Controller
                 'last_order_at' => $order->submitted_at,
             ],
         );
-    }
-
-    private function customerKey(string $name, string $contactNumber): string
-    {
-        return mb_strtolower(trim($name)).'|'.preg_replace('/\D+/', '', $contactNumber);
     }
 }

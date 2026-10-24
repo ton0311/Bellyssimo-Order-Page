@@ -8,11 +8,19 @@ use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\AdminOrderNotificationController;
 use App\Http\Controllers\AdminPasswordController;
 use App\Http\Controllers\BellyController;
+use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ResendWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/health', HealthController::class)
+    ->middleware('throttle:60,1')
+    ->name('health');
+Route::post('/webhooks/resend', ResendWebhookController::class)
+    ->middleware('throttle:120,1')
+    ->name('webhooks.resend');
 Route::get('/our-belly', BellyController::class)->name('belly');
 Route::get('/about-faqs', AboutController::class)->name('about');
 Route::get('/order', [OrderController::class, 'create'])->name('order');
@@ -40,6 +48,11 @@ Route::middleware('admin.auth')->group(function (): void {
     Route::post('/admin/email-alerts', [AdminOrderNotificationController::class, 'store'])->name('admin.notifications.store');
     Route::delete('/admin/email-alerts', [AdminOrderNotificationController::class, 'destroy'])->name('admin.notifications.destroy');
     Route::get('/admin/orders', [AdminOrderController::class, 'index'])->name('admin.orders');
+    Route::get('/admin/orders/data', [AdminOrderController::class, 'data'])->name('admin.orders.data');
+    Route::get('/admin/orders/export', [AdminOrderController::class, 'export'])->name('admin.orders.export');
+    Route::get('/admin/dashboard/summary', [AdminOrderController::class, 'summary'])->name('admin.dashboard.summary');
+    Route::get('/admin/reports/data', [AdminOrderController::class, 'reports'])->name('admin.reports.data');
+    Route::get('/admin/customers/data', [AdminCustomerController::class, 'index'])->name('admin.customers.data');
     Route::post('/admin/orders', [AdminOrderController::class, 'store'])->name('admin.orders.store');
     Route::patch('/admin/orders/{order}', [AdminOrderController::class, 'update'])->name('admin.orders.update');
     Route::patch('/admin/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.status');

@@ -6,6 +6,7 @@ use App\Http\Requests\ConfirmOrderRequest;
 use App\Jobs\SendOrderEmail;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Services\OrderAuditLogger;
 use App\Services\OrderEmailService;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -70,7 +71,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, OrderAuditLogger $auditLogger): RedirectResponse
     {
         $order = $request->session()->get('order.draft');
 
@@ -115,6 +116,18 @@ class OrderController extends Controller
                 'email' => $createdOrder->email,
                 'last_order_at' => $createdOrder->submitted_at,
             ],
+        );
+        $auditLogger->record(
+            $createdOrder,
+            'customer_placed',
+            [],
+            [
+                'status' => $createdOrder->status,
+                'payment_status' => $createdOrder->payment_status,
+                'order_total' => $createdOrder->order_total,
+            ],
+            $request,
+            'customer',
         );
 
         $request->session()->put('order.placed', $order);

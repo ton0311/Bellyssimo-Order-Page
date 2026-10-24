@@ -36,6 +36,10 @@ return [
                 explode(',', (string) env('ORDER_NOTIFICATION_EMAILS', '')),
             ))),
         ],
+        'webhook' => [
+            'secret' => env('RESEND_WEBHOOK_SECRET'),
+            'tolerance' => (int) env('RESEND_WEBHOOK_TOLERANCE', 300),
+        ],
     ],
 
     'ses' => [

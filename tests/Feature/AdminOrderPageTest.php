@@ -635,15 +635,16 @@ class AdminOrderPageTest extends TestCase
         $this->assertSame([0, 0, 0, 0, 500, 1000], $dashboard['monthly']->pluck('revenue')->all());
     }
 
-    public function test_reports_include_collections_beyond_the_latest_200_displayed_orders(): void
+    public function test_reports_include_collections_beyond_the_latest_50_displayed_orders(): void
     {
         $this->freezeTime();
         Order::factory()->create(['amount_paid' => 1000, 'submitted_at' => now()->subDay()]);
-        Order::factory()->count(200)->create();
+        Order::factory()->count(50)->create();
 
         $response = $this->get(route('admin.dashboard'))->assertOk();
 
-        $this->assertCount(200, $response->viewData('orders'));
+        $this->assertCount(50, $response->viewData('orders'));
+        $this->assertSame(51, $response->viewData('ordersPagination')['total']);
         $this->assertSame(1000, $response->viewData('dashboard')['total_revenue']);
     }
 
@@ -666,6 +667,115 @@ class AdminOrderPageTest extends TestCase
         $this->assertSame(0, $response->viewData('dashboard')['month_revenue']);
     }
 
+    public function test_csv_export_streams_all_matching_orders_not_only_the_loaded_page(): void
+    {
+        Order::factory()->count(50)->create(['status' => 'Pending confirmation']);
+        Order::factory()->create([
+            'reference' => 'TB-EXPORT-CONFIRMED',
+            'customer_name' => 'Export Match',
+            'status' => 'Confirmed',
+        ]);
+
+        $response = $this->get(route('admin.orders.export', [
+            'q' => 'Export Match',
+            'status' => 'Confirmed',
+        ]));
+
+        $response
+            ->assertOk()
+            ->assertHeader('content-type', 'text/csv; charset=UTF-8');
+        $this->assertStringContainsString('TB-EXPORT-CONFIRMED', $response->streamedContent());
+        $this->assertStringNotContainsString('Pending confirmation', $response->streamedContent());
+    }
+
+    public function test_dashboard_data_endpoints_require_admin_authentication(): void
+    {
+        $this->withSession(['admin.authenticated' => false]);
+
+        foreach (['admin.orders.data', 'admin.orders.export', 'admin.customers.data', 'admin.dashboard.summary', 'admin.reports.data'] as $route) {
+            $this->get(route($route))->assertRedirect(route('admin.login'));
+        }
+    }
+
+    public function test_order_pages_do_not_repeat_orders_with_equal_submission_timestamps(): void
+    {
+        $this->freezeTime();
+        $orders = Order::factory()->count(51)->create();
+
+        $first = $this->getJson(route('admin.orders.data'))->assertOk();
+        $second = $this->getJson(route('admin.orders.data', ['page' => 2]))->assertOk();
+
+        $this->assertSame($orders->last()->id, $first->json('orders.0.database_id'));
+        $this->assertSame($orders->first()->id, $second->json('orders.0.database_id'));
+        $this->assertSame([], array_intersect(
+            array_column($first->json('orders'), 'database_id'),
+            array_column($second->json('orders'), 'database_id'),
+        ));
+    }
+
+    public function test_upcoming_filter_includes_future_bookings_beyond_next_week(): void
+    {
+        $this->travelTo(CarbonImmutable::parse('2026-10-24 10:00:00', 'Asia/Manila'));
+        Order::factory()->create(['reference' => 'TB-TODAY', 'preferred_date' => '2026-10-24']);
+        Order::factory()->create(['reference' => 'TB-FUTURE', 'preferred_date' => '2026-11-24']);
+
+        $this->getJson(route('admin.orders.data', ['date' => 'upcoming']))
+            ->assertOk()
+            ->assertJsonCount(1, 'orders')
+            ->assertJsonPath('orders.0.id', 'TB-FUTURE');
+    }
+
+    public function test_customer_totals_combine_name_case_variants_and_exclude_incomplete_orders(): void
+    {
+        Customer::factory()->create(['name' => 'Ana Santos', 'contact_number' => '+639171234567']);
+        Order::factory()->create([
+            'customer_name' => 'Ana Santos', 'contact_number' => '+639171234567',
+            'status' => 'Completed', 'payment_status' => 'Paid', 'order_total' => 2000,
+        ]);
+        Order::factory()->create([
+            'customer_name' => 'ANA SANTOS', 'contact_number' => '+639171234567',
+            'status' => 'Completed', 'payment_status' => 'Paid', 'order_total' => 2950,
+        ]);
+        Order::factory()->create([
+            'customer_name' => 'Ana Santos', 'contact_number' => '+639171234567',
+            'status' => 'Confirmed', 'amount_paid' => 1000,
+        ]);
+
+        $this->getJson(route('admin.customers.data'))
+            ->assertOk()
+            ->assertJsonPath('customers.0.orders', 3)
+            ->assertJsonPath('customers.0.completed_orders', 2)
+            ->assertJsonPath('customers.0.lifetime_value', 4950);
+    }
+
+    public function test_customer_pages_are_bounded_and_searchable(): void
+    {
+        $this->freezeTime();
+        Customer::factory()->count(50)->create(['last_order_at' => now()->subDay()]);
+        Customer::factory()->create(['name' => 'Unique Match', 'last_order_at' => now()]);
+
+        $this->getJson(route('admin.customers.data'))
+            ->assertOk()->assertJsonCount(50, 'customers')->assertJsonPath('pagination.total', 51);
+        $this->getJson(route('admin.customers.data', ['page' => 2]))
+            ->assertOk()->assertJsonCount(1, 'customers');
+        $this->getJson(route('admin.customers.data', ['q' => 'Unique Match']))
+            ->assertOk()->assertJsonCount(1, 'customers')->assertJsonPath('customers.0.name', 'Unique Match');
+    }
+
+    public function test_inventory_update_accepts_post_method_override_and_clears_unit_cost(): void
+    {
+        $item = InventoryItem::factory()->create(['unit_cost' => 125.50]);
+
+        $this->post(route('admin.inventory.update', $item), [
+            '_method' => 'PATCH',
+            'name' => $item->name, 'category' => $item->category,
+            'quantity' => 12.5, 'unit' => $item->unit, 'low_stock_threshold' => 3,
+            'unit_cost' => '',
+        ])->assertOk();
+
+        $this->assertDatabaseHas('inventory_items', ['id' => $item->id, 'quantity' => 12.5, 'unit_cost' => null]);
+    }
+
     public function test_customer_directory_uses_persistent_customer_records(): void
     {
         Customer::factory()->create([
@@ -673,12 +783,89 @@ class AdminOrderPageTest extends TestCase
             'contact_number' => '+639762271228',
             'email' => 'repeat@example.com',
         ]);
+        Order::factory()->create([
+            'customer_name' => 'Repeat Customer',
+            'contact_number' => '+639762271228',
+            'status' => 'Completed',
+            'payment_status' => 'Paid',
+            'order_total' => 2950,
+        ]);
+
+        $this->getJson(route('admin.customers.data', ['q' => 'Repeat']))
+            ->assertOk()
+            ->assertJsonPath('pagination.total', 1)
+            ->assertJsonPath('customers.0.name', 'Repeat Customer')
+            ->assertJsonPath('customers.0.phone', '+639762271228')
+            ->assertJsonPath('customers.0.email', 'repeat@example.com')
+            ->assertJsonPath('customers.0.orders', 1)
+            ->assertJsonPath('customers.0.completed_orders', 1)
+            ->assertJsonPath('customers.0.lifetime_value', 2950);
+    }
+
+    public function test_order_data_endpoint_filters_and_paginates_on_the_server(): void
+    {
+        $this->freezeTime();
+        Order::factory()->count(50)->create([
+            'status' => 'Pending confirmation',
+            'submitted_at' => now()->subMinute(),
+        ]);
+        Order::factory()->create([
+            'reference' => 'TB-FILTER-MATCH',
+            'customer_name' => 'Searchable Customer',
+            'status' => 'Confirmed',
+            'submitted_at' => now(),
+        ]);
+
+        $this->getJson(route('admin.orders.data', [
+            'q' => 'Searchable',
+            'status' => 'Confirmed',
+        ]))
+            ->assertOk()
+            ->assertJsonPath('pagination.total', 1)
+            ->assertJsonPath('pagination.per_page', 50)
+            ->assertJsonPath('orders.0.id', 'TB-FILTER-MATCH');
+
+        $this->getJson(route('admin.orders.data'))
+            ->assertOk()
+            ->assertJsonCount(50, 'orders')
+            ->assertJsonPath('pagination.total', 51)
+            ->assertJsonPath('pagination.last_page', 2);
+    }
+
+    public function test_summary_endpoint_returns_collections_from_all_orders(): void
+    {
+        Order::factory()->create([
+            'status' => 'Cancelled',
+            'payment_status' => 'Deposit received',
+            'amount_paid' => 750,
+        ]);
+        Order::factory()->create([
+            'status' => 'Completed',
+            'payment_status' => 'Paid',
+            'amount_paid' => 2000,
+            'order_total' => 2000,
+        ]);
+
+        $this->getJson(route('admin.dashboard.summary'))
+            ->assertOk()
+            ->assertJsonPath('dashboard.total_orders', 2)
+            ->assertJsonPath('dashboard.total_revenue', 2750)
+            ->assertJsonPath('dashboard.completed', 1)
+            ->assertJsonPath('dashboard.cancelled', 1);
+    }
+
+    public function test_report_data_counts_package_mix_without_embedding_it_in_initial_html(): void
+    {
+        Order::factory()->count(3)->create();
+
+        $this->getJson(route('admin.reports.data'))
+            ->assertOk()
+            ->assertJsonPath('package_mix.0.weight', '3 kg')
+            ->assertJsonPath('package_mix.0.count', 3);
 
         $this->get(route('admin.dashboard'))
             ->assertOk()
-            ->assertSee('Email address')
-            ->assertSee('Repeat Customer')
-            ->assertSee('+639762271228')
-            ->assertSee('repeat@example.com');
+            ->assertSee('Package demand loads when you open Reports.')
+            ->assertDontSee('"package_mix"', false);
     }
 }

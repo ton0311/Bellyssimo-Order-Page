@@ -509,3 +509,40 @@ dialog::backdrop { background: rgba(37,20,16,.57); backdrop-filter: blur(3px); }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+.table-pagination {
+    align-items: center;
+    border-top: 1px solid var(--line);
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding: 1rem 1.25rem;
+}
+
+.table-pagination span {
+    color: var(--muted);
+    font-size: .85rem;
+    font-weight: 700;
+    min-width: 7rem;
+    text-align: center;
+}
+
+.table-pagination button {
+    min-height: 2.5rem;
+    padding: .55rem .8rem;
+}
+
+.table-pagination button:disabled {
+    cursor: not-allowed;
+    opacity: .45;
+}
+
+.compact-search {
+    max-width: 22rem;
+}
+
+.table-loading {
+    color: var(--muted);
+    padding: 2rem !important;
+    text-align: center;
+}

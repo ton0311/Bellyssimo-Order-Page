@@ -180,6 +180,63 @@ The included `public/.htaccess` routes Apache requests through Laravel's `public
 
 If Composer is unavailable on the host, run the production Composer install locally with a compatible PHP version and upload the resulting `vendor/` directory with the rest of the application.
 
+## Production reliability on Hostinger
+
+The application includes a public `GET /health` endpoint for uptime monitoring. It returns HTTP 200 only when Laravel and the configured database are reachable, and HTTP 503 otherwise. The response deliberately excludes exception messages and credentials. Point an external uptime monitor at `https://your-domain.example/health`; keep Laravel's lightweight `/up` route as a secondary boot check.
+
+Use these production settings in the private `.env` file:
+
+```dotenv
+APP_ENV=production
+APP_DEBUG=false
+LOG_CHANNEL=stack
+LOG_STACK=daily
+LOG_LEVEL=warning
+LOG_DAILY_DAYS=30
+
+QUEUE_CONNECTION=database
+QUEUE_FAILED_DRIVER=database-uuids
+
+RESEND_WEBHOOK_SECRET=whsec_value_from_the_resend_webhook_page
+RESEND_WEBHOOK_TOLERANCE=300
+
+DATABASE_BACKUP_RETENTION_DAYS=14
+DATABASE_BACKUP_MAX_AGE_HOURS=26
+DATABASE_BACKUP_TIMEOUT_SECONDS=300
+MYSQLDUMP_BINARY=mysqldump
+FAILED_JOB_ALERT_THRESHOLD=1
+```
+
+Leave `DATABASE_BACKUP_PATH` unset to store compressed backup files under the account-private `storage/app/private/backups` directory. That directory must not be inside `public/`. The backup command writes MySQL credentials to a temporary mode-0600 option file, streams `mysqldump` directly into gzip, removes partial backups on failure, and prunes backups older than the configured retention period:
+
+```bash
+php artisan app:backup-database
+php artisan app:production-status
+php artisan queue:failed
+```
+
+Hostinger hPanel cron schedules use UTC. Add custom cron jobs using the absolute paths shown by your hosting account, replacing the example account and project paths:
+
+```cron
+0 18 * * * /usr/bin/php /home/u123456789/domains/example.com/vibe-app/artisan app:backup-database
+15 * * * * /usr/bin/php /home/u123456789/domains/example.com/vibe-app/artisan app:production-status
+* * * * * /usr/bin/php /home/u123456789/domains/example.com/vibe-app/artisan queue:work database --stop-when-empty --tries=4 --timeout=30
+```
+
+`18:00 UTC` is `02:00 Asia/Manila` on the following calendar day. Test each command over SSH before saving it in hPanel, then review its execution output in hPanel. Keep at least one encrypted off-host copy of the database backup; a backup stored only in the same hosting account does not protect against account or server loss. Test restoration into a separate database periodically, never over the live database:
+
+```bash
+gunzip -c storage/app/private/backups/database_YYYYMMDD_HHMMSS.sql.gz | mysql --defaults-extra-file=/home/u123456789/restore.cnf separate_restore_database
+```
+
+The temporary `restore.cnf` should be readable only by the hosting account (`chmod 600`) and removed immediately after the restore test. If Hostinger does not expose `mysqldump`, `mysql`, or PHP process execution on the plan, use hPanel's database backup/export and import facilities instead and retain the same off-host-copy and restore-test policy.
+
+For a repeatable SSH deployment, review `deploy-hostinger.sh`, make it executable once with `chmod 750 deploy-hostinger.sh`, and run it from the project root. It intentionally does not pull code or alter `.env`. It installs verification dependencies, clears stale caches, runs the full test suite, creates a pre-migration backup, enters maintenance mode, installs production-only dependencies, runs forced migrations, runs Laravel production optimization, reloads long-running services, and brings the application back up. Its exit trap attempts to leave maintenance mode if a later step fails.
+
+After the migration has been deployed, configure a Resend webhook with endpoint `https://your-domain.example/webhooks/resend` and subscribe to `email.sent`, `email.delivered`, `email.delivery_delayed`, `email.bounced`, `email.complained`, `email.failed`, `email.suppressed`, `email.opened`, and `email.clicked`. Copy its `whsec_...` signing secret into `RESEND_WEBHOOK_SECRET`, then run `php artisan config:clear` or complete the deployment workflow. The endpoint verifies the raw request body and Svix signature, rejects requests when the secret is absent, deduplicates retries by `svix-id`, and correlates events with the originating order email.
+
+Operational records are stored in `order_email_deliveries`, `resend_webhook_events`, and `order_audits`. Failed asynchronous jobs remain in Laravel's `failed_jobs` table and the email job also writes a critical log after exhausting retries. Review `storage/logs/laravel-*.log`, `php artisan queue:failed`, and `php artisan app:production-status` when a status check fails. After the cause is fixed and the job has been retried successfully, remove its reviewed failure record with `php artisan queue:forget UUID`. Do not remove audit records as part of routine queue cleanup.
+
 ## Verification commands
 
 Run the automated feature tests:

@@ -1,14 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const initialOrders = window.bellyssimoAdmin.orders;
-    const inventoryItems = window.bellyssimoAdmin.inventoryItems;
+    const config = window.bellyssimoAdmin;
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     const money = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
     const scheduleFormat = new Intl.DateTimeFormat('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-    const today = new Date().toLocaleDateString('en-CA');
-    let orders = structuredClone(initialOrders);
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+    let orders = structuredClone(config.orders);
+    let inventoryItems = structuredClone(config.inventoryItems);
+    let ordersPagination = { ...config.ordersPagination };
+    let customersPagination = { current_page: 1, last_page: 1, total: 0 };
+    let dashboard = { ...config.dashboard };
     let selectedOrderId = orders[0]?.id ?? null;
     let activeStatus = 'all';
     let selectedCustomerId = null;
+    let customersLoaded = false;
+    let reportsLoaded = false;
+    let orderSearchTimer = null;
+    let customerSearchTimer = null;
+    let ordersRequestId = 0;
+    let customersRequestId = 0;
+    const inventoryMoney = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const chartMoney = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
     const elements = {
         body: document.querySelector('#orders-body'),
@@ -17,6 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
         search: document.querySelector('#order-search'),
         dateFilter: document.querySelector('#date-filter'),
         tabs: document.querySelector('#status-tabs'),
+        ordersPrev: document.querySelector('#orders-prev'),
+        ordersNext: document.querySelector('#orders-next'),
+        ordersPage: document.querySelector('#orders-page'),
+        customersBody: document.querySelector('#customers-body'),
+        customerSearch: document.querySelector('#customer-search'),
+        customersPrev: document.querySelector('#customers-prev'),
+        customersNext: document.querySelector('#customers-next'),
+        customersPage: document.querySelector('#customers-page'),
+        inventoryBody: document.querySelector('#inventory-body'),
         inspector: document.querySelector('#order-inspector'),
         inspectorEmpty: document.querySelector('#inspector-empty'),
         inspectorContent: document.querySelector('#inspector-content'),
@@ -36,67 +56,215 @@ document.addEventListener('DOMContentLoaded', () => {
     function escapeHtml(value) {
         const node = document.createElement('span');
         node.textContent = String(value ?? '');
-        return node.innerHTML;
+        return node.innerHTML.replaceAll('"', '&quot;').replaceAll("'", '&#39;');
     }
 
     function formatSchedule(value) {
         const date = new Date(value);
-        if (Number.isNaN(date.getTime())) return value;
+        if (Number.isNaN(date.getTime())) return { date: value, time: '', full: value };
         const datePart = value.slice(0, 10) === today ? 'Today' : scheduleFormat.format(date).split(',')[0];
         const timePart = new Intl.DateTimeFormat('en-PH', { hour: 'numeric', minute: '2-digit' }).format(date);
-        return { date: datePart, time: timePart, full: `${datePart}, ${timePart}` };
+        return { date: datePart, time: timePart, full: datePart + ', ' + timePart };
     }
 
-    function filteredOrders() {
-        const query = elements.search.value.trim().toLowerCase();
-        const dateFilter = elements.dateFilter.value;
-        return orders.filter((order) => {
-            const matchesStatus = activeStatus === 'all' || order.status === activeStatus;
-            const haystack = `${order.id} ${order.customer} ${order.phone} ${order.email ?? ''} ${order.package}`.toLowerCase();
-            const matchesSearch = !query || haystack.includes(query);
-            const orderDate = order.schedule.slice(0, 10);
-            const matchesDate = dateFilter === 'all' || (dateFilter === 'today' && orderDate === today) || (dateFilter === 'upcoming' && orderDate > today);
-            return matchesStatus && matchesSearch && matchesDate;
-        }).sort((a, b) => a.schedule.localeCompare(b.schedule));
+    async function jsonRequest(url, options = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                'Accept': 'application/json',
+                ...(options.headers ?? {}),
+            },
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+            const firstError = Object.values(payload.errors ?? {})[0]?.[0];
+            throw new Error(firstError ?? payload.message ?? 'Unable to load dashboard data.');
+        }
+        return payload;
     }
 
     function render() {
-        const filtered = filteredOrders();
-        elements.body.innerHTML = filtered.map((order) => {
+        elements.body.innerHTML = orders.map((order) => {
             const schedule = formatSchedule(order.schedule);
-            return `<tr data-order-id="${escapeHtml(order.id)}" class="${order.id === selectedOrderId ? 'selected' : ''}" tabindex="0">
-                <td class="order-cell"><strong>#${escapeHtml(order.id)}</strong><span>${escapeHtml(order.package.match(/\(([^)]+)\)/)?.[1] ?? 'Belly')}</span></td>
-                <td class="customer-cell"><strong>${escapeHtml(order.customer)}</strong><span>${escapeHtml(order.phone)}</span></td>
-                <td class="schedule-cell"><strong>${escapeHtml(schedule.date)}</strong><span>${escapeHtml(schedule.time)}</span></td>
-                <td class="amount">${money.format(order.total)}</td>
-                <td><span class="status-badge" data-status="${escapeHtml(order.status)}">${escapeHtml(order.status)}</span></td>
-                <td><button class="row-open" aria-label="Open ${escapeHtml(order.id)}"><span class="material-symbols-rounded">chevron_right</span></button></td>
-            </tr>`;
+            const weight = order.package.match(/\(([^)]+)\)/)?.[1] ?? 'Belly';
+            return '<tr data-order-id="' + escapeHtml(order.id) + '" class="' + (order.id === selectedOrderId ? 'selected' : '') + '" tabindex="0">' +
+                '<td class="order-cell"><strong>#' + escapeHtml(order.id) + '</strong><span>' + escapeHtml(weight) + '</span></td>' +
+                '<td class="customer-cell"><strong>' + escapeHtml(order.customer) + '</strong><span>' + escapeHtml(order.phone) + '</span></td>' +
+                '<td class="schedule-cell"><strong>' + escapeHtml(schedule.date) + '</strong><span>' + escapeHtml(schedule.time) + '</span></td>' +
+                '<td class="amount">' + money.format(order.total) + '</td>' +
+                '<td><span class="status-badge" data-status="' + escapeHtml(order.status) + '">' + escapeHtml(order.status) + '</span></td>' +
+                '<td><button class="row-open" aria-label="Open ' + escapeHtml(order.id) + '"><span class="material-symbols-rounded">chevron_right</span></button></td>' +
+                '</tr>';
         }).join('');
 
-        elements.empty.hidden = filtered.length !== 0;
-        elements.resultCount.textContent = `${filtered.length} ${filtered.length === 1 ? 'record' : 'records'}`;
-        updateCounts();
+        elements.empty.hidden = orders.length !== 0;
+        elements.resultCount.textContent = ordersPagination.total + ' ' + (ordersPagination.total === 1 ? 'record' : 'records');
+        elements.ordersPage.textContent = 'Page ' + ordersPagination.current_page + ' of ' + ordersPagination.last_page;
+        elements.ordersPrev.disabled = ordersPagination.current_page <= 1;
+        elements.ordersNext.disabled = ordersPagination.current_page >= ordersPagination.last_page;
         renderInspector();
     }
 
-    function updateCounts() {
-        const counts = orders.reduce((summary, order) => {
-            summary[order.status] = (summary[order.status] ?? 0) + 1;
-            return summary;
-        }, {});
-        document.querySelector('#nav-order-count').textContent = orders.length;
-        document.querySelector('#metric-attention').textContent = counts['Pending confirmation'] ?? 0;
-        document.querySelector('#metric-confirmed').textContent = counts['Confirmed'] ?? 0;
-        document.querySelector('#metric-not-proceeding').textContent = (counts['Declined'] ?? 0) + (counts['Cancelled'] ?? 0);
-        const paymentsReceived = orders.reduce((sum, order) => sum + Number(order.amount_paid ?? 0), 0);
-        document.querySelector('#metric-sales').textContent = money.format(paymentsReceived);
+    function updateSummaryDisplay() {
+        const setText = (selector, value) => {
+            const node = document.querySelector(selector);
+            if (node) node.textContent = value;
+        };
+        setText('#nav-order-count', dashboard.total_orders);
+        setText('#metric-attention', dashboard.pending);
+        setText('#metric-confirmed', dashboard.confirmed);
+        setText('#metric-not-proceeding', Number(dashboard.declined) + Number(dashboard.cancelled));
+        setText('#metric-sales', money.format(dashboard.total_revenue));
+        setText('#inventory-low-count', dashboard.low_stock_count);
+        setText('#overview-pending', dashboard.pending);
+        setText('#overview-upcoming', dashboard.upcoming_confirmed);
+        setText('#overview-low-stock', dashboard.low_stock_count);
+        setText('#overview-month-revenue', money.format(dashboard.month_revenue));
+        setText('#overview-total-revenue', money.format(dashboard.total_revenue));
+        setText('#attention-pending', dashboard.pending + ' pending requests');
+        setText('#attention-overdue', dashboard.overdue_pending + ' overdue requests');
+        setText('#attention-low-stock', dashboard.low_stock_count + ' low-stock items');
+        setText('#report-total-revenue', money.format(dashboard.total_revenue));
+        setText('#report-month-revenue', money.format(dashboard.month_revenue));
+        setText('#report-completed', dashboard.completed);
+        setText('#report-average-order', money.format(dashboard.average_order));
+        setText('#report-total-orders', dashboard.total_orders);
+
         elements.tabs.querySelectorAll('button').forEach((button) => {
-            const count = button.dataset.status === 'all' ? orders.length : (counts[button.dataset.status] ?? 0);
+            const count = button.dataset.status === 'all'
+                ? dashboard.total_orders
+                : (dashboard.status_counts[button.dataset.status] ?? 0);
             button.querySelector('span').textContent = count;
         });
+        document.querySelectorAll('[data-dashboard-status-count]').forEach((node) => {
+            node.textContent = dashboard.status_counts[node.dataset.dashboardStatusCount] ?? 0;
+        });
+
+        const overviewChart = document.querySelector('#overview-monthly-chart');
+        if (overviewChart) {
+            overviewChart.innerHTML = dashboard.monthly.map((month) =>
+                '<div class="bar-column"><span class="bar-value">' + chartMoney.format(month.revenue / 1000) + 'k</span>' +
+                '<i style="height:' + month.height + '%"></i><small>' + escapeHtml(month.label) + '</small></div>'
+            ).join('');
+        }
+        const reportChart = document.querySelector('#report-monthly-chart');
+        if (reportChart) {
+            reportChart.innerHTML = dashboard.monthly.map((month) =>
+                '<div class="bar-column"><span class="bar-value">' + chartMoney.format(month.revenue / 1000) + 'k</span>' +
+                '<i style="height:' + month.height + '%"></i><small>' + escapeHtml(month.label) + ' · ' + month.orders + '</small></div>'
+            ).join('');
+        }
+    }
+    async function fetchOrders(page = 1) {
+        const requestId = ++ordersRequestId;
+        const url = new URL(config.ordersDataUrl, window.location.origin);
+        url.searchParams.set('page', page);
+        const query = elements.search.value.trim();
+        if (query) url.searchParams.set('q', query);
+        if (activeStatus !== 'all') url.searchParams.set('status', activeStatus);
+        if (elements.dateFilter.value !== 'all') url.searchParams.set('date', elements.dateFilter.value);
+
+        elements.body.setAttribute('aria-busy', 'true');
+        try {
+            const payload = await jsonRequest(url);
+            if (requestId !== ordersRequestId) return;
+            if (payload.pagination.current_page > payload.pagination.last_page) {
+                return fetchOrders(payload.pagination.last_page);
+            }
+            orders = payload.orders;
+            ordersPagination = payload.pagination;
+            if (!orders.some((order) => order.id === selectedOrderId)) {
+                selectedOrderId = orders[0]?.id ?? null;
+            }
+            render();
+        } catch (error) {
+            if (requestId === ordersRequestId) showToast(error.message);
+        } finally {
+            if (requestId === ordersRequestId) elements.body.removeAttribute('aria-busy');
+        }
     }
 
+    async function refreshSummary() {
+        try {
+            const payload = await jsonRequest(config.summaryUrl);
+            dashboard = payload.dashboard;
+            updateSummaryDisplay();
+            document.querySelector('#customer-count').textContent = payload.customer_count;
+            document.querySelector('#inventory-count').textContent = payload.inventory_count;
+        } catch (error) {
+            showToast(error.message);
+        }
+    }
+
+    function renderCustomers(customers) {
+        elements.customersBody.innerHTML = customers.length
+            ? customers.map((customer) => '<tr>' +
+                '<td><strong>' + escapeHtml(customer.name) + '</strong></td>' +
+                '<td><a class="table-link" href="tel:' + escapeHtml(String(customer.phone).replace(/\D/g, '')) + '">' + escapeHtml(customer.phone) + '</a></td>' +
+                '<td>' + (customer.email ? '<a class="table-link" href="mailto:' + escapeHtml(customer.email) + '">' + escapeHtml(customer.email) + '</a>' : '<span class="cell-note">Not provided</span>') + '</td>' +
+                '<td>' + customer.orders + '</td><td>' + customer.completed_orders + '</td>' +
+                '<td class="amount">' + money.format(customer.lifetime_value) + '</td>' +
+                '<td>' + escapeHtml(customer.last_order) + '</td>' +
+                '<td><button class="row-action customer-delete" type="button" data-customer-delete="' + customer.database_id + '" data-customer-name="' + escapeHtml(customer.name) + '"><span class="material-symbols-rounded">delete</span>Delete</button></td>' +
+                '</tr>').join('')
+            : '<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-rounded">group_off</span><h3>No matching customers</h3><p>Try a different customer search.</p></div></td></tr>';
+        elements.customersPage.textContent = 'Page ' + customersPagination.current_page + ' of ' + customersPagination.last_page;
+        elements.customersPrev.disabled = customersPagination.current_page <= 1;
+        elements.customersNext.disabled = customersPagination.current_page >= customersPagination.last_page;
+    }
+
+    async function fetchCustomers(page = 1) {
+        const requestId = ++customersRequestId;
+        const url = new URL(config.customersDataUrl, window.location.origin);
+        url.searchParams.set('page', page);
+        const query = elements.customerSearch.value.trim();
+        if (query) url.searchParams.set('q', query);
+        elements.customersBody.innerHTML = '<tr><td colspan="8" class="table-loading">Loading customer records...</td></tr>';
+
+        try {
+            const payload = await jsonRequest(url);
+            if (requestId !== customersRequestId) return;
+            if (payload.pagination.current_page > payload.pagination.last_page) {
+                return fetchCustomers(payload.pagination.last_page);
+            }
+            customersPagination = payload.pagination;
+            renderCustomers(payload.customers);
+            customersLoaded = true;
+        } catch (error) {
+            if (requestId !== customersRequestId) return;
+            customersLoaded = false;
+            elements.customersBody.innerHTML = '<tr><td colspan="8" class="table-loading">' + escapeHtml(error.message) + '</td></tr>';
+        }
+    }
+
+    async function loadReports() {
+        if (reportsLoaded) return;
+        try {
+            const payload = await jsonRequest(config.reportsDataUrl);
+            document.querySelector('#package-mix').innerHTML = payload.package_mix.map((item) =>
+                '<div><span>' + escapeHtml(item.weight) + '</span><i><b style="width:' + item.width + '%"></b></i><strong>' + item.count + '</strong></div>'
+            ).join('');
+            reportsLoaded = true;
+        } catch (error) {
+            document.querySelector('#package-mix').innerHTML = '<p class="table-loading">' + escapeHtml(error.message) + '</p>';
+        }
+    }
+
+    function renderInventory() {
+        elements.inventoryBody.innerHTML = inventoryItems.length
+            ? inventoryItems.map((item) => {
+                const isLow = Number(item.quantity) <= Number(item.low_stock_threshold);
+                const quantity = Number(item.quantity).toLocaleString('en-PH', { maximumFractionDigits: 2 });
+                const threshold = Number(item.low_stock_threshold).toLocaleString('en-PH', { maximumFractionDigits: 2 });
+                return '<tr><td><strong>' + escapeHtml(item.name) + '</strong>' + (item.notes ? '<span class="cell-note">' + escapeHtml(item.notes) + '</span>' : '') + '</td>' +
+                    '<td>' + escapeHtml(item.category) + '</td><td class="amount">' + quantity + ' ' + escapeHtml(item.unit) + '</td>' +
+                    '<td>' + threshold + ' ' + escapeHtml(item.unit) + '</td><td>' + (item.unit_cost === null ? '-' : inventoryMoney.format(item.unit_cost)) + '</td>' +
+                    '<td><span class="stock-badge ' + (isLow ? 'low' : 'good') + '">' + (isLow ? 'Low stock' : 'In stock') + '</span></td>' +
+                    '<td><button class="row-action" data-inventory-edit="' + item.id + '"><span class="material-symbols-rounded">edit</span>Edit</button></td></tr>';
+            }).join('')
+            : '<tr><td colspan="7"><div class="empty-state"><span class="material-symbols-rounded">inventory_2</span><h3>No inventory items</h3><p>Add your first kitchen item.</p></div></td></tr>';
+        document.querySelector('#inventory-count').textContent = inventoryItems.length;
+    }
     function renderInspector() {
         const order = orders.find((item) => item.id === selectedOrderId);
         elements.inspectorEmpty.hidden = Boolean(order);
@@ -184,8 +352,11 @@ Notes: ${notes}`;
     }
 
     function selectOrder(id) {
+        const previousRow = elements.body.querySelector('tr.selected');
+        previousRow?.classList.remove('selected');
         selectedOrderId = id;
-        render();
+        elements.body.querySelector('tr[data-order-id="' + CSS.escape(id) + '"]')?.classList.add('selected');
+        renderInspector();
         if (window.matchMedia('(max-width: 1180px)').matches) elements.inspector.classList.add('open');
     }
 
@@ -209,15 +380,21 @@ Notes: ${notes}`;
         }
     });
 
-    elements.search.addEventListener('input', render);
-    elements.dateFilter.addEventListener('change', render);
+    elements.search.addEventListener('input', () => {
+        ++ordersRequestId;
+        window.clearTimeout(orderSearchTimer);
+        orderSearchTimer = window.setTimeout(() => fetchOrders(1), 250);
+    });
+    elements.dateFilter.addEventListener('change', () => fetchOrders(1));
     elements.tabs.addEventListener('click', (event) => {
         const button = event.target.closest('button[data-status]');
         if (!button) return;
         activeStatus = button.dataset.status;
         elements.tabs.querySelectorAll('button').forEach((item) => item.classList.toggle('active', item === button));
-        render();
+        fetchOrders(1);
     });
+    elements.ordersPrev.addEventListener('click', () => fetchOrders(ordersPagination.current_page - 1));
+    elements.ordersNext.addEventListener('click', () => fetchOrders(ordersPagination.current_page + 1));
 
     document.querySelector('#copy-rider-draft').addEventListener('click', async () => {
         const draft = document.querySelector('#rider-draft');
@@ -297,9 +474,10 @@ Notes: ${notes}`;
 
             orders = orders.map((item) => item.database_id === payload.order.database_id ? payload.order : item);
             elements.editDialog.close();
-            render();
+            await fetchOrders(ordersPagination.current_page);
+            customersLoaded = false;
             showToast(payload.message);
-            window.setTimeout(() => window.location.reload(), 450);
+            await refreshSummary();
         } catch (error) {
             showToast(error.message);
         } finally {
@@ -331,13 +509,14 @@ Notes: ${notes}`;
             }
 
             orders = orders.map((item) => item.database_id === payload.order.database_id ? payload.order : item);
-            render();
+            await fetchOrders(ordersPagination.current_page);
+            customersLoaded = false;
             showToast(payload.message);
-            window.setTimeout(() => window.location.reload(), 450);
+            await refreshSummary();
         } catch (error) {
             showToast(error.message);
         } finally {
-            button.disabled = false;
+            button.disabled = orders.find((item) => item.id === selectedOrderId)?.status === 'Completed';
         }
     });
 
@@ -362,9 +541,10 @@ Notes: ${notes}`;
             if (!response.ok) throw new Error('Unable to update this order right now.');
             const payload = await response.json();
             orders = orders.map((item) => item.database_id === payload.order.database_id ? payload.order : item);
-            render();
+            await fetchOrders(ordersPagination.current_page);
+            customersLoaded = false;
             showToast(payload.message);
-            window.setTimeout(() => window.location.reload(), 450);
+            await refreshSummary();
         } catch (error) {
             showToast(error.message);
         } finally {
@@ -398,13 +578,14 @@ Notes: ${notes}`;
             const payload = await response.json();
             if (!response.ok) throw new Error(payload.message ?? 'Unable to delete this order right now.');
 
-            orders = orders.filter((item) => item.database_id !== order.database_id);
-            selectedOrderId = orders[0]?.id ?? null;
+            selectedOrderId = null;
             elements.deleteDialog.close();
             elements.inspector.classList.remove('open');
-            render();
+            reportsLoaded = false;
+            customersLoaded = false;
+            await fetchOrders(ordersPagination.current_page);
+            await refreshSummary();
             showToast(payload.message);
-            window.setTimeout(() => window.location.reload(), 650);
         } catch (error) {
             showToast(error.message);
         } finally {
@@ -412,11 +593,20 @@ Notes: ${notes}`;
         }
     });
 
-    document.querySelectorAll('[data-customer-delete]').forEach((button) => button.addEventListener('click', () => {
+    elements.customersBody.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-customer-delete]');
+        if (!button) return;
         selectedCustomerId = button.dataset.customerDelete;
         document.querySelector('#delete-customer-name').textContent = button.dataset.customerName;
         elements.deleteCustomerDialog.showModal();
-    }));
+    });
+    elements.customerSearch.addEventListener('input', () => {
+        ++customersRequestId;
+        window.clearTimeout(customerSearchTimer);
+        customerSearchTimer = window.setTimeout(() => fetchCustomers(1), 250);
+    });
+    elements.customersPrev.addEventListener('click', () => fetchCustomers(customersPagination.current_page - 1));
+    elements.customersNext.addEventListener('click', () => fetchCustomers(customersPagination.current_page + 1));
     document.querySelector('#close-delete-customer-dialog').addEventListener('click', () => elements.deleteCustomerDialog.close());
     document.querySelector('#cancel-delete-customer').addEventListener('click', () => elements.deleteCustomerDialog.close());
     elements.deleteCustomerDialog.addEventListener('click', (event) => {
@@ -437,9 +627,10 @@ Notes: ${notes}`;
             if (!response.ok) throw new Error(payload.message ?? 'Unable to delete these customer details right now.');
 
             elements.deleteCustomerDialog.close();
+            selectedCustomerId = null;
+            await fetchCustomers(customersPagination.current_page);
+            await refreshSummary();
             showToast(payload.message);
-            window.location.hash = 'customers';
-            window.setTimeout(() => window.location.reload(), 450);
         } catch (error) {
             showToast(error.message);
         } finally {
@@ -480,17 +671,22 @@ Notes: ${notes}`;
                 throw new Error(firstError ?? 'Unable to add this order right now.');
             }
 
-            orders.unshift(payload.order);
             selectedOrderId = payload.order.id;
+            elements.search.value = '';
+            elements.dateFilter.value = 'all';
+            activeStatus = 'all';
+            elements.tabs.querySelectorAll('button').forEach((button) => button.classList.toggle('active', button.dataset.status === 'all'));
             elements.form.reset();
             deliveryLocation.hidden = true;
             deliveryLocation.querySelector('input').required = false;
             elements.dialog.close();
-            render();
+            reportsLoaded = false;
+            window.location.hash = 'orders';
+            await fetchOrders(1);
+            await refreshSummary();
+            customersLoaded = false;
             if (window.matchMedia('(max-width: 1180px)').matches) elements.inspector.classList.add('open');
             showToast(payload.message);
-            window.location.hash = 'orders';
-            window.setTimeout(() => window.location.reload(), 450);
         } catch (error) {
             showToast(error.message);
         } finally {
@@ -499,17 +695,13 @@ Notes: ${notes}`;
     });
 
     document.querySelector('#export-button').addEventListener('click', () => {
-        const headers = ['Order ID','Customer','Phone','Email','Package','Flavor','Schedule','Fulfillment','Payment Method','Payment Status','Total','Amount Paid','Remaining Balance','Status','Note'];
-        const rows = orders.map((order) => [order.id, order.customer, order.phone, order.email ?? '', order.package, order.flavor, order.schedule, order.fulfillment, order.payment_method, order.payment, order.total, order.amount_paid, order.remaining_balance, order.status, order.note]);
-        const csv = [headers, ...rows].map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\n');
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-        link.download = `bellyssimo-orders-${today}.csv`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-        showToast('Orders exported as CSV');
+        const url = new URL(config.ordersExportUrl, window.location.origin);
+        const query = elements.search.value.trim();
+        if (query) url.searchParams.set('q', query);
+        if (activeStatus !== 'all') url.searchParams.set('status', activeStatus);
+        if (elements.dateFilter.value !== 'all') url.searchParams.set('date', elements.dateFilter.value);
+        window.location.assign(url);
     });
-
     document.querySelector('#close-inspector').addEventListener('click', () => elements.inspector.classList.remove('open'));
 
     const allowedSections = ['overview', 'orders', 'customers', 'inventory', 'reports'];
@@ -526,6 +718,8 @@ Notes: ${notes}`;
             else link.removeAttribute('aria-current');
         });
         document.title = `${section[0].toUpperCase()}${section.slice(1)} | Toño's Bellyssimo Admin`;
+        if (section === 'customers' && !customersLoaded) fetchCustomers(1);
+        if (section === 'reports') loadReports();
     }
 
     window.addEventListener('hashchange', showSection);
@@ -546,10 +740,12 @@ Notes: ${notes}`;
     }
 
     document.querySelector('#new-inventory-button').addEventListener('click', () => openInventoryDialog());
-    document.querySelectorAll('[data-inventory-edit]').forEach((button) => button.addEventListener('click', () => {
+    elements.inventoryBody.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-inventory-edit]');
+        if (!button) return;
         const item = inventoryItems.find((entry) => String(entry.id) === button.dataset.inventoryEdit);
         if (item) openInventoryDialog(item);
-    }));
+    });
     document.querySelector('#close-inventory-dialog').addEventListener('click', () => elements.inventoryDialog.close());
     document.querySelector('#cancel-inventory-dialog').addEventListener('click', () => elements.inventoryDialog.close());
     elements.inventoryDialog.addEventListener('click', (event) => {
@@ -567,9 +763,10 @@ Notes: ${notes}`;
             const url = id
                 ? window.bellyssimoAdmin.inventoryUpdateUrlTemplate.replace('__ITEM__', id)
                 : window.bellyssimoAdmin.inventoryStoreUrl;
-            if (!data.get('unit_cost')) data.delete('unit_cost');
+            if (!data.get('unit_cost')) data.set('unit_cost', '');
+            if (id) data.set('_method', 'PATCH');
             const response = await fetch(url, {
-                method: id ? 'PATCH' : 'POST',
+                method: 'POST',
                 headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                 body: data,
             });
@@ -578,10 +775,15 @@ Notes: ${notes}`;
                 const firstError = Object.values(payload.errors ?? {})[0]?.[0];
                 throw new Error(firstError ?? 'Unable to save this inventory item.');
             }
+            const itemIndex = inventoryItems.findIndex((item) => String(item.id) === String(payload.item.id));
+            if (itemIndex >= 0) inventoryItems[itemIndex] = payload.item;
+            else inventoryItems.push(payload.item);
+            inventoryItems.sort((left, right) => left.name.localeCompare(right.name));
             elements.inventoryDialog.close();
-            showToast(payload.message);
+            renderInventory();
+            await refreshSummary();
             window.location.hash = 'inventory';
-            window.setTimeout(() => window.location.reload(), 450);
+            showToast(payload.message);
         } catch (error) {
             showToast(error.message);
         } finally {
@@ -606,6 +808,8 @@ Notes: ${notes}`;
     backdrop.addEventListener('click', closeSidebar);
     sidebar.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeSidebar));
 
+    updateSummaryDisplay();
+    renderInventory();
     showSection();
     render();
 });
