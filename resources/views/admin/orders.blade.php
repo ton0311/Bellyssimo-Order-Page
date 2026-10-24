@@ -84,13 +84,13 @@
                     <article class="metric-card metric-accent"><div><span class="material-symbols-rounded">pending_actions</span><small>Needs response</small></div><strong>{{ $dashboard['pending'] }}</strong><p>Pending confirmation</p></article>
                     <article class="metric-card"><div><span class="material-symbols-rounded">event_upcoming</span><small>Next 7 days</small></div><strong>{{ $dashboard['upcoming_confirmed'] }}</strong><p>Confirmed orders</p></article>
                     <article class="metric-card"><div><span class="material-symbols-rounded">inventory_2</span><small>Inventory alert</small></div><strong>{{ $dashboard['low_stock_count'] }}</strong><p>Low-stock items</p></article>
-                    <article class="metric-card"><div><span class="material-symbols-rounded">payments</span><small>This month</small></div><strong>₱{{ number_format($dashboard['month_revenue']) }}</strong><p>Completed &amp; paid revenue</p></article>
+                    <article class="metric-card"><div><span class="material-symbols-rounded">payments</span><small>Bookings this month</small></div><strong>₱{{ number_format($dashboard['month_revenue']) }}</strong><p>Amount collected</p></article>
                 </div>
 
                 <div class="dashboard-grid overview-insights">
                     <article class="dashboard-card chart-card">
-                        <div class="card-title"><div><p class="eyebrow">Revenue trend</p><h2>Completed &amp; paid</h2></div><strong>₱{{ number_format($dashboard['total_revenue']) }}</strong></div>
-                        <div class="bar-chart" aria-label="Six-month revenue chart">
+                        <div class="card-title"><div><p class="eyebrow">Revenue trend</p><h2>Collections by booking month</h2></div><strong>₱{{ number_format($dashboard['total_revenue']) }}</strong></div>
+                        <div class="bar-chart" aria-label="Six-month collections by booking month">
                             @foreach ($dashboard['monthly'] as $month)
                                 <div class="bar-column"><span class="bar-value">₱{{ number_format($month['revenue'] / 1000, 1) }}k</span><i style="height: {{ $month['height'] }}%"></i><small>{{ $month['label'] }}</small></div>
                             @endforeach
@@ -358,18 +358,18 @@
 
             <section class="admin-section" data-admin-section="reports" id="reports" hidden>
                 <div class="page-heading">
-                    <div><p class="eyebrow">Business reports</p><h1>Revenue and order performance</h1><p>Revenue includes only orders that are both Completed and Paid.</p></div>
+                    <div><p class="eyebrow">Business reports</p><h1>Revenue and order performance</h1><p>Total collected includes recorded deposits and full payments across all order statuses. Monthly figures group current collections by booking month, not payment receipt date.</p></div>
                     <a class="secondary-button" href="#orders" data-section-link="orders"><span class="material-symbols-rounded">receipt_long</span>View order details</a>
                 </div>
                 <div class="metrics">
-                    <article class="metric-card metric-accent"><div><span class="material-symbols-rounded">payments</span><small>All time</small></div><strong>₱{{ number_format($dashboard['total_revenue']) }}</strong><p>Completed revenue</p></article>
-                    <article class="metric-card"><div><span class="material-symbols-rounded">calendar_month</span><small>This month</small></div><strong>₱{{ number_format($dashboard['month_revenue']) }}</strong><p>Completed revenue</p></article>
+                    <article class="metric-card metric-accent"><div><span class="material-symbols-rounded">payments</span><small>All time</small></div><strong>₱{{ number_format($dashboard['total_revenue']) }}</strong><p>Amount collected</p></article>
+                    <article class="metric-card"><div><span class="material-symbols-rounded">calendar_month</span><small>Bookings this month</small></div><strong>₱{{ number_format($dashboard['month_revenue']) }}</strong><p>Amount collected</p></article>
                     <article class="metric-card"><div><span class="material-symbols-rounded">task_alt</span><small>Fulfilled</small></div><strong>{{ $dashboard['completed'] }}</strong><p>Completed orders</p></article>
                     <article class="metric-card"><div><span class="material-symbols-rounded">receipt</span><small>Average</small></div><strong>₱{{ number_format($dashboard['average_order']) }}</strong><p>Completed order value</p></article>
                 </div>
                 <div class="dashboard-grid reports-grid">
                     <article class="dashboard-card chart-card wide-card">
-                        <div class="card-title"><div><p class="eyebrow">Six-month view</p><h2>Revenue from completed orders</h2></div><span class="report-note">Cash + GCash</span></div>
+                        <div class="card-title"><div><p class="eyebrow">Six-month view</p><h2>Collections by booking month</h2></div><span class="report-note">Cash + GCash</span></div>
                         <div class="bar-chart report-chart">
                             @foreach ($dashboard['monthly'] as $month)
                                 <div class="bar-column"><span class="bar-value">₱{{ number_format($month['revenue'] / 1000, 1) }}k</span><i style="height: {{ $month['height'] }}%"></i><small>{{ $month['label'] }} · {{ $month['orders'] }}</small></div>

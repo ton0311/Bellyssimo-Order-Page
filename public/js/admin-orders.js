@@ -333,6 +333,7 @@ Notes: ${notes}`;
             orders = orders.map((item) => item.database_id === payload.order.database_id ? payload.order : item);
             render();
             showToast(payload.message);
+            window.setTimeout(() => window.location.reload(), 450);
         } catch (error) {
             showToast(error.message);
         } finally {

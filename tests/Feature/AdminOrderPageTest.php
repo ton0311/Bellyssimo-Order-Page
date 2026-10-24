@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\InventoryItem;
 use App\Models\Order;
 use App\Services\OrderEmailService;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
@@ -558,27 +559,111 @@ class AdminOrderPageTest extends TestCase
             ->assertSee('Low stock');
     }
 
-    public function test_reports_count_only_completed_and_paid_orders_as_revenue(): void
+    public function test_reports_total_recorded_collections_including_deposits_across_order_statuses(): void
     {
+        $this->freezeTime();
         Order::factory()->create([
             'status' => 'Completed',
             'payment_status' => 'Paid',
             'order_total' => 2950,
+            'amount_paid' => 2950,
             'completed_at' => now(),
         ]);
         Order::factory()->create([
             'status' => 'Pending confirmation',
             'payment_status' => 'Paid',
             'order_total' => 2550,
+            'amount_paid' => 2550,
         ]);
+        Order::factory()->create([
+            'status' => 'Confirmed',
+            'payment_status' => 'Deposit received',
+            'amount_paid' => 1000,
+        ]);
+        Order::factory()->create([
+            'status' => 'Cancelled',
+            'payment_status' => 'Deposit received',
+            'amount_paid' => 500,
+        ]);
+        Order::factory()->create([
+            'status' => 'Declined',
+            'payment_status' => 'Deposit received',
+            'amount_paid' => 300,
+        ]);
+        Order::factory()->create(['status' => 'Confirmed']);
 
         $this->get(route('admin.dashboard'))
             ->assertOk()
             ->assertViewHas('dashboard', function (array $dashboard): bool {
-                return $dashboard['total_revenue'] === 2950
+                return $dashboard['total_revenue'] === 7300
+                    && $dashboard['month_revenue'] === 7300
+                    && $dashboard['monthly']->last()['revenue'] === 7300
+                    && $dashboard['average_order'] === 2950
                     && $dashboard['completed'] === 1
                     && $dashboard['pending'] === 1;
-            });
+            })
+            ->assertSee('Total collected includes recorded deposits and full payments')
+            ->assertSee('Collections by booking month');
+    }
+
+    public function test_monthly_collections_use_booking_month_in_manila_without_month_end_overflow(): void
+    {
+        $this->travelTo(CarbonImmutable::parse('2026-10-31 12:00:00', 'Asia/Manila'));
+        Order::factory()->create([
+            'amount_paid' => 1000,
+            'submitted_at' => '2026-09-30 16:30:00+00:00',
+            'preferred_date' => '2026-11-05',
+        ]);
+        Order::factory()->create([
+            'amount_paid' => 500,
+            'submitted_at' => '2026-09-30 15:30:00+00:00',
+        ]);
+        Order::factory()->create([
+            'status' => 'Completed',
+            'payment_status' => 'Paid',
+            'amount_paid' => 2000,
+            'submitted_at' => '2026-04-01 00:00:00+00:00',
+            'completed_at' => now(),
+        ]);
+
+        $response = $this->get(route('admin.dashboard'))->assertOk();
+        $dashboard = $response->viewData('dashboard');
+
+        $this->assertSame(3500, $dashboard['total_revenue']);
+        $this->assertSame(1000, $dashboard['month_revenue']);
+        $this->assertSame(['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'], $dashboard['monthly']->pluck('label')->all());
+        $this->assertSame([0, 0, 0, 0, 500, 1000], $dashboard['monthly']->pluck('revenue')->all());
+    }
+
+    public function test_reports_include_collections_beyond_the_latest_200_displayed_orders(): void
+    {
+        $this->freezeTime();
+        Order::factory()->create(['amount_paid' => 1000, 'submitted_at' => now()->subDay()]);
+        Order::factory()->count(200)->create();
+
+        $response = $this->get(route('admin.dashboard'))->assertOk();
+
+        $this->assertCount(200, $response->viewData('orders'));
+        $this->assertSame(1000, $response->viewData('dashboard')['total_revenue']);
+    }
+
+    public function test_reports_recalculate_after_recording_and_clearing_a_payment(): void
+    {
+        $this->freezeTime();
+        $order = Order::factory()->create(['status' => 'Confirmed']);
+
+        $this->patchJson(route('admin.orders.payment', $order), ['amount_paid' => 1000])
+            ->assertOk()->assertJsonPath('order.amount_paid', 1000);
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'amount_paid' => 1000]);
+        $response = $this->get(route('admin.dashboard'))->assertOk();
+        $this->assertSame(1000, $response->viewData('dashboard')['total_revenue']);
+
+        $this->patchJson(route('admin.orders.payment', $order), ['amount_paid' => 0])
+            ->assertOk()->assertJsonPath('order.amount_paid', 0);
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'amount_paid' => 0]);
+        $response = $this->get(route('admin.dashboard'))->assertOk();
+        $this->assertSame(0, $response->viewData('dashboard')['total_revenue']);
+        $this->assertSame(0, $response->viewData('dashboard')['month_revenue']);
     }
 
     public function test_customer_directory_uses_persistent_customer_records(): void

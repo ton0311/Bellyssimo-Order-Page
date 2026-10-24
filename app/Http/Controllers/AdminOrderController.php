@@ -348,23 +348,22 @@ class AdminOrderController extends Controller
         $completed = $orders
             ->where('status', 'Completed')
             ->where('payment_status', 'Paid');
+        $collectedOrders = $orders->filter(fn (Order $order): bool => $order->amount_paid > 0);
         $statusOrder = ['Pending confirmation', 'Confirmed', 'Completed', 'Declined', 'Cancelled'];
         $statusCounts = collect($statusOrder)->mapWithKeys(
             fn (string $status): array => [$status => $orders->where('status', $status)->count()],
         );
         $months = collect(range(5, 0))->map(
-            fn (int $offset): CarbonImmutable => $today->subMonths($offset)->startOfMonth(),
+            fn (int $offset): CarbonImmutable => $today->startOfMonth()->subMonths($offset),
         );
-        $monthly = $months->map(function (CarbonImmutable $month) use ($completed): array {
-            $monthOrders = $completed->filter(function (Order $order) use ($month): bool {
-                $completedAt = $order->completed_at?->copy()->setTimezone('Asia/Manila');
-
-                return $completedAt?->format('Y-m') === $month->format('Y-m');
+        $monthly = $months->map(function (CarbonImmutable $month) use ($collectedOrders): array {
+            $monthOrders = $collectedOrders->filter(function (Order $order) use ($month): bool {
+                return $order->submitted_at->copy()->setTimezone('Asia/Manila')->format('Y-m') === $month->format('Y-m');
             });
 
             return [
                 'label' => $month->format('M'),
-                'revenue' => $monthOrders->sum('order_total'),
+                'revenue' => $monthOrders->sum('amount_paid'),
                 'orders' => $monthOrders->count(),
             ];
         });
@@ -386,9 +385,7 @@ class AdminOrderController extends Controller
             return $order->status === 'Pending confirmation'
                 && $order->preferred_date->toDateString() < $today->toDateString();
         });
-        $monthRevenue = $completed->filter(function (Order $order) use ($today): bool {
-            return $order->completed_at?->copy()->setTimezone('Asia/Manila')->format('Y-m') === $today->format('Y-m');
-        })->sum('order_total');
+        $monthRevenue = $monthly->last()['revenue'];
         $packageMix = ['3 kg' => 0, '4 kg' => 0, '5 kg' => 0];
 
         foreach ($orders as $order) {
@@ -410,7 +407,7 @@ class AdminOrderController extends Controller
             'declined' => $statusCounts['Declined'],
             'cancelled' => $statusCounts['Cancelled'],
             'total_orders' => $orders->count(),
-            'total_revenue' => $completed->sum('order_total'),
+            'total_revenue' => $collectedOrders->sum('amount_paid'),
             'month_revenue' => $monthRevenue,
             'average_order' => $completed->count() > 0 ? (int) round($completed->avg('order_total')) : 0,
             'upcoming_confirmed' => $upcomingConfirmed->count(),
