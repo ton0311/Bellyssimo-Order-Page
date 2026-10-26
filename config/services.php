@@ -24,6 +24,7 @@ return [
             'order_confirmation' => env('RESEND_ORDER_CONFIRMATION_TEMPLATE') ?: 'bellyssimo-order-confirmation',
             'order_confirmed' => env('RESEND_ORDER_CONFIRMED_TEMPLATE') ?: 'bellyssimo-order-confirmed',
             'order_declined' => env('RESEND_ORDER_DECLINED_TEMPLATE') ?: 'bellyssimo-order-declined',
+            'order_completed' => env('RESEND_ORDER_COMPLETED_TEMPLATE') ?: 'bellyssimo-order-completed-thank-you',
             'order_gcash_payment' => env('RESEND_GCASH_PAYMENT_TEMPLATE') ?: 'bellyssimo-gcash-payment',
         ],
         'gcash' => [

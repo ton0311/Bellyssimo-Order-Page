@@ -18,6 +18,8 @@ class OrderEmailService
 
     public const DECLINED = 'declined';
 
+    public const COMPLETED = 'completed';
+
     public const GCASH_PAYMENT = 'gcash_payment';
 
     public function send(Order $order, string $kind, ?string $status, string $idempotencyKey): ?string
@@ -42,7 +44,9 @@ class OrderEmailService
             return null;
         }
 
-        $variables = $this->variables($order, $status);
+        $variables = $kind === self::COMPLETED
+            ? ['CUSTOMER_NAME' => $order->customer_name, 'ORDER_REFERENCE' => $order->reference]
+            : $this->variables($order, $status);
 
         if ($kind === self::GCASH_PAYMENT) {
             if ($order->payment_method !== 'GCash') {
@@ -151,6 +155,7 @@ class OrderEmailService
             self::CONFIRMATION => config('services.resend.templates.order_confirmation'),
             self::CONFIRMED => config('services.resend.templates.order_confirmed'),
             self::DECLINED => config('services.resend.templates.order_declined'),
+            self::COMPLETED => config('services.resend.templates.order_completed'),
             self::GCASH_PAYMENT => config('services.resend.templates.order_gcash_payment'),
             default => throw new RuntimeException("Unsupported order email kind [{$kind}]."),
         };

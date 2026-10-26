@@ -333,6 +333,7 @@ class AdminOrderController extends Controller
                 $order->payment_method === 'GCash' ? OrderEmailService::GCASH_PAYMENT : null,
             ])),
             'Declined' => [OrderEmailService::DECLINED],
+            'Completed' => [OrderEmailService::COMPLETED],
             default => [],
         };
 

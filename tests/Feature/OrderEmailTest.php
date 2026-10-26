@@ -90,6 +90,46 @@ class OrderEmailTest extends TestCase
         Log::shouldHaveReceived('warning')->once();
     }
 
+    public function test_completed_order_uses_the_thank_you_template_and_only_its_declared_variables(): void
+    {
+        config([
+            'mail.from.address' => 'orders@mail.tonosbellyssimo.online',
+            'mail.from.name' => "Toño's Bellyssimo",
+            'services.resend.key' => 're_test_key',
+            'services.resend.templates.order_completed' => 'template-completed',
+        ]);
+        $transporter = new class implements Transporter
+        {
+            public ?Payload $payload = null;
+
+            public function request(Payload $payload): array
+            {
+                $this->payload = $payload;
+
+                return ['id' => 'email-completed-test'];
+            }
+        };
+        Resend::swap(new Client($transporter));
+        $order = Order::factory()->make([
+            'reference' => 'LOCAL-THANKYOU-TEST',
+            'customer_name' => 'Test Customer',
+            'email' => 'customer@example.com',
+            'status' => 'Completed',
+        ]);
+
+        $emailId = app(OrderEmailService::class)->send($order, OrderEmailService::COMPLETED, 'Completed', 'completed-test-key');
+
+        $this->assertSame('email-completed-test', $emailId);
+        $this->assertNotNull($transporter->payload);
+        $request = $transporter->payload->toRequest(BaseUri::from('api.resend.test'), new Headers([]));
+        $body = json_decode((string) $request->getBody(), true, flags: JSON_THROW_ON_ERROR);
+        $this->assertSame('completed-test-key', $request->getHeaderLine('Idempotency-Key'));
+        $this->assertSame(['customer@example.com'], $body['to']);
+        $this->assertSame('template-completed', $body['template']['id']);
+        $this->assertSame(['CUSTOMER_NAME' => 'Test Customer', 'ORDER_REFERENCE' => 'LOCAL-THANKYOU-TEST'], $body['template']['variables']);
+        $this->assertSame('completed', $body['tags'][1]['value']);
+    }
+
     public function test_declined_status_email_is_apologetic_and_says_the_order_did_not_push_through(): void
     {
         config([

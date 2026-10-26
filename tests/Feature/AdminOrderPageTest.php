@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Services\OrderEmailService;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
@@ -418,6 +419,38 @@ class AdminOrderPageTest extends TestCase
         ])->assertOk();
 
         Queue::assertNotPushed(SendOrderEmail::class);
+    }
+
+    public function test_completing_an_order_queues_one_thank_you_email_and_repeated_saves_do_not_resend(): void
+    {
+        Bus::fake([SendOrderEmail::class]);
+        $order = Order::factory()->create([
+            'status' => 'Confirmed',
+            'email' => 'customer@example.com',
+        ]);
+
+        $this->patchJson(route('admin.orders.status', $order), ['status' => 'Completed'])
+            ->assertOk()->assertJsonPath('order.status', 'Completed')->assertJsonPath('order.payment', 'Paid');
+        $this->patchJson(route('admin.orders.status', $order), ['status' => 'Completed'])->assertOk();
+
+        Bus::assertDispatchedAfterResponse(SendOrderEmail::class, 1);
+        Bus::assertDispatchedAfterResponse(SendOrderEmail::class, fn (SendOrderEmail $job): bool => $job->orderId === $order->id
+            && $job->kind === OrderEmailService::COMPLETED
+            && $job->status === 'Completed'
+            && str_starts_with($job->idempotencyKey, 'order-status-'.$order->reference.'-completed-'));
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'Completed', 'payment_status' => 'Paid', 'amount_paid' => 2000]);
+    }
+
+    public function test_completing_an_order_without_email_does_not_queue_a_thank_you(): void
+    {
+        Queue::fake();
+        $order = Order::factory()->create(['status' => 'Confirmed', 'email' => null]);
+
+        $this->patchJson(route('admin.orders.status', $order), ['status' => 'Completed'])
+            ->assertOk()->assertJsonPath('order.status', 'Completed');
+
+        Queue::assertNothingPushed();
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'Completed']);
     }
 
     public function test_unchanged_status_does_not_queue_a_customer_email(): void
