@@ -59,7 +59,8 @@ class AdminOrderController extends Controller
             ->map(fn (Order $order): array => $this->dashboardPayload($order))
             ->values();
         $inventoryItems = InventoryItem::query()->orderBy('name')->get();
-        $totalOrders = Order::query()->count();
+        $dashboard = $this->dashboardData();
+        $totalOrders = $dashboard['total_orders'];
 
         return view('admin.orders', [
             'orders' => $orders,
@@ -72,7 +73,7 @@ class AdminOrderController extends Controller
             ],
             'customerCount' => Customer::query()->count(),
             'inventoryItems' => $inventoryItems,
-            'dashboard' => $this->dashboardData(),
+            'dashboard' => $dashboard,
         ]);
     }
 
@@ -656,10 +657,13 @@ class AdminOrderController extends Controller
             ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as cancelled', ['Cancelled'])
             ->first();
 
-        $monthlyQuery = Order::query()->selectRaw('COUNT(*) as ignored_total');
         $months = collect(range(5, 0))->map(
             fn (int $offset): CarbonImmutable => $today->startOfMonth()->subMonths($offset),
         );
+        $monthlyQuery = Order::query()
+            ->where('submitted_at', '>=', $months->first()->utc()->format('Y-m-d H:i:s'))
+            ->where('submitted_at', '<', $today->startOfMonth()->addMonth()->utc()->format('Y-m-d H:i:s'))
+            ->selectRaw('COUNT(*) as ignored_total');
 
         foreach ($months as $index => $month) {
             $from = $month->utc()->format('Y-m-d H:i:s');

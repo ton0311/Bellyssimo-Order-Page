@@ -786,6 +786,26 @@ class AdminOrderPageTest extends TestCase
         $this->assertSame([0, 0, 0, 0, 500, 1000], $dashboard['monthly']->pluck('revenue')->all());
     }
 
+    public function test_chart_includes_manila_month_boundaries_and_keeps_all_time_totals(): void
+    {
+        $this->travelTo(CarbonImmutable::parse('2026-10-26 12:00:00', 'Asia/Manila'));
+        Order::factory()->create(['amount_paid' => 100, 'submitted_at' => '2026-04-30 15:59:59+00:00']);
+        Order::factory()->create(['amount_paid' => 200, 'submitted_at' => '2026-04-30 16:00:00+00:00']);
+        Order::factory()->create(['amount_paid' => 300, 'submitted_at' => '2026-10-31 15:59:59+00:00']);
+        Order::factory()->create(['amount_paid' => 400, 'submitted_at' => '2026-10-31 16:00:00+00:00']);
+
+        $response = $this->getJson(route('admin.dashboard.summary'))->assertOk();
+
+        $response
+            ->assertJsonPath('dashboard.total_orders', 4)
+            ->assertJsonPath('dashboard.total_revenue', 1000)
+            ->assertJsonPath('dashboard.month_revenue', 300)
+            ->assertJsonPath('dashboard.monthly.0.revenue', 200)
+            ->assertJsonPath('dashboard.monthly.0.orders', 1)
+            ->assertJsonPath('dashboard.monthly.5.revenue', 300)
+            ->assertJsonPath('dashboard.monthly.5.orders', 1);
+    }
+
     public function test_reports_include_collections_beyond_the_latest_50_displayed_orders(): void
     {
         $this->freezeTime();

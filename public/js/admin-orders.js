@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     const money = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
     const scheduleFormat = new Intl.DateTimeFormat('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    const timeFormat = new Intl.DateTimeFormat('en-PH', { hour: 'numeric', minute: '2-digit' });
     const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
     let orders = structuredClone(config.orders);
     let inventoryItems = structuredClone(config.inventoryItems);
@@ -63,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) return { date: value, time: '', full: value };
         const datePart = value.slice(0, 10) === today ? 'Today' : scheduleFormat.format(date).split(',')[0];
-        const timePart = new Intl.DateTimeFormat('en-PH', { hour: 'numeric', minute: '2-digit' }).format(date);
+        const timePart = timeFormat.format(date);
         return { date: datePart, time: timePart, full: datePart + ', ' + timePart };
     }
 
