@@ -8,7 +8,7 @@
 <meta name="description" content="Order crispy, juicy Toño’s Bellyssimo lechon belly for pickup or delivery in Ozamiz City. Available in 3kg, 4kg, and 5kg sizes.">
 <title>Toño's Bellyssimo | Basta belly, diri mismo!</title>
 <link rel="preload" as="image" type="image/avif" href="{{ asset('images/home-hero-filipino-v2-800.avif') }}" imagesrcset="{{ asset('images/home-hero-filipino-v2-800.avif') }} 800w, {{ asset('images/home-hero-filipino-v2-1600.avif') }} 1600w" imagesizes="100vw" fetchpriority="high">
-<link href="{{ asset('css/site-v3.css') }}" rel="stylesheet">
+<link href="{{ asset('css/site-v3.css') }}?v={{ filemtime(public_path('css/site-v3.css')) }}" rel="stylesheet">
 </head>
 <body id="top" class="min-h-screen overflow-x-hidden bg-background pb-16 font-body-md text-on-surface antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed lg:pb-0">
 <x-site-header active="home" />

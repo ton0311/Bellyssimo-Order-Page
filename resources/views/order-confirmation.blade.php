@@ -10,7 +10,7 @@
     <x-favicon />
     <meta name="description" content="Review and confirm your Toño’s Bellyssimo booking request.">
     <title>Confirm Your Order | Toño’s Bellyssimo</title>
-    <link href="{{ asset('css/site-v3.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/site-v3.css') }}?v={{ filemtime(public_path('css/site-v3.css')) }}" rel="stylesheet">
 </head>
 <body class="min-h-screen bg-cream font-sans text-ink antialiased selection:bg-gold/60">
     <x-site-header active="order" />
@@ -50,7 +50,13 @@
                     <div class="mt-6 grid gap-4 sm:grid-cols-2">
                         @foreach ($order['items'] as $index => $item)
                             <div class="overflow-hidden rounded-2xl border border-wine/10 bg-cream">
-                                <img class="h-36 w-full object-cover" src="{{ asset($item['package']['image']) }}" width="480" height="253" loading="lazy" decoding="async" alt="{{ $item['package']['name'] }} lechon belly">
+                                <picture>
+                                    @if (str_ends_with($item['package']['image'], '.jpg'))
+                                        <source type="image/avif" srcset="{{ asset(substr($item['package']['image'], 0, -4).'.avif') }}">
+                                        <source type="image/webp" srcset="{{ asset(substr($item['package']['image'], 0, -4).'.webp') }}">
+                                    @endif
+                                    <img class="h-36 w-full object-cover" src="{{ asset($item['package']['image']) }}" width="480" height="253" loading="lazy" decoding="async" alt="{{ $item['package']['name'] }} lechon belly">
+                                </picture>
                                 <div class="p-4">
                                     <div class="flex items-start justify-between gap-3">
                                         <div>

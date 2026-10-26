@@ -57,8 +57,9 @@
     <x-favicon />
     <meta name="description" content="Choose a Toño’s Bellyssimo lechon belly package and prepare your booking request in Ozamiz City.">
     <title>Book Your Belly | Toño’s Bellyssimo</title>
-    <link rel="preload" as="image" href="{{ asset('images/order-hero-filipino-v2-800.jpg') }}" imagesrcset="{{ asset('images/order-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/order-hero-filipino-v2-1600.jpg') }} 1600w" imagesizes="100vw" fetchpriority="high">
-    <link href="{{ asset('css/site-v3.css') }}" rel="stylesheet">
+    <link rel="preload" as="image" type="image/avif" href="{{ asset('images/order-hero-filipino-v2-800.avif') }}" media="(max-width: 767px)" fetchpriority="high">
+    <link rel="preload" as="image" type="image/avif" href="{{ asset('images/order-hero-filipino-v2-1600.avif') }}" media="(min-width: 768px)" fetchpriority="high">
+    <link href="{{ asset('css/site-v3.css') }}?v={{ filemtime(public_path('css/site-v3.css')) }}" rel="stylesheet">
 </head>
 <body class="min-h-screen bg-cream font-sans text-ink antialiased selection:bg-gold/60">
     <x-site-header active="order" />
@@ -66,7 +67,11 @@
     <main class="pt-20">
         <section aria-label="Booking hero" class="relative isolate min-h-[520px] overflow-hidden py-14 md:min-h-[580px] md:py-20">
             <picture aria-hidden="true" class="absolute inset-0 -z-20 block">
+                <source type="image/avif" media="(max-width: 767px)" srcset="{{ asset('images/order-hero-filipino-v2-800.avif') }}">
+                <source type="image/webp" media="(max-width: 767px)" srcset="{{ asset('images/order-hero-filipino-v2-800.webp') }}">
                 <source media="(max-width: 767px)" srcset="{{ asset('images/order-hero-filipino-v2-800.jpg') }}">
+                <source type="image/avif" srcset="{{ asset('images/order-hero-filipino-v2-1600.avif') }}">
+                <source type="image/webp" srcset="{{ asset('images/order-hero-filipino-v2-1600.webp') }}">
                 <img src="{{ asset('images/order-hero-filipino-v2-1600.jpg') }}" srcset="{{ asset('images/order-hero-filipino-v2-800.jpg') }} 800w, {{ asset('images/order-hero-filipino-v2-1600.jpg') }} 1600w" sizes="100vw" width="1600" height="900" alt="" class="h-full w-full object-cover object-right" fetchpriority="high" decoding="async">
             </picture>
             <div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-r from-[#210705]/85 via-[#2b0905]/40 to-transparent"></div>
@@ -105,7 +110,11 @@
             <div class="grid gap-6 lg:grid-cols-3">
                 <label class="package-card relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-lg shadow-wine/5 transition duration-300">
                     <input class="peer sr-only" type="radio" name="package-card" value="barkadahan" data-package-label="The Bellyssimo Barkadahan" data-price="2000" data-serves="8–10 pax" @checked($selectedPackage === 'barkadahan')>
-                    <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }}" srcset="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }} 480w, {{ asset('images/lechon-barkadahan-3kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="The Bellyssimo Barkadahan lechon belly with three sliced portions showing lemongrass and spices">
+                    <picture>
+                        <source type="image/avif" srcset="{{ asset('images/lechon-barkadahan-3kg-480.avif') }} 480w, {{ asset('images/lechon-barkadahan-3kg-960.avif') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw">
+                        <source type="image/webp" srcset="{{ asset('images/lechon-barkadahan-3kg-480.webp') }} 480w, {{ asset('images/lechon-barkadahan-3kg-960.webp') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw">
+                        <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }}" srcset="{{ asset('images/lechon-barkadahan-3kg-480.jpg') }} 480w, {{ asset('images/lechon-barkadahan-3kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="The Bellyssimo Barkadahan lechon belly with three sliced portions showing lemongrass and spices">
+                    </picture>
                     <span class="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-extrabold text-wine shadow">3 KG</span>
                     <span class="absolute right-4 top-4 hidden size-8 place-items-center rounded-full bg-rust text-white peer-checked:grid"><span aria-hidden="true" class="material-symbols-outlined text-lg">check</span></span>
                     <span class="flex flex-1 flex-col p-6">
@@ -122,7 +131,11 @@
                 <label class="package-card relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border-2 border-rust bg-white shadow-xl shadow-wine/10 transition duration-300 lg:-translate-y-2">
                     <input class="peer sr-only" type="radio" name="package-card" value="salo-salo" data-package-label="Bellyssimo Salo-Salo" data-price="2550" data-serves="10–14 pax" @checked($selectedPackage === 'salo-salo')>
                     <span class="absolute inset-x-0 top-0 z-10 bg-rust py-1.5 text-center text-[11px] font-extrabold uppercase tracking-widest text-white">Most popular</span>
-                    <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }}" srcset="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }} 480w, {{ asset('images/lechon-salo-salo-4kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="Bellyssimo Salo-Salo lechon belly with four sliced portions showing lemongrass and spices">
+                    <picture>
+                        <source type="image/avif" srcset="{{ asset('images/lechon-salo-salo-4kg-480.avif') }} 480w, {{ asset('images/lechon-salo-salo-4kg-960.avif') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw">
+                        <source type="image/webp" srcset="{{ asset('images/lechon-salo-salo-4kg-480.webp') }} 480w, {{ asset('images/lechon-salo-salo-4kg-960.webp') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw">
+                        <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }}" srcset="{{ asset('images/lechon-salo-salo-4kg-480.jpg') }} 480w, {{ asset('images/lechon-salo-salo-4kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="Bellyssimo Salo-Salo lechon belly with four sliced portions showing lemongrass and spices">
+                    </picture>
                     <span class="absolute left-4 top-10 rounded-full bg-white/95 px-3 py-1 text-xs font-extrabold text-wine shadow">4 KG</span>
                     <span class="absolute right-4 top-10 hidden size-8 place-items-center rounded-full bg-rust text-white peer-checked:grid"><span aria-hidden="true" class="material-symbols-outlined text-lg">check</span></span>
                     <span class="flex flex-1 flex-col p-6">
@@ -138,7 +151,11 @@
 
                 <label class="package-card relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-lg shadow-wine/5 transition duration-300">
                     <input class="peer sr-only" type="radio" name="package-card" value="handaan" data-package-label="Bellyssimo Handaan" data-price="2950" data-serves="15–18 pax" @checked($selectedPackage === 'handaan')>
-                    <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-handaan-5kg-480.jpg') }}" srcset="{{ asset('images/lechon-handaan-5kg-480.jpg') }} 480w, {{ asset('images/lechon-handaan-5kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="Bellyssimo Handaan feast with five sliced lechon belly portions showing lemongrass and spices">
+                    <picture>
+                        <source type="image/avif" srcset="{{ asset('images/lechon-handaan-5kg-480.avif') }} 480w, {{ asset('images/lechon-handaan-5kg-960.avif') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw">
+                        <source type="image/webp" srcset="{{ asset('images/lechon-handaan-5kg-480.webp') }} 480w, {{ asset('images/lechon-handaan-5kg-960.webp') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw">
+                        <img class="h-48 w-full object-cover object-center" src="{{ asset('images/lechon-handaan-5kg-480.jpg') }}" srcset="{{ asset('images/lechon-handaan-5kg-480.jpg') }} 480w, {{ asset('images/lechon-handaan-5kg-960.jpg') }} 960w" sizes="(min-width: 1024px) 31vw, 100vw" width="960" height="506" loading="lazy" decoding="async" alt="Bellyssimo Handaan feast with five sliced lechon belly portions showing lemongrass and spices">
+                    </picture>
                     <span class="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-extrabold text-wine shadow">5 KG</span>
                     <span class="absolute right-4 top-4 hidden size-8 place-items-center rounded-full bg-rust text-white peer-checked:grid"><span aria-hidden="true" class="material-symbols-outlined text-lg">check</span></span>
                     <span class="flex flex-1 flex-col p-6">
