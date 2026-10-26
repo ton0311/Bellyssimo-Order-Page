@@ -18,7 +18,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -61,6 +63,7 @@ class AdminOrderController extends Controller
 
         return view('admin.orders', [
             'orders' => $orders,
+            'packages' => self::PACKAGES,
             'ordersPagination' => [
                 'current_page' => 1,
                 'last_page' => max(1, (int) ceil($totalOrders / self::ORDERS_PER_PAGE)),
@@ -357,23 +360,93 @@ class AdminOrderController extends Controller
     public function update(
         UpdateAdminOrderRequest $request,
         Order $order,
+        OrderAuditLogger $auditLogger,
     ): JsonResponse {
         $data = $request->validated();
         $schedule = CarbonImmutable::parse($data['schedule']);
 
-        $order->update([
-            'customer_name' => $data['customer'],
-            'contact_number' => '+63'.$data['phone'],
-            'email' => $data['email'] ?? null,
-            'preferred_date' => $schedule->toDateString(),
-            'preferred_time' => $schedule->format('H:i'),
-            'fulfillment' => $data['fulfillment'],
-            'delivery_location' => $data['delivery_location'] ?? null,
-            'payment_method' => $data['payment_method'],
-            'notes' => $data['note'] ?? null,
-        ]);
-        $order->refresh();
-        $this->syncCustomer($order);
+        $order = DB::transaction(function () use ($request, $order, $data, $schedule, $auditLogger): Order {
+            $order = Order::query()->lockForUpdate()->findOrFail($order->getKey());
+            $beforeValues = $order->only([
+                'items', 'quantity', 'package_subtotal', 'spicy_subtotal', 'order_total',
+                'amount_paid', 'payment_status', 'customer_name', 'contact_number', 'email',
+                'preferred_date', 'preferred_time', 'fulfillment', 'delivery_location', 'payment_method', 'notes',
+            ]);
+            $updates = [
+                'customer_name' => $data['customer'],
+                'contact_number' => '+63'.$data['phone'],
+                'email' => $data['email'] ?? null,
+                'preferred_date' => $schedule->toDateString(),
+                'preferred_time' => $schedule->format('H:i'),
+                'fulfillment' => $data['fulfillment'],
+                'delivery_location' => $data['delivery_location'] ?? null,
+                'payment_method' => $data['payment_method'],
+                'notes' => $data['note'] ?? null,
+            ];
+
+            if (isset($data['items'])) {
+                $currentItems = array_map(fn (array $item): array => [
+                    'package' => $item['package_key'],
+                    'flavor' => $item['flavor'],
+                ], $order->items);
+                $requestedItems = array_map(fn (array $item): array => [
+                    'package' => $item['package'],
+                    'flavor' => $item['flavor'],
+                ], array_values($data['items']));
+
+                if ($requestedItems !== $currentItems) {
+                    $items = array_map(function (array $item): array {
+                        $package = self::PACKAGES[$item['package']];
+                        $spicyUpgrade = $item['flavor'] === 'Spicy' ? 50 : 0;
+
+                        return [
+                            'package_key' => $item['package'],
+                            'package' => $package,
+                            'flavor' => $item['flavor'],
+                            'spicy_upgrade' => $spicyUpgrade,
+                            'line_total' => $package['price'] + $spicyUpgrade,
+                        ];
+                    }, $requestedItems);
+                    $total = array_sum(array_column($items, 'line_total'));
+
+                    if ($total < $order->amount_paid) {
+                        throw ValidationException::withMessages([
+                            'items' => 'The new total is below the amount already paid. Adjust the recorded payment after resolving the difference, then edit the items.',
+                        ]);
+                    }
+
+                    if ($order->status === 'Completed' && $total !== $order->order_total) {
+                        throw ValidationException::withMessages([
+                            'items' => 'Change the order status from Completed before changing its total.',
+                        ]);
+                    }
+
+                    $updates = array_merge($updates, [
+                        'items' => $items,
+                        'quantity' => count($items),
+                        'package_subtotal' => array_sum(array_column(array_column($items, 'package'), 'price')),
+                        'spicy_subtotal' => array_sum(array_column($items, 'spicy_upgrade')),
+                        'order_total' => $total,
+                        'payment_status' => match (true) {
+                            $order->amount_paid === 0 => 'Unpaid',
+                            $order->amount_paid >= $total => 'Paid',
+                            default => 'Deposit received',
+                        },
+                    ]);
+                }
+            }
+
+            $order->update($updates);
+            $order->refresh();
+            $this->syncCustomer($order);
+            $afterValues = $order->only(array_keys($beforeValues));
+
+            if ($beforeValues !== $afterValues) {
+                $auditLogger->record($order, 'details_updated', $beforeValues, $afterValues, $request);
+            }
+
+            return $order;
+        });
 
         return response()->json([
             'message' => 'Order details updated.',
@@ -419,19 +492,22 @@ class AdminOrderController extends Controller
     public function destroy(Request $request, Order $order, OrderAuditLogger $auditLogger): JsonResponse
     {
         $reference = $order->reference;
-        $auditLogger->record(
-            $order,
-            'deleted',
-            [
-                'status' => $order->status,
-                'payment_status' => $order->payment_status,
-                'amount_paid' => $order->amount_paid,
-                'order_total' => $order->order_total,
-            ],
-            [],
-            $request,
-        );
-        $order->delete();
+        DB::transaction(function () use ($request, $order, $auditLogger): void {
+            $order = Order::query()->lockForUpdate()->findOrFail($order->getKey());
+            $auditLogger->record(
+                $order,
+                'deleted',
+                [
+                    'status' => $order->status,
+                    'payment_status' => $order->payment_status,
+                    'amount_paid' => $order->amount_paid,
+                    'order_total' => $order->order_total,
+                ],
+                [],
+                $request,
+            );
+            $order->delete();
+        });
 
         return response()->json([
             'message' => "Order {$reference} was deleted.",
@@ -445,6 +521,7 @@ class AdminOrderController extends Controller
     {
         $items = collect($order->items)->map(function (array $item): array {
             return [
+                'package_key' => $item['package_key'],
                 'name' => $item['package']['name'],
                 'weight' => $item['package']['weight'],
                 'flavor' => $item['flavor'],

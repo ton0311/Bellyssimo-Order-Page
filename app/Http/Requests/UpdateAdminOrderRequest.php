@@ -19,6 +19,10 @@ class UpdateAdminOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'items' => ['sometimes', 'required', 'array', 'min:1', 'max:20'],
+            'items.*' => ['required', 'array:package,flavor'],
+            'items.*.package' => ['required', 'string', Rule::in(['barkadahan', 'salo-salo', 'handaan'])],
+            'items.*.flavor' => ['required', 'string', Rule::in(['Regular', 'Spicy'])],
             'customer' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'regex:/^9\d{9}$/'],
             'email' => ['nullable', 'email:rfc', 'max:254'],
@@ -34,6 +38,11 @@ class UpdateAdminOrderRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'items.required' => 'Keep at least one belly in the order.',
+            'items.min' => 'Keep at least one belly in the order.',
+            'items.max' => 'An order can contain up to 20 bellies.',
+            'items.*.package.in' => 'Choose a valid Bellyssimo package for each belly.',
+            'items.*.flavor.in' => 'Choose Regular or Spicy for each belly.',
             'phone.regex' => 'Enter a valid Philippine mobile number after +63, beginning with 9.',
         ];
     }

@@ -29,6 +29,8 @@ function dashboardHarness() {
         customersDataUrl: 'https://example.test/customers',
         summaryUrl: 'https://example.test/summary', statusUrlTemplate: 'https://example.test/orders/__ORDER__/status',
         inventoryUpdateUrlTemplate: 'https://example.test/inventory/__ITEM__',
+        deleteUrlTemplate: 'https://example.test/orders/__ORDER__',
+        updateUrlTemplate: 'https://example.test/orders/__ORDER__',
     };
     const requests = [];
     const context = {
@@ -181,4 +183,42 @@ test('inventory edits send multipart POST with method override and an empty cost
     await settle();
     requests[1].respond({ dashboard: { monthly: [], status_counts: {} }, customer_count: 0, inventory_count: 1 });
     await pending;
+});
+
+test('order deletion uses multipart POST with DELETE override and refreshes the dashboard', async () => {
+    const { api, requests, get } = dashboardHarness();
+    api.setOrders([{ id: 'TB-1', database_id: 1 }]);
+    const pending = get('#confirm-delete-order').listeners.click();
+    assert.equal(requests[0].options.method, 'POST');
+    assert.equal(requests[0].options.body.get('_method'), 'DELETE');
+    assert.equal(requests[0].options.headers['X-CSRF-TOKEN'], 'csrf');
+    requests[0].respond({ message: 'Deleted' });
+    await settle();
+    requests[1].respond({ orders: [], pagination: pagination() });
+    await settle();
+    requests[2].respond({ dashboard: { monthly: [], status_counts: {} }, customer_count: 1, inventory_count: 0 });
+    await pending;
+    assert.equal(api.state().orders.length, 0);
+    assert.equal(get('#toast-message').textContent, 'Deleted');
+});
+
+test('order edits submit every selected belly using multipart method override', async () => {
+    const { api, requests, get } = dashboardHarness();
+    api.setOrders([{ id: 'TB-1', database_id: 1 }]);
+    get('#edit-order-form').formValues = {
+        customer: 'Local Test', 'items[0][package]': 'handaan', 'items[0][flavor]': 'Spicy',
+        'items[1][package]': 'barkadahan', 'items[1][flavor]': 'Regular',
+    };
+    const pending = get('#edit-order-form').listeners.submit({ preventDefault() {} });
+    assert.equal(requests[0].options.method, 'POST');
+    assert.equal(requests[0].options.body.get('_method'), 'PATCH');
+    assert.equal(requests[0].options.body.get('items[0][package]'), 'handaan');
+    assert.equal(requests[0].options.body.get('items[1][flavor]'), 'Regular');
+    requests[0].respond({ order: { id: 'TB-1', database_id: 1 }, message: 'Updated' });
+    await settle();
+    requests[1].respond({ orders: [], pagination: pagination() });
+    await settle();
+    requests[2].respond({ dashboard: { monthly: [], status_counts: {} }, customer_count: 1, inventory_count: 0 });
+    await pending;
+    assert.equal(get('#toast-message').textContent, 'Updated');
 });

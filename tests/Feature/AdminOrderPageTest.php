@@ -224,6 +224,124 @@ class AdminOrderPageTest extends TestCase
             ->assertJsonValidationErrors('delivery_location');
     }
 
+    public function test_admin_can_replace_order_items_using_post_method_override(): void
+    {
+        $order = Order::factory()->create([
+            'amount_paid' => 500,
+            'payment_status' => 'Deposit received',
+            'status' => 'Confirmed',
+        ]);
+
+        $this->post(route('admin.orders.update', $order), $this->itemEditData([
+            ['package' => 'salo-salo', 'flavor' => 'Spicy'],
+            ['package' => 'handaan', 'flavor' => 'Regular'],
+        ]) + ['_method' => 'PATCH'], ['Accept' => 'application/json'])
+            ->assertOk()
+            ->assertJsonPath('order.total', 5550)
+            ->assertJsonPath('order.amount_paid', 500)
+            ->assertJsonPath('order.remaining_balance', 5050)
+            ->assertJsonPath('order.status', 'Confirmed')
+            ->assertJsonPath('order.items.0.package_key', 'salo-salo')
+            ->assertJsonPath('order.items.0.flavor', 'Spicy')
+            ->assertJsonPath('order.items.1.package_key', 'handaan');
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id, 'quantity' => 2, 'package_subtotal' => 5500,
+            'spicy_subtotal' => 50, 'order_total' => 5550, 'amount_paid' => 500,
+        ]);
+        $audit = $order->audits()->where('event', 'details_updated')->sole();
+        $this->assertSame(2000, $audit->before_values['order_total']);
+        $this->assertSame(5550, $audit->after_values['order_total']);
+    }
+
+    public function test_removing_items_recalculates_quantity_and_marks_an_exact_payment_paid(): void
+    {
+        $order = Order::factory()->create([
+            'items' => array_fill(0, 2, Order::factory()->make()->items[0]),
+            'quantity' => 2, 'package_subtotal' => 4000, 'order_total' => 4000,
+            'amount_paid' => 2000, 'payment_status' => 'Deposit received',
+        ]);
+
+        $this->patchJson(route('admin.orders.update', $order), $this->itemEditData([
+            ['package' => 'barkadahan', 'flavor' => 'Regular'],
+        ]))->assertOk()->assertJsonPath('order.payment', 'Paid')
+            ->assertJsonPath('order.remaining_balance', 0);
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'quantity' => 1, 'order_total' => 2000, 'amount_paid' => 2000]);
+    }
+
+    public function test_increasing_a_paid_order_total_preserves_the_payment_and_updates_the_balance(): void
+    {
+        $order = Order::factory()->create(['amount_paid' => 2000, 'payment_status' => 'Paid']);
+
+        $this->patchJson(route('admin.orders.update', $order), $this->itemEditData([
+            ['package' => 'handaan', 'flavor' => 'Spicy'],
+        ]))->assertOk()->assertJsonPath('order.payment', 'Deposit received')
+            ->assertJsonPath('order.remaining_balance', 1000);
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'order_total' => 3000, 'amount_paid' => 2000]);
+    }
+
+    public function test_item_edits_cannot_reduce_the_total_below_the_recorded_payment(): void
+    {
+        $order = Order::factory()->create(['order_total' => 3000, 'amount_paid' => 2500]);
+        $original = $order->fresh()->getAttributes();
+        $this->patchJson(route('admin.orders.update', $order), $this->itemEditData([
+            ['package' => 'barkadahan', 'flavor' => 'Spicy'],
+        ]))->assertUnprocessable()->assertJsonValidationErrors('items');
+        $this->assertSame($original, $order->fresh()->getAttributes());
+    }
+
+    public function test_completed_orders_cannot_change_total_until_reopened(): void
+    {
+        $order = Order::factory()->create(['status' => 'Completed', 'payment_status' => 'Paid', 'amount_paid' => 2000]);
+
+        $this->patchJson(route('admin.orders.update', $order), $this->itemEditData([
+            ['package' => 'handaan', 'flavor' => 'Regular'],
+        ]))->assertUnprocessable()->assertJsonValidationErrors('items');
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'order_total' => 2000, 'amount_paid' => 2000, 'status' => 'Completed']);
+    }
+
+    public function test_unchanged_item_selection_preserves_an_existing_custom_price(): void
+    {
+        $order = Order::factory()->create(['package_subtotal' => 1900, 'order_total' => 1900]);
+        $originalItems = $order->items;
+
+        $this->patchJson(route('admin.orders.update', $order), $this->itemEditData([
+            ['package' => 'barkadahan', 'flavor' => 'Regular'],
+        ]))->assertOk()->assertJsonPath('order.total', 1900);
+        $this->assertSame($originalItems, $order->fresh()->items);
+    }
+
+    public function test_invalid_item_selections_leave_the_order_unchanged(): void
+    {
+        $order = Order::factory()->create();
+        $original = $order->fresh()->getAttributes();
+        $cases = [
+            [],
+            [['package' => 'fake', 'flavor' => 'Regular']],
+            [['package' => 'barkadahan', 'flavor' => 'fake']],
+            [['package' => 'barkadahan']],
+            [['package' => 'barkadahan', 'flavor' => 'Regular', 'price' => 1]],
+            array_fill(0, 21, ['package' => 'barkadahan', 'flavor' => 'Regular']),
+        ];
+        foreach ($cases as $items) {
+            $this->patchJson(route('admin.orders.update', $order), $this->itemEditData($items))
+                ->assertUnprocessable();
+            $this->assertSame($original, $order->fresh()->getAttributes());
+        }
+    }
+
+    /** @param array<int, array<string, mixed>> $items
+     * @return array<string, mixed>
+     */
+    private function itemEditData(array $items): array
+    {
+        return [
+            'customer' => 'Local Test Customer', 'phone' => '9171234567',
+            'schedule' => '2026-11-01T12:00', 'fulfillment' => 'Pickup',
+            'payment_method' => 'Cash', 'items' => $items,
+        ];
+    }
+
     public function test_status_change_queues_a_customer_email_when_an_address_is_available(): void
     {
         Queue::fake();

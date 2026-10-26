@@ -276,7 +276,7 @@
                             <button class="primary-button" id="save-status">Save status</button>
                         </div>
                         <div class="order-edit-zone">
-                            <div><strong>Booking details</strong><span>Update the customer, schedule, fulfillment, payment method, or notes.</span></div>
+                            <div><strong>Booking details</strong><span>Change items, customer details, schedule, fulfillment, payment method, or notes.</span></div>
                             <button class="secondary-button" id="edit-order" type="button"><span class="material-symbols-rounded">edit</span>Edit order</button>
                         </div>
                         <div class="order-danger-zone">
@@ -417,6 +417,12 @@
                 <button class="icon-button" type="button" id="close-edit-order-dialog" aria-label="Close"><span class="material-symbols-rounded">close</span></button>
             </div>
             <div class="form-grid">
+                <section class="full edit-items-section" aria-label="Order items">
+                    <div class="edit-items-heading"><strong>Order items</strong><button class="secondary-button" id="add-edit-item" type="button"><span class="material-symbols-rounded">add</span>Add belly</button></div>
+                    <div id="edit-order-items"></div>
+                    <div class="edit-order-total"><span id="edit-belly-count"></span><strong id="edit-order-total"></strong></div>
+                    <p class="form-note">Spicy adds ₱50 per belly. The amount already paid stays the same; the balance updates with the new total.</p>
+                </section>
                 <label class="full">Customer name<input name="customer" required maxlength="100"></label>
                 <label>Contact number<span class="admin-phone-field"><b>+63</b><input name="phone" required inputmode="numeric" pattern="9[0-9]{9}" maxlength="10"></span></label>
                 <label>Email address <span>(optional)</span><input name="email" type="email" maxlength="254"></label>
@@ -425,7 +431,6 @@
                 <label>Payment method<select name="payment_method"><option>Cash</option><option>GCash</option></select></label>
                 <label class="full" id="edit-delivery-location" hidden>Delivery location<input name="delivery_location" maxlength="300" placeholder="Barangay, landmark, or full address"></label>
                 <label class="full">Customer note<textarea name="note" rows="3" maxlength="300" placeholder="Optional preparation or hand-off notes"></textarea></label>
-                <p class="form-note full">Package items, total, payment amount, and progress are managed separately and will not change.</p>
             </div>
             <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-edit-order">Cancel</button><button class="primary-button" type="submit">Save changes</button></div>
         </form>
@@ -480,6 +485,7 @@
     <script>
         window.bellyssimoAdmin = {
             orders: @json($orders),
+            packages: @json($packages),
             ordersPagination: @json($ordersPagination),
             dashboard: @json($dashboard),
             inventoryItems: @json($inventoryItems),

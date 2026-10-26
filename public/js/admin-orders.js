@@ -419,6 +419,46 @@ Notes: ${notes}`;
 
     const editFulfillmentSelect = document.querySelector('#edit-fulfillment');
     const editDeliveryLocation = document.querySelector('#edit-delivery-location');
+    const editItemsContainer = document.querySelector('#edit-order-items');
+    const packages = window.bellyssimoAdmin.packages ?? {};
+    let editItems = [];
+
+    function renderEditItems() {
+        editItemsContainer.innerHTML = editItems.map((item, index) => `<div class="edit-item-row" data-edit-item="${index}">
+            <label>Belly ${index + 1} package<select name="items[${index}][package]" data-item-field="package" required>${Object.entries(packages).map(([key, product]) => `<option value="${escapeHtml(key)}" ${key === item.package ? 'selected' : ''}>${escapeHtml(product.weight)} · ${escapeHtml(product.name)} · ${money.format(product.price)}</option>`).join('')}</select></label>
+            <label>Flavor<select name="items[${index}][flavor]" data-item-field="flavor" required><option value="Regular" ${item.flavor === 'Regular' ? 'selected' : ''}>Regular</option><option value="Spicy" ${item.flavor === 'Spicy' ? 'selected' : ''}>Spicy (+₱50)</option></select></label>
+            <button class="icon-button" data-remove-edit-item="${index}" type="button" aria-label="Remove belly ${index + 1}" ${editItems.length === 1 ? 'disabled' : ''}><span class="material-symbols-rounded">delete</span></button>
+        </div>`).join('');
+        updateEditTotal();
+    }
+
+    function updateEditTotal() {
+        const order = orders.find((item) => item.id === selectedOrderId);
+        const unchanged = order && editItems.length === order.items.length && editItems.every((item, index) => item.package === order.items[index].package_key && item.flavor === order.items[index].flavor);
+        const total = unchanged ? order.total : editItems.reduce((sum, item) => sum + (packages[item.package]?.price ?? 0) + (item.flavor === 'Spicy' ? 50 : 0), 0);
+        document.querySelector('#edit-belly-count').textContent = `${editItems.length} ${editItems.length === 1 ? 'belly' : 'bellies'}`;
+        document.querySelector('#edit-order-total').textContent = money.format(total);
+        document.querySelector('#add-edit-item').disabled = editItems.length >= 20;
+    }
+
+    document.querySelector('#add-edit-item').addEventListener('click', () => {
+        if (editItems.length >= 20) return;
+        editItems.push({ package: 'barkadahan', flavor: 'Regular' });
+        renderEditItems();
+    });
+    editItemsContainer.addEventListener('change', (event) => {
+        const row = event.target.closest('[data-edit-item]');
+        const field = event.target.dataset.itemField;
+        if (!row || !['package', 'flavor'].includes(field)) return;
+        editItems[Number(row.dataset.editItem)][field] = event.target.value;
+        updateEditTotal();
+    });
+    editItemsContainer.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-remove-edit-item]');
+        if (!button || editItems.length <= 1) return;
+        editItems.splice(Number(button.dataset.removeEditItem), 1);
+        renderEditItems();
+    });
 
     function updateEditDeliveryField() {
         const isDelivery = editFulfillmentSelect.value === 'Delivery';
@@ -439,6 +479,8 @@ Notes: ${notes}`;
         elements.editForm.elements.delivery_location.value = order.delivery_location ?? '';
         elements.editForm.elements.payment_method.value = order.payment_method;
         elements.editForm.elements.note.value = order.note_raw ?? '';
+        editItems = order.items.map((item) => ({ package: item.package_key, flavor: item.flavor }));
+        renderEditItems();
         updateEditDeliveryField();
         elements.editDialog.showModal();
     });
@@ -474,6 +516,7 @@ Notes: ${notes}`;
 
             orders = orders.map((item) => item.database_id === payload.order.database_id ? payload.order : item);
             elements.editDialog.close();
+            reportsLoaded = false;
             await fetchOrders(ordersPagination.current_page);
             customersLoaded = false;
             showToast(payload.message);
@@ -571,9 +614,12 @@ Notes: ${notes}`;
 
         try {
             const url = window.bellyssimoAdmin.deleteUrlTemplate.replace('__ORDER__', order.database_id);
+            const data = new FormData();
+            data.set('_method', 'DELETE');
             const response = await fetch(url, {
-                method: 'DELETE',
+                method: 'POST',
                 headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: data,
             });
             const payload = await response.json();
             if (!response.ok) throw new Error(payload.message ?? 'Unable to delete this order right now.');
